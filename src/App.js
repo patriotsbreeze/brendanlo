@@ -50,7 +50,7 @@ function App() {
                     </a>
                 </div>
                 <div>
-                    <p>Website is still in development.. check back later!!</p>
+                    <p>Website is still in development.. check back later!!!</p>
                 </div>
             </header>
         </div>
