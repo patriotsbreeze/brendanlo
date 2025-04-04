@@ -1,5 +1,6 @@
 .App {
     text-align: center;
+
 }
 
 .App-logo {
@@ -20,11 +21,37 @@
     align-items: center;
     justify-content: center;
     font-size: calc(10px + 2vmin);
-    color: white;
+    color: rgb(255, 255, 255);
 }
 
 .App-link {
     color: #61dafb;
+}
+
+#socialMedia {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px; /* Space between icons */
+    padding: 20px;
+    border: 2px solid;
+    border-radius: 20px;
+    color: #ffbddb;
+}
+
+#socialMedia a {
+    display: inline-block;
+    transition: transform 0.3s ease-in-out, opacity 0.3s;
+}
+
+#socialMedia a:hover {
+    transform: scale(1.1); 
+    opacity: 0.8;
+}
+
+#socialMedia img {
+    width: 50px;
+    height: 50px;
 }
 
 @keyframes App-logo-spin {
