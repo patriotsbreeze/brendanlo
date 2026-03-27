@@ -40,7 +40,6 @@ export const Marquee: React.FC<MarqueeProps> = ({ items, direction = 'left', tit
                     src={`https://cdn.simpleicons.org/${slug}/${item.color.replace('#', '')}`}
                     alt={item.name}
                     className={styles.icon}
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
                   />
                 </div>
                 <span className={styles.itemText} style={{ color: item.color }}>{item.name}</span>

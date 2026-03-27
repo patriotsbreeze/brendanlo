@@ -45,7 +45,7 @@ export const resumeData = {
       description: "Co-founded and led a community of 70+ developers building real-world solutions.",
       impact: "Maintained 20+ websites for local nonprofits, businesses, and clubs.",
       technologies: ["React.js", "Next.js", "JavaScript", "HTML/CSS"],
-      link: "https://www.gnswebdev.club",
+      link: "https://www.gnswebdev.club/projects",
       featured: true
     }
   ],
@@ -86,9 +86,9 @@ export const resumeData = {
       { name: "TypeScript", color: "#3178C6" },
       { name: "JavaScript", color: "#F7DF1E" },
       { name: "HTML5", color: "#E34F26" },
-      { name: "CSS3", color: "#1572B6" },
       { name: "TailwindCSS", color: "#06B6D4" },
-      { name: "Swift", color: "#F05138" }
+      { name: "Swift", color: "#F05138" },
+      { name: "Django", color: "#06B6D4" }
     ],
     backend: [
       { name: "Python", color: "#3776AB" },
@@ -97,7 +97,10 @@ export const resumeData = {
       { name: "SQL", color: "#4479A1" },
       { name: "PostgreSQL", color: "#4169E1" },
       { name: "Supabase", color: "#3ECF8E" },
-      { name: "Node.js", color: "#339933" }
+      { name: "Node.js", color: "#339933" },
+      { name: "Express.js", color: "#339933" },
+      { name: "MongoDB", color: "#339933" },
+      { name: "Firebase", color: "#339933" }
     ],
     scientific: [
       { name: "R", color: "#276DC3" },
@@ -105,7 +108,9 @@ export const resumeData = {
       { name: "VBA", color: "#2E7D32" },
       { name: "RNA-seq", color: "#E91E63" },
       { name: "Molecular Docking", color: "#FF5722" },
-      { name: "GROMACS", color: "#2196F3" }
+      { name: "GROMACS", color: "#2196F3" },
+      { name: "Matlab", color: "#2196F3" },
+      { name: "AI/ML", color: "#2196F3" }
     ]
   }
 };

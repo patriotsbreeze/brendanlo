@@ -1,5 +1,69 @@
 .main {
-  padding-top: 70px;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.heroCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 100px;
+  padding-bottom: 40px;
+}
+
+.heroName {
+  font-size: 6rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .heroName {
+    font-size: 4rem;
+  }
+}
+
+.heroDescription {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+  color: var(--foreground-muted);
+}
+
+/* Skills Layout */
+.skillsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  margin-top: 40px;
+}
+
+.skillGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skillGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--foreground-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pillCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .hero {
@@ -45,16 +109,17 @@
   flex-direction: column;
 }
 
+/* Footer */
 .footer {
-  padding: 60px 0;
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
   text-align: center;
 }
 
 .footerText {
-  font-size: 13px;
-  color: var(--foreground-muted);
-  margin-bottom: 8px;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
 .footerContact {

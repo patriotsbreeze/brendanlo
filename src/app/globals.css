@@ -1,22 +1,23 @@
 :root {
   --background: #ffffff;
-  --foreground: #000000;
+  --foreground: #111111;
   --foreground-muted: #666666;
-  --border: #f0f0f0;
+  --border: #eeeeee;
   --accent: #000000;
   --card-bg: #ffffff;
-  --section-spacing: 80px;
-  --container-max-width: 1100px;
+  --section-spacing: 120px;
+  --container-max-width: 900px;
 }
 
+/* Force light mode aesthetics as requested, while keeping dark mode vars subtle if needed */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --foreground-muted: #888888;
-    --border: #151515;
-    --accent: #ffffff;
-    --card-bg: #050505;
+    --background: #ffffff;
+    --foreground: #111111;
+    --foreground-muted: #666666;
+    --border: #eeeeee;
+    --accent: #000000;
+    --card-bg: #ffffff;
   }
 }
 
@@ -36,41 +37,39 @@ body {
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
   min-height: 100vh;
-  line-height: 1.4;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  margin-bottom: 0.4em;
-  line-height: 1.0;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.5em;
+  line-height: 1.1;
+  color: var(--foreground);
 }
 
 p {
   color: var(--foreground-muted);
+  font-size: 1.1rem;
 }
 
 a {
   color: inherit;
   text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-a:hover {
-  opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
 .container {
   width: 100%;
   max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 30px;
 }
 
 @media (max-width: 768px) {
@@ -79,7 +78,7 @@ a:hover {
   }
   
   :root {
-    --section-spacing: 60px;
+    --section-spacing: 80px;
   }
 }
 
@@ -87,22 +86,11 @@ a:hover {
   padding: var(--section-spacing) 0;
 }
 
-/* Base white UI adjustments */
-body {
-  background-color: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #000000;
-  }
-}
-
-/* Animations - Even more subtle */
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -115,7 +103,34 @@ body {
   opacity: 0;
 }
 
-.delay-1 { animation-delay: 0.05s; }
-.delay-2 { animation-delay: 0.1s; }
-.delay-3 { animation-delay: 0.15s; }
-.delay-4 { animation-delay: 0.2s; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* Custom Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.pill {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.pill:hover {
+  border-color: var(--foreground);
+  transform: translateY(-2px);
+}
+
