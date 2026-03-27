@@ -190,15 +190,16 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .expDescList li {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--foreground-muted);
-  line-height: 1.5;
+  line-height: 1.6;
   position: relative;
-  padding-left: 20px;
+  padding-left: 24px;
+  max-width: 800px;
 }
 
 .expDescList li::before {
@@ -206,4 +207,5 @@
   position: absolute;
   left: 0;
   color: var(--border);
+  font-weight: 700;
 }

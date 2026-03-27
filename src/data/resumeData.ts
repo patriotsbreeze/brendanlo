@@ -35,50 +35,87 @@ export const resumeData = {
     },
     {
       title: "SATsaurus",
-      description: "Gamified SAT prep platform providing free, interactive learning resources for underprivileged students globally.",
-      impact: "Led a team of 5+ to build a scalable platform serving over 1000 students.",
+      description: "Gamified SAT prep platform providing free, interactive learning resources for 1000+ underprivileged students globally.",
       technologies: ["Next.js", "Supabase", "SQL", "TailwindCSS"],
       featured: true
     },
     {
       title: "GNS Web Development Club",
-      description: "Co-founded and led a community of 70+ developers building real-world solutions.",
-      impact: "Maintained 20+ websites for local nonprofits, businesses, and clubs.",
+      description: "Co-founded and led a community of 70+ developers building real-world solutions. Built & maintained 20+ websites for nonprofits, churches, businesses, and school clubs.",
       technologies: ["React.js", "Next.js", "JavaScript", "HTML/CSS"],
       link: "https://www.gnswebdev.club/projects",
+      featured: true
+    },
+    {
+      title: "PRC2 Inhibition for Drug Discovery",
+      description: "Machine Learning-based virtual screening and molecular dynamics simulations to repurpose drugs for the inhibition of the PRC2 protein complex. Involved training a random forest model and conducting structure-based screening.",
+      technologies: ["Python", "Matplotlib", "GROMACS", "Schrödinger Maestro"],
       featured: true
     }
   ],
   experience: [
+
+    {
+      company: "Programming Club",
+      role: "Software and App Lead",
+      location: "Great Neck, NY",
+      period: "January 2024 - Present",
+      description: [
+        "Taught 20+ students to code in AI/ML, Python & Java.",
+        "Leading 10+ students to build a school app for 1300+ students with calendars, guides, and positive notes using Swift."
+      ]
+    },
     {
       company: "Weill Cornell Medical College",
-      role: "Pediatrics Summer Research Intern-Heart Regeneration",
+      role: "Research & Data Analysis Intern",
       location: "New York, NY",
       period: "Summer 2025",
       description: [
-        "Analyzed calcium's role in heart cell proliferation using Python, Fiji/ImageJ, and VBA Macros.",
-        "Co-authored a paper under review at the Journal of Cell Biology."
+        "Ran data analyses using Python, Fiji/ImageJ, and VBA Macros to discover calcium's role in heart cell proliferation.",
+        "Co-author of a paper under review at the Journal of Cell Biology: Liu, H., Ammanamanchi, N., Mich-Basso, J., Panama, B., Li, Y., Huang, W., Almeida, D., Lewarchik, C. M., Lo, B., Wu, Y., Gotthardt, M., Kotlikoff, M., Baehr, W., Rasmusson, R., Salama, G., & Kühn, B. (2026). Cardiomyocytes change calcium signaling for cell division."
       ]
     },
     {
       company: "Kudos Connect",
-      role: "Chief Technology Officer",
+      role: "Chief Technology Officer / Newsletter Head",
       location: "Great Neck, NY",
       period: "January 2024 - Present",
       description: [
-        "Led a team of 15+ to develop a platform reaching 7000+ students for research and volunteer opportunities."
+        "Led 15+ people to create newsletters, building a following of 7000+ high school students for research & volunteer opportunities.",
+        "Managed a technology team of 5+ to maintan database and website"
       ]
     },
     {
-      company: "First Robotics Team 2638",
-      role: "Head Webmaster",
+      company: "FIRST Robotics Team 2638",
+      role: "Head Webmaster / Build Team",
       location: "Great Neck, NY",
       period: "September 2024 - Present",
       description: [
-        "Led web development and mentored students, leading to the FIRST Robotics World Championship 2025."
+        "Mentored 20+ K-8 students and global teams.",
+        "Built website & robot, competing in FIRST Robotics Competition World Championship 2025"
+      ]
+    },
+    {
+      company: "Boy Scouts of America",
+      role: "Service Project Coordinator / Patrol Leader / Den Chief / Bugler",
+      location: "Great Neck, NY",
+      period: "January 2018 - Present",
+      description: [
+        "Led 70+ scouts on camping trips and flag ceremonies.",
+        "Coordinated service projects for museums, autistic kids, the homeless, and the environment."
+      ]
+    },
+    {
+      company: "Eagle Scout Project",
+      role: "Project Director and Museum Curator",
+      location: "Great Neck, NY",
+      period: "September 2022-January 2024",
+      description: [
+        "Fundraised $1500+, leading 30+ scouts to create a museum exhibit about WWII in the US Merchant Marine Museum"
       ]
     }
   ],
+
   skillsList: {
     frontend: [
       { name: "Next.js", color: "#000000" },

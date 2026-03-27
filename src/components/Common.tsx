@@ -44,12 +44,6 @@ export const ProjectCard: React.FC<{ project: any }> = ({ project }) => (
           <span key={tech} className={styles.techTagSmall}>{tech}</span>
         ))}
       </div>
-      
-      {/* Mocking stats to match cresqnt aesthetic */}
-      <div className={styles.projectStats}>
-        <span className={styles.statItem}><Star size={12} /> {Math.floor(Math.random() * 50) + 10}</span>
-        <span className={styles.statItem}><GitFork size={12} /> {Math.floor(Math.random() * 10) + 2}</span>
-      </div>
     </div>
   </div>
 );
