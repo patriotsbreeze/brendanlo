@@ -47,19 +47,23 @@ export const resumeData = {
       featured: true
     },
     {
-      title: "PRC2 Inhibition for Drug Discovery",
-      description: "Machine Learning-based virtual screening and molecular dynamics simulations to repurpose drugs for the inhibition of the PRC2 protein complex. Involved training a random forest model and conducting structure-based screening.",
-      technologies: ["Python", "Matplotlib", "GROMACS", "Schrödinger Maestro"],
+      title: "Force Network",
+      description: "A high-performance hosting hub for 100+ Minecraft servers and general deployment solutions, offering secure nodes and unlimited bandwidth for 800+ users.",
+      impact: "Designed specifically to accelerate development work and eliminate deployment toil through secure, fast infrastructure.",
+      technologies: ["Node.js", "Docker", "MongoDB", "Pterodactyl"],
+      link: "https://forcenetwork.cloud",
       featured: true
     }
   ],
+
+
   experience: [
 
     {
       company: "Programming Club",
       role: "Software and App Lead",
       location: "Great Neck, NY",
-      period: "January 2024 - Present",
+      period: "Jan 2024 - Present",
       description: [
         "Taught 20+ students to code in AI/ML, Python & Java.",
         "Leading 10+ students to build a school app for 1300+ students with calendars, guides, and positive notes using Swift."
@@ -79,7 +83,7 @@ export const resumeData = {
       company: "Kudos Connect",
       role: "Chief Technology Officer / Newsletter Head",
       location: "Great Neck, NY",
-      period: "January 2024 - Present",
+      period: "Jan 2024 - Present",
       description: [
         "Led 15+ people to create newsletters, building a following of 7000+ high school students for research & volunteer opportunities.",
         "Managed a technology team of 5+ to maintan database and website"
@@ -89,17 +93,29 @@ export const resumeData = {
       company: "FIRST Robotics Team 2638",
       role: "Head Webmaster / Build Team",
       location: "Great Neck, NY",
-      period: "September 2024 - Present",
+      period: "Sep 2024 - Present",
       description: [
         "Mentored 20+ K-8 students and global teams.",
         "Built website & robot, competing in FIRST Robotics Competition World Championship 2025"
       ]
     },
     {
+      company: "Science Research Project (2024-25)",
+      role: "Independent Science Researcher",
+      location: "Great Neck, NY",
+      period: "2024 - 2025",
+      description: [
+        "Conducted Machine Learning-based virtual screening and molecular dynamics simulations to repurpose drugs for the inhibition of PRC2 protein complex.",
+        "Trained & validated a random forest machine learning model for ligand-based virtual screening.",
+        "Used the Schrödinger Maestro software to run structure-based virtual screening.",
+        "Validated virtual screened drugs using GROMACS molecular dynamics simulations."
+      ]
+    },
+    {
       company: "Boy Scouts of America",
       role: "Service Project Coordinator / Patrol Leader / Den Chief / Bugler",
       location: "Great Neck, NY",
-      period: "January 2018 - Present",
+      period: "Jan 2018 - Present",
       description: [
         "Led 70+ scouts on camping trips and flag ceremonies.",
         "Coordinated service projects for museums, autistic kids, the homeless, and the environment."
@@ -109,7 +125,7 @@ export const resumeData = {
       company: "Eagle Scout Project",
       role: "Project Director and Museum Curator",
       location: "Great Neck, NY",
-      period: "September 2022-January 2024",
+      period: "Sep 2022 - Jan 2024",
       description: [
         "Fundraised $1500+, leading 30+ scouts to create a museum exhibit about WWII in the US Merchant Marine Museum"
       ]
@@ -132,7 +148,6 @@ export const resumeData = {
       { name: "Java", color: "#007396" },
       { name: "C#", color: "#239120" },
       { name: "SQL", color: "#4479A1" },
-      { name: "PostgreSQL", color: "#4169E1" },
       { name: "Supabase", color: "#3ECF8E" },
       { name: "Node.js", color: "#339933" },
       { name: "Express.js", color: "#339933" },
