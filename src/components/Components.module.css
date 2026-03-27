@@ -1,0 +1,179 @@
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 24px;
+  }
+}
+
+.section {
+  padding: var(--section-spacing) 0;
+}
+
+.headingWrapper {
+  margin-bottom: 60px;
+}
+
+.sectionHeading {
+  font-size: 32px;
+  margin-bottom: 8px;
+  letter-spacing: -0.03em;
+}
+
+.sectionSubtitle {
+  font-size: 18px;
+  max-width: 600px;
+}
+
+.projectCard {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.projectImageWrapper {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #f9f9f9;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.projectImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.projectCard:hover .projectImage {
+  transform: scale(1.05);
+}
+
+.projectContent {
+  padding: 32px;
+  flex-grow: 1;
+}
+
+.projectCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--foreground);
+  box-shadow: var(--card-shadow);
+}
+
+.projectTitle {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.projectDescription {
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.projectImpact {
+  background: #fcfcfc;
+  padding: 12px;
+  border-left: 2px solid #000;
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-style: italic;
+  color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .projectImpact {
+    background: #111;
+    color: #ccc;
+    border-left: 2px solid #fff;
+  }
+}
+
+.techStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.techBadge {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  color: #555;
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .techBadge {
+    background: #1a1a1a;
+    color: #aaa;
+  }
+}
+
+.projectLink {
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.projectLink:hover {
+  text-decoration: underline;
+}
+
+/* Experience Cards */
+.experienceCard {
+  margin-bottom: 48px;
+}
+
+.expHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.expRole {
+  font-size: 20px;
+  margin-bottom: 0;
+}
+
+.expPeriod {
+  font-size: 14px;
+  color: var(--foreground-muted);
+}
+
+.expMeta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--foreground-muted);
+}
+
+.expCompany {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.expList {
+  padding-left: 20px;
+}
+
+.expList li {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: var(--foreground-muted);
+}

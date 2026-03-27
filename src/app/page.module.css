@@ -1,0 +1,142 @@
+.main {
+  padding-top: 80px; /* Offset for navbar */
+}
+
+.hero {
+  padding: 120px 0 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heroContent {
+  max-width: 800px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge {
+    background: #111;
+    color: #fff;
+  }
+}
+
+.heroTitle {
+  font-size: 72px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.04em;
+}
+
+.heroTitle strong {
+  font-weight: 800;
+}
+
+.heroSubtitle {
+  font-size: 24px;
+  color: var(--foreground-muted);
+  max-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 48px;
+  }
+  .heroSubtitle {
+    font-size: 20px;
+  }
+}
+
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .projectGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+@media (max-width: 768px) {
+  .skillsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skillCategory h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--foreground-muted);
+}
+
+.skillList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.skillItem {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.educationSection {
+  margin-top: 60px;
+  border-top: 1px solid var(--border);
+  padding-top: 60px;
+}
+
+.eduItem {
+  margin-bottom: 32px;
+}
+
+.eduHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.eduSchool {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.eduMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--foreground-muted);
+}
+
+.footer {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.footerText {
+  font-size: 14px;
+  color: var(--foreground-muted);
+}
