@@ -19,32 +19,34 @@ export const SectionHeading: React.FC<{ children: React.ReactNode; subtitle?: st
 );
 
 export const ProjectCard: React.FC<{ project: any }> = ({ project }) => (
-  <div className={styles.projectCard}>
-    {project.image && (
-      <div className={styles.projectImageWrapper}>
-        <img src={project.image} alt={project.title} className={styles.projectImage} />
+  <div className={styles.projectRow}>
+    <div className={styles.projectInfo}>
+      <div className={styles.projectHeader}>
+        <h3 className={styles.projectTitle}>{project.title}</h3>
+        {project.link && (
+          <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
+            ↗
+          </a>
+        )}
       </div>
-    )}
-    <div className={styles.projectContent}>
-      <h3 className={styles.projectTitle}>{project.title}</h3>
       <p className={styles.projectDescription}>{project.description}</p>
-      {project.impact && <p className={styles.projectImpact}>{project.impact}</p>}
-      <div className={styles.techStack}>
-        {project.technologies.map((tech: string) => (
-          <span key={tech} className={styles.techBadge}>{tech}</span>
+      <div className={styles.techStackThin}>
+        {project.technologies.slice(0, 4).map((tech: string) => (
+          <span key={tech} className={styles.techBadgeThin}>{tech}</span>
         ))}
+        {project.technologies.length > 4 && <span>+</span>}
       </div>
     </div>
-    {project.link && (
-      <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-        View Project →
-      </a>
+    {project.image && (
+      <div className={styles.projectPeek}>
+        <img src={project.image} alt={project.title} className={styles.peekImage} />
+      </div>
     )}
   </div>
 );
 
 export const ExperienceCard: React.FC<{ exp: any }> = ({ exp }) => (
-  <div className={styles.experienceCard}>
+  <div className={styles.expRow}>
     <div className={styles.expHeader}>
       <h3 className={styles.expRole}>{exp.role}</h3>
       <span className={styles.expPeriod}>{exp.period}</span>
@@ -53,10 +55,5 @@ export const ExperienceCard: React.FC<{ exp: any }> = ({ exp }) => (
       <span className={styles.expCompany}>{exp.company}</span>
       <span className={styles.expLocation}>{exp.location}</span>
     </div>
-    <ul className={styles.expList}>
-      {exp.description.map((item: string, i: number) => (
-        <li key={i}>{item}</li>
-      ))}
-    </ul>
   </div>
 );

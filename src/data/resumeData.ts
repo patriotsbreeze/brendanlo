@@ -8,13 +8,9 @@ export interface Project {
   image?: string;
 }
 
-export interface Experience {
-  company: string;
-  role: string;
-  location: string;
-  period: string;
-  description: string[];
-  impactTitle?: string;
+export interface Skill {
+  name: string;
+  color: string;
 }
 
 export const resumeData = {
@@ -27,21 +23,6 @@ export const resumeData = {
     linkedin: "https://www.linkedin.com/in/brendan-lo-8b0b80247/",
     instagram: "https://www.instagram.com/brendanloalt/"
   },
-  education: [
-    {
-      school: "University of Chicago",
-      location: "Chicago, IL",
-      major: "Computer Science & Bioengineering",
-      expected: "May 2030",
-      details: "Incoming Freshman"
-    },
-    {
-      school: "Great Neck South High School",
-      location: "Great Neck, NY",
-      expected: "June 2026",
-      details: "GPA: 96.7/100 | SAT: 1540/1600"
-    }
-  ],
   featuredProjects: [
     {
       title: "ReSource",
@@ -98,9 +79,33 @@ export const resumeData = {
       ]
     }
   ],
-  skills: {
-    frontend: ["Next.js", "React.js", "TypeScript", "JavaScript", "HTML", "CSS", "TailwindCSS", "Swift"],
-    backend: ["Python", "Java", "C#", "SQL", "PostgreSQL", "Supabase", "Node.js"],
-    scientific: ["R", "Fiji/ImageJ", "VBA Macros", "RNA-seq Analysis", "Molecular Docking", "GROMACS"]
+  skillsList: {
+    frontend: [
+      { name: "Next.js", color: "#000000" },
+      { name: "React.js", color: "#61DAFB" },
+      { name: "TypeScript", color: "#3178C6" },
+      { name: "JavaScript", color: "#F7DF1E" },
+      { name: "HTML5", color: "#E34F26" },
+      { name: "CSS3", color: "#1572B6" },
+      { name: "TailwindCSS", color: "#06B6D4" },
+      { name: "Swift", color: "#F05138" }
+    ],
+    backend: [
+      { name: "Python", color: "#3776AB" },
+      { name: "Java", color: "#007396" },
+      { name: "C#", color: "#239120" },
+      { name: "SQL", color: "#4479A1" },
+      { name: "PostgreSQL", color: "#4169E1" },
+      { name: "Supabase", color: "#3ECF8E" },
+      { name: "Node.js", color: "#339933" }
+    ],
+    scientific: [
+      { name: "R", color: "#276DC3" },
+      { name: "Fiji/ImageJ", color: "#000000" },
+      { name: "VBA", color: "#2E7D32" },
+      { name: "RNA-seq", color: "#E91E63" },
+      { name: "Molecular Docking", color: "#FF5722" },
+      { name: "GROMACS", color: "#2196F3" }
+    ]
   }
 };

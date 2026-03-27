@@ -1,42 +1,20 @@
 .main {
-  padding-top: 80px; /* Offset for navbar */
+  padding-top: 70px;
 }
 
 .hero {
-  padding: 120px 0 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 80px 0 40px;
 }
 
 .heroContent {
   max-width: 800px;
 }
 
-.badge {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #f0f0f0;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge {
-    background: #111;
-    color: #fff;
-  }
-}
-
 .heroTitle {
-  font-size: 72px;
-  line-height: 1.1;
+  font-size: 80px;
+  line-height: 0.9;
   margin-bottom: 24px;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
 }
 
 .heroTitle strong {
@@ -44,99 +22,44 @@
 }
 
 .heroSubtitle {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--foreground-muted);
   max-width: 600px;
+  line-height: 1.4;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .heroTitle {
-    font-size: 48px;
-  }
-  .heroSubtitle {
-    font-size: 20px;
+    font-size: 60px;
   }
 }
 
-.projectGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 32px;
-}
-
-@media (max-width: 900px) {
-  .projectGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.skillsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-}
-
-@media (max-width: 768px) {
-  .skillsGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.skillCategory h3 {
-  font-size: 18px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--foreground-muted);
-}
-
-.skillList {
-  list-style: none;
+.projectList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-direction: column;
 }
 
-.skillItem {
-  font-weight: 500;
-  font-size: 16px;
-}
-
-.educationSection {
-  margin-top: 60px;
-  border-top: 1px solid var(--border);
-  padding-top: 60px;
-}
-
-.eduItem {
-  margin-bottom: 32px;
-}
-
-.eduHeader {
+.experienceList {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.eduSchool {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.eduMeta {
-  display: flex;
-  gap: 16px;
-  font-size: 14px;
-  color: var(--foreground-muted);
+  flex-direction: column;
 }
 
 .footer {
-  padding: 80px 0;
-  border-top: 1px solid var(--border);
+  padding: 60px 0;
   text-align: center;
 }
 
 .footerText {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--foreground-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.footerContact {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--foreground);
 }

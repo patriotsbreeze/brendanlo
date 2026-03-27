@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 70px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -26,26 +26,42 @@
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 18px;
   letter-spacing: -0.02em;
 }
 
 .links {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   align-items: center;
 }
 
-.links a {
+.links a:not(.cta) {
   font-size: 14px;
   font-weight: 500;
   color: var(--foreground-muted);
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.links a:hover {
+.links a:not(.cta):hover {
   color: var(--foreground);
   opacity: 1;
+}
+
+.socials {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 0 16px;
+  margin: 0 8px;
+}
+
+.socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cta {
@@ -54,11 +70,12 @@
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: 600 !important;
+  font-size: 13px;
 }
 
-@media (max-width: 600px) {
-  .links {
-    gap: 16px;
+@media (max-width: 768px) {
+  .socials {
+    display: none;
   }
   
   .links a:not(.cta) {

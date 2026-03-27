@@ -1,0 +1,92 @@
+.marqueeSection {
+  margin-bottom: 32px;
+}
+
+.marqueeTitle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--foreground-muted);
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+.marqueeContainer {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  background: transparent;
+  padding: 12px 0;
+}
+
+.marqueeInner {
+  display: flex;
+  width: max-content;
+  animation: scroll 60s linear infinite;
+}
+
+.reverse {
+  animation-direction: reverse;
+}
+
+.marqueeItem {
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  white-space: nowrap;
+  gap: 12px;
+}
+
+.iconWrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.itemText {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.33%);
+  }
+}
+
+.marqueeContainer::before,
+.marqueeContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.marqueeContainer::before {
+  left: 0;
+  background: linear-gradient(to right, var(--background), transparent);
+}
+
+.marqueeContainer::after {
+  right: 0;
+  background: linear-gradient(to left, var(--background), transparent);
+}

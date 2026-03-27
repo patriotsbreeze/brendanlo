@@ -1,25 +1,27 @@
 :root {
   --background: #ffffff;
-  --foreground: #111111;
+  --foreground: #000000;
   --foreground-muted: #666666;
-  --border: #eaeaea;
+  --border: #f0f0f0;
   --accent: #000000;
   --card-bg: #ffffff;
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --section-spacing: 120px;
-  --container-max-width: 1000px;
+  --section-spacing: 80px;
+  --container-max-width: 1100px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #000000;
     --foreground: #ffffff;
-    --foreground-muted: #a1a1a1;
-    --border: #1a1a1a;
+    --foreground-muted: #888888;
+    --border: #151515;
     --accent: #ffffff;
-    --card-bg: #0a0a0a;
-    --card-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    --card-bg: #050505;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 * {
@@ -39,13 +41,15 @@ body {
 
 body {
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.5em;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.4em;
+  line-height: 1.0;
 }
 
 p {
@@ -71,11 +75,11 @@ a:hover {
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 24px;
+    padding: 0 20px;
   }
   
   :root {
-    --section-spacing: 80px;
+    --section-spacing: 60px;
   }
 }
 
@@ -83,35 +87,22 @@ a:hover {
   padding: var(--section-spacing) 0;
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-}
-
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(0, 0, 0, 0.8);
-  }
-}
-
 /* Base white UI adjustments */
 body {
-  background-color: #fff;
+  background-color: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000;
+    background-color: #000000;
   }
 }
 
-/* Animations */
+/* Animations - Even more subtle */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -120,11 +111,11 @@ body {
 }
 
 .animate {
-  animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
