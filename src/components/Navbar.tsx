@@ -19,9 +19,9 @@ export const Navbar: React.FC = () => {
     <div className={styles.navWrapper}>
       <nav className={`${styles.navbarPill} ${isScrolled ? styles.scrolled : ''}`}>
         <div className={styles.links}>
-          <a href="#about">About</a>
-          <a href="#projects">Projects</a>
-          <a href="#experience">Experience</a>
+          <a href="#about" aria-label="About section">About</a>
+          <a href="#projects" aria-label="Featured projects">Projects</a>
+          <a href="#experience" aria-label="Work experience">Experience</a>
         </div>
       </nav>
     </div>

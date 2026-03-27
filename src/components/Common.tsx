@@ -31,7 +31,7 @@ export const ProjectCard: React.FC<{ project: any }> = ({ project }) => (
     <div className={styles.projectHeader}>
       <h3 className={styles.projectTitle}>{project.title}</h3>
       {project.link && (
-        <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
+        <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.projectLink} aria-label={`View ${project.title} project`}>
           <ArrowUpRight size={18} />
         </a>
       )}
