@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Brendan Lo | Software Engineer & Researcher",
-  description: "Portfolio of Brendan Lo, CS & Bioengineering student at UChicago. Featured projects include ReSource and SATsaurus.",
+  description: "Portfolio of Brendan Lo, CS & Econ student at UChicago. Looking to build and work on something cool.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Navbar />
         <main>{children}</main>
