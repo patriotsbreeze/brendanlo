@@ -68,6 +68,13 @@ export const EducationCard: React.FC<{ edu: any }> = ({ edu }) => (
   </div>
 );
 
+const boldInitials = (authors: string) => {
+  const parts = authors.split(/(Lo, B\.)/g);
+  return parts.map((part, i) =>
+    part === "Lo, B." ? <strong key={i} className={styles.pubMe}>{part}</strong> : part
+  );
+};
+
 export const PublicationCard: React.FC<{ pub: any }> = ({ pub }) => {
   const inner = (
     <>
@@ -76,7 +83,7 @@ export const PublicationCard: React.FC<{ pub: any }> = ({ pub }) => {
         <span className={styles.pubVenue}>{pub.venue} · {pub.year}</span>
       </div>
       <h3 className={styles.pubTitle}>{pub.title}</h3>
-      <p className={styles.pubAuthors}>{pub.authors}</p>
+      <p className={styles.pubAuthors}>{boldInitials(pub.authors)}</p>
     </>
   );
   return pub.link ? (

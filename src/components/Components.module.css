@@ -282,6 +282,11 @@
   margin: 0;
 }
 
+.pubMe {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
 .pubArrow {
   position: absolute;
   top: 24px;
