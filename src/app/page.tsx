@@ -5,7 +5,6 @@ import { Container, Section, SectionHeading, ProjectCard, ExperienceCard, Educat
 import { Navbar } from "@/components/Navbar";
 import { SocialLinks } from "@/components/SocialLinks";
 import { FaCode, FaServer, FaFlask } from 'react-icons/fa';
-import { Award } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -112,23 +111,6 @@ export default function Home() {
           <div className={commonStyles.eduList}>
             {resumeData.education.map((edu) => (
               <EducationCard key={edu.school} edu={edu} />
-            ))}
-          </div>
-        </Container>
-      </Section>
-
-      {/* Honors Section */}
-      <Section id="honors" className="animate delay-4">
-        <Container>
-          <SectionHeading subtitle="Recognition across research, engineering, and service.">
-            Honors & Awards
-          </SectionHeading>
-          <div className={commonStyles.honorsGrid}>
-            {resumeData.honors.map((honor) => (
-              <div key={honor} className={commonStyles.honorItem}>
-                <Award size={18} className={commonStyles.honorIcon} />
-                {honor}
-              </div>
             ))}
           </div>
         </Container>

@@ -108,32 +108,26 @@ export const resumeData = {
       year: "2026",
       title: "A horizon-dependent intrinsic-dimension theory of scaling for biological forecasting.",
       venue: "HiLD Workshop, International Conference on Machine Learning (ICML)",
-      type: "Poster"
+      type: "Poster",
+      link: "https://openreview.net/forum?id=1ZFyQRalEc"
     },
     {
       authors: "Cheng, B., Jin, A., Zhang, J., Lo, B., Pemmaraju, A., & Chang, J.",
       year: "2026",
       title: "ERVNet: A three-module framework for predicting endogenous retrovirus reactivation, gene propagation, and immunogenicity.",
       venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
-      type: "Poster"
+      type: "Poster",
+      link: "https://openreview.net/forum?id=kbn0sqjGFv"
     },
     {
       authors: "Cheng, B., Jin, A., Zhang, J., Pemmaraju, A., Chang, J., & Lo, B.",
       year: "2026",
       title: "PROTEUS: Predicting how post-translational modifications alter drug binding affinity.",
       venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
-      type: "Poster"
+      type: "Poster",
+      link: "https://openreview.net/forum?id=wZVHPYvc65"
     }
   ] as Publication[],
-
-  honors: [
-    "Eagle Scout",
-    "Science Olympiad National Qualifier",
-    "2nd Place — New York State Science Olympiad",
-    "FIRST Robotics World Championship — Engineering Inspiration Award",
-    "AP Scholar with Distinction",
-    "4th Place — Long Island Science & Engineering Fair"
-  ],
 
   experience: [
     {

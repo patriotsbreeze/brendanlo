@@ -293,39 +293,3 @@
 .pubLinked:hover .pubArrow {
   color: var(--foreground);
 }
-
-/* Honors */
-.honorsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 768px) {
-  .honorsGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.honorItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 20px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--foreground);
-  transition: all 0.2s ease;
-}
-
-.honorItem:hover {
-  border-color: var(--foreground);
-}
-
-.honorIcon {
-  color: var(--foreground-muted);
-  flex-shrink: 0;
-}
