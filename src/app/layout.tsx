@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Brendan Lo | Software Engineer & Researcher",
   description: "Portfolio of Brendan Lo, a Software Engineer and Researcher at UChicago and Weill Cornell. Specialized in AI, full-stack development, and bioengineering.",
-  keywords: ["Brendan Lo", "Software Engineer", "Researcher", "UChicago", "Weill Cornell", "AI", "Machine Learning", "Bioengineering", "Next.js", "React", "TypeScript"],
+  keywords: ["Brendan Lo", "Software Engineer", "Researcher", "UChicago", "Weill Cornell", "AI", "Machine Learning", "Mathematics", "Next.js", "React", "TypeScript"],
   authors: [{ name: "Brendan Lo" }],
   creator: "Brendan Lo",
   openGraph: {
@@ -51,7 +51,7 @@ export default function RootLayout({
     "url": "https://brendanlo.com",
     "jobTitle": "Software Engineer & Researcher",
     "alumniOf": "University of Chicago",
-    "knowsAbout": ["Computer Science", "Bioengineering", "AI", "Machine Learning", "Full-stack Development"],
+    "knowsAbout": ["Computer Science", "Mathematics", "AI", "Machine Learning", "Full-stack Development"],
     "sameAs": [
       "https://github.com/patriotsbreeze",
       "https://www.linkedin.com/in/brendan-lo-8b0b80247/"

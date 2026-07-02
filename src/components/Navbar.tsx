@@ -21,6 +21,7 @@ export const Navbar: React.FC = () => {
         <div className={styles.links}>
           <a href="#about" aria-label="About section">About</a>
           <a href="#projects" aria-label="Featured projects">Projects</a>
+          <a href="#publications" aria-label="Publications">Research</a>
           <a href="#experience" aria-label="Work experience">Experience</a>
         </div>
       </nav>

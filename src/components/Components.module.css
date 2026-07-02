@@ -210,3 +210,122 @@
   color: var(--border);
   font-weight: 700;
 }
+
+/* Education / Experience shared list gap override for tighter education block */
+.eduList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Publications */
+.pubList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pubRow {
+  display: block;
+  position: relative;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pubLinked:hover {
+  border-color: var(--foreground);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
+}
+
+.pubTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.pubType {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--foreground);
+  background: #f0f0f0;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.pubVenue {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--foreground-muted);
+}
+
+.pubTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+  padding-right: 24px;
+}
+
+.pubAuthors {
+  font-size: 0.9rem;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.pubArrow {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: var(--foreground-muted);
+  transition: color 0.2s ease;
+}
+
+.pubLinked:hover .pubArrow {
+  color: var(--foreground);
+}
+
+/* Honors */
+.honorsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .honorsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.honorItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+.honorItem:hover {
+  border-color: var(--foreground);
+}
+
+.honorIcon {
+  color: var(--foreground-muted);
+  flex-shrink: 0;
+}

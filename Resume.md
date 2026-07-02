@@ -94,3 +94,7 @@ ReSource
 * [cite_start]Scored A+ on the 2025 New York State School Music Association All-State Audition. [cite: 73]
 * [cite_start]Performed in 15+ seasonal concerts, the Legally Blonde/Guys & Dolls musical, memorial day parades, and graduation ceremonies. [cite: 80]
 
+
+github: https://github.com/patriotsbreeze
+linkedin: https://www.linkedin.com/in/brendan-lo-8b0b80247/
+instagram: https://www.instagram.com/brendanloalt/

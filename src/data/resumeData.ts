@@ -13,6 +13,23 @@ export interface Skill {
   color: string;
 }
 
+export interface Education {
+  school: string;
+  location: string;
+  degree: string;
+  period: string;
+  details?: string[];
+}
+
+export interface Publication {
+  authors: string;
+  year: string;
+  title: string;
+  venue: string;
+  type: string;
+  link?: string;
+}
+
 export const resumeData = {
   name: "Brendan Lo",
   title: "Software Engineer & Researcher",
@@ -23,11 +40,32 @@ export const resumeData = {
     linkedin: "https://www.linkedin.com/in/brendan-lo-8b0b80247/",
     instagram: "https://www.instagram.com/brendanloalt/"
   },
+
+  education: [
+    {
+      school: "University of Chicago",
+      location: "Chicago, IL",
+      degree: "B.S. Computer Science & Mathematics",
+      period: "Expected May 2030",
+      details: []
+    },
+    {
+      school: "Great Neck South High School",
+      location: "Great Neck, NY",
+      degree: "High School Diploma",
+      period: "June 2026",
+      details: [
+        "GPA 96.7 / 100 (unweighted) · SAT 1540 / 1600",
+        "AP Physics C, AP Calculus BC, AP Computer Science, AP English Literature, AP Spanish, AP Economics, Senior Seminar Research Honors."
+      ]
+    }
+  ] as Education[],
+
   featuredProjects: [
     {
       title: "ReSource",
-      description: "AI-powered web application for circular economy, helping users identify, donate, or recycle unwanted items using Gemini AI and Mapbox.",
-      impact: "Built as a full-stack Next.js app with PostgreSQL and Supabase. Features real-time mapping and AI image recognition.",
+      description: "AI-powered marketplace that helps users donate, resell, or recycle unwanted items with AI image recognition and community mapping.",
+      impact: "Built as a full-stack Next.js app with PostgreSQL and Supabase, integrating Gemini API and Mapbox for real-time item recognition and location.",
       technologies: ["Next.js", "TypeScript", "Gemini API", "Mapbox", "PostgreSQL", "Supabase"],
       link: "https://devpost.com/software/resource-i3nq1y",
       image: "/images/resource.png",
@@ -35,99 +73,153 @@ export const resumeData = {
     },
     {
       title: "SATsaurus",
-      description: "Gamified SAT prep platform providing free, interactive learning resources for 1000+ underprivileged students globally.",
+      description: "Gamified SAT-prep platform delivering free, interactive practice to 1000+ students worldwide.",
       technologies: ["Next.js", "Supabase", "SQL", "TailwindCSS"],
       featured: true
     },
     {
       title: "GNS Web Development Club",
-      description: "Co-founded and led a community of 70+ developers building real-world solutions. Built & maintained 20+ websites for nonprofits, churches, businesses, and school clubs.",
-      technologies: ["React.js", "Next.js", "JavaScript", "HTML/CSS"],
+      description: "Co-founded and led a 70+ member community that built and maintained 20+ websites for nonprofits, churches, businesses, and school clubs.",
+      technologies: ["React.js", "Next.js", "TypeScript", "Supabase"],
       link: "https://www.gnswebdev.club/projects",
       featured: true
     },
     {
       title: "Force Network",
-      description: "A high-performance hosting hub for 100+ Minecraft servers and general deployment solutions, offering secure nodes and unlimited bandwidth for 800+ users.",
-      impact: "Designed specifically to accelerate development work and eliminate deployment toil through secure, fast infrastructure.",
+      description: "High-performance hosting hub for 100+ Minecraft servers and deployment solutions, serving secure nodes and bandwidth to 800+ users.",
+      impact: "Designed to accelerate development work and eliminate deployment toil through fast, secure infrastructure.",
       technologies: ["Node.js", "Docker", "MongoDB", "Pterodactyl"],
       link: "https://forcenetwork.cloud",
       featured: true
     }
   ],
 
+  publications: [
+    {
+      authors: "Liu, H., Ammanamanchi, N., Mich-Basso, J., Panama, B., Li, Y., Huang, W., Almeida, D., Lewarchik, C., Lo, B., Wu, Y., Gotthardt, M., Kotlikoff, M., Baehr, W., Rasmusson, R., Salama, G., & Kühn, B.",
+      year: "2026",
+      title: "Sequential changes in calcium transients during M phase regulate cardiomyocyte proliferation.",
+      venue: "Journal of Cell Biology",
+      type: "Journal Article",
+      link: "https://doi.org/10.1083/jcb.202505134"
+    },
+    {
+      authors: "Cheng, B., Jin, A., Zhang, J., Pemmaraju, A., Lo, B., & Chang, J.",
+      year: "2026",
+      title: "A horizon-dependent intrinsic-dimension theory of scaling for biological forecasting.",
+      venue: "HiLD Workshop, International Conference on Machine Learning (ICML)",
+      type: "Poster"
+    },
+    {
+      authors: "Cheng, B., Jin, A., Zhang, J., Lo, B., Pemmaraju, A., & Chang, J.",
+      year: "2026",
+      title: "ERVNet: A three-module framework for predicting endogenous retrovirus reactivation, gene propagation, and immunogenicity.",
+      venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
+      type: "Poster"
+    },
+    {
+      authors: "Cheng, B., Jin, A., Zhang, J., Pemmaraju, A., Chang, J., & Lo, B.",
+      year: "2026",
+      title: "PROTEUS: Predicting how post-translational modifications alter drug binding affinity.",
+      venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
+      type: "Poster"
+    }
+  ] as Publication[],
+
+  honors: [
+    "Eagle Scout",
+    "Science Olympiad National Qualifier",
+    "2nd Place — New York State Science Olympiad",
+    "FIRST Robotics World Championship — Engineering Inspiration Award",
+    "AP Scholar with Distinction",
+    "4th Place — Long Island Science & Engineering Fair"
+  ],
 
   experience: [
-
     {
-      company: "Programming Club",
-      role: "Software and App Lead",
-      location: "Great Neck, NY",
-      period: "Jan 2024 - Present",
+      company: "Columbia University",
+      role: "Summer Research Intern — Blumberg Lab",
+      location: "New York, NY",
+      period: "Summer 2026",
       description: [
-        "Taught 20+ students to code in AI/ML, Python & Java.",
-        "Leading 10+ students to build a school app for 1300+ students with calendars, guides, and positive notes using Swift."
+        "Applying Topological Data Analysis (TDA) to RNA-Seq annotation."
+      ]
+    },
+    {
+      company: "New York University",
+      role: "Summer Research Intern — Shasha Lab",
+      location: "New York, NY",
+      period: "Summer 2026",
+      description: [
+        "Building an agentic AI workflow for a calorie-tracking application."
       ]
     },
     {
       company: "Weill Cornell Medical College",
-      role: "Research & Data Analysis Intern",
+      role: "Pediatrics Summer Research Intern — Heart Regeneration (Kühn & Liu Lab)",
       location: "New York, NY",
       period: "Summer 2025",
       description: [
-        "Ran data analyses using Python, Fiji/ImageJ, and VBA Macros to discover calcium's role in heart cell proliferation.",
-        "Co-author of a paper under review at the Journal of Cell Biology: Liu, H., Ammanamanchi, N., Mich-Basso, J., Panama, B., Li, Y., Huang, W., Almeida, D., Lewarchik, C. M., Lo, B., Wu, Y., Gotthardt, M., Kotlikoff, M., Baehr, W., Rasmusson, R., Salama, G., & Kühn, B. (2026). Cardiomyocytes change calcium signaling for cell division."
+        "Ran data analyses with Python, Fiji/ImageJ, and VBA to uncover calcium's role in cardiomyocyte proliferation.",
+        "Co-authored the resulting paper, published in the Journal of Cell Biology."
+      ]
+    },
+    {
+      company: "Weill Cornell Medical College",
+      role: "Summer Research Intern — Epigenetics of Congenital Heart Disease (Long Lab)",
+      location: "New York, NY",
+      period: "Summer 2024",
+      description: [
+        "Performed PCR, Western blot, cloning, and RNA-seq analyses in R and Python to identify genes regulated by JARID2.",
+        "Investigated the role of the PRC2 complex in heart development and congenital heart disease."
+      ]
+    },
+    {
+      company: "Web Development Club",
+      role: "Co-President / Co-Founder",
+      location: "Great Neck, NY",
+      period: "Oct 2024 - Present",
+      description: [
+        "Recruited and led full-stack projects with 70+ members using JavaScript, TypeScript, React.js, Supabase, and SQL.",
+        "Built and maintained 20+ websites for nonprofits, churches, businesses, and school clubs."
       ]
     },
     {
       company: "Kudos Connect",
-      role: "Chief Technology Officer / Newsletter Head",
+      role: "Chief Technology Officer / Head of Newsletter",
       location: "Great Neck, NY",
       period: "Jan 2024 - Present",
       description: [
-        "Led 15+ people to create newsletters, building a following of 7000+ high school students for research & volunteer opportunities.",
-        "Managed a technology team of 5+ to maintan database and website"
+        "Led 15+ people to build the website and newsletter, growing a following of 7000+ students for volunteer opportunities."
+      ]
+    },
+    {
+      company: "Programming Club",
+      role: "Board Member / App Leader",
+      location: "Great Neck, NY",
+      period: "Jan 2024 - Present",
+      description: [
+        "Taught 20+ students to code in AI/ML, Python, and Java.",
+        "Led 10+ students to build a school app for 1300+ students using Swift."
       ]
     },
     {
       company: "FIRST Robotics Team 2638",
-      role: "Head Webmaster / Build Team",
+      role: "Head Webmaster / Lead Programmer",
       location: "Great Neck, NY",
       period: "Sep 2024 - Present",
       description: [
-        "Mentored 20+ K-8 students and global teams.",
-        "Built website & robot, competing in FIRST Robotics Competition World Championship 2025"
+        "Coded trajectory-generation algorithms and robot control, competing at the FIRST Robotics World Championship (2025)."
       ]
     },
     {
-      company: "Science Research Project (2024-25)",
-      role: "Independent Science Researcher",
-      location: "Great Neck, NY",
-      period: "2024 - 2025",
+      company: "PRC2 Drug Discovery Project",
+      role: "Independent Researcher",
+      location: "New York, NY",
+      period: "Sep 2024 - Sep 2025",
       description: [
-        "Conducted Machine Learning-based virtual screening and molecular dynamics simulations to repurpose drugs for the inhibition of PRC2 protein complex.",
-        "Trained & validated a random forest machine learning model for ligand-based virtual screening.",
-        "Used the Schrödinger Maestro software to run structure-based virtual screening.",
-        "Validated virtual screened drugs using GROMACS molecular dynamics simulations."
-      ]
-    },
-    {
-      company: "Boy Scouts of America",
-      role: "Service Project Coordinator / Patrol Leader / Den Chief / Bugler",
-      location: "Great Neck, NY",
-      period: "Jan 2018 - Present",
-      description: [
-        "Led 70+ scouts on camping trips and flag ceremonies.",
-        "Coordinated service projects for museums, autistic kids, the homeless, and the environment."
-      ]
-    },
-    {
-      company: "Eagle Scout Project",
-      role: "Project Director and Museum Curator",
-      location: "Great Neck, NY",
-      period: "Sep 2022 - Jan 2024",
-      description: [
-        "Fundraised $1500+, leading 30+ scouts to create a museum exhibit about WWII in the US Merchant Marine Museum"
+        "Ran ML-based (Random Forest, Python, Schrödinger Maestro) virtual screening and GROMACS molecular dynamics simulations.",
+        "Repurposed drugs to inhibit the PRC2 protein complex as a target for cancer and congenital heart disease."
       ]
     }
   ],
@@ -138,31 +230,30 @@ export const resumeData = {
       { name: "React.js", color: "#61DAFB" },
       { name: "TypeScript", color: "#3178C6" },
       { name: "JavaScript", color: "#F7DF1E" },
-      { name: "HTML5", color: "#E34F26" },
+      { name: "HTML/CSS", color: "#E34F26" },
       { name: "TailwindCSS", color: "#06B6D4" },
-      { name: "Swift", color: "#F05138" },
-      { name: "Django", color: "#06B6D4" }
+      { name: "Swift", color: "#F05138" }
     ],
     backend: [
       { name: "Python", color: "#3776AB" },
       { name: "Java", color: "#007396" },
       { name: "C#", color: "#239120" },
       { name: "SQL", color: "#4479A1" },
-      { name: "Supabase", color: "#3ECF8E" },
       { name: "Node.js", color: "#339933" },
       { name: "Express.js", color: "#339933" },
-      { name: "MongoDB", color: "#339933" },
-      { name: "Firebase", color: "#339933" }
+      { name: "Supabase", color: "#3ECF8E" },
+      { name: "MongoDB", color: "#47A248" },
+      { name: "Gemini API", color: "#4285F4" }
     ],
     scientific: [
       { name: "R", color: "#276DC3" },
-      { name: "Fiji/ImageJ", color: "#000000" },
-      { name: "VBA", color: "#2E7D32" },
-      { name: "RNA-seq", color: "#E91E63" },
+      { name: "AI/ML", color: "#2196F3" },
+      { name: "RNA-seq Analysis", color: "#E91E63" },
       { name: "Molecular Docking", color: "#FF5722" },
+      { name: "Molecular Dynamics", color: "#2196F3" },
       { name: "GROMACS", color: "#2196F3" },
-      { name: "Matlab", color: "#2196F3" },
-      { name: "AI/ML", color: "#2196F3" }
+      { name: "Fiji/ImageJ", color: "#000000" },
+      { name: "VBA", color: "#2E7D32" }
     ]
   }
 };
