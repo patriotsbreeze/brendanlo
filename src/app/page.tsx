@@ -4,6 +4,7 @@ import { resumeData } from "@/data/resumeData";
 import { Container, Section, SectionHeading, ProjectCard, ExperienceCard, EducationCard, PublicationCard, TechPill } from "@/components/Common";
 import { SocialLinks } from "@/components/SocialLinks";
 import { HeroName } from "@/components/HeroName";
+import { HeroActions } from "@/components/HeroActions";
 import { Reveal } from "@/components/Reveal";
 import { TiltCard } from "@/components/TiltCard";
 import { FaCode, FaServer, FaFlask } from 'react-icons/fa';
@@ -15,6 +16,12 @@ export default function Home() {
       <Section id="about">
         <Container>
           <div className={styles.heroCenter}>
+            <Reveal delay={120} direction="scale">
+              <span className={styles.statusPill}>
+                <span className={styles.statusDot} />
+                Available for internships · CS + Math @ UChicago
+              </span>
+            </Reveal>
             <HeroName text={resumeData.name} />
             <Reveal delay={650}>
               <p className={styles.heroDescription}>
@@ -23,7 +30,10 @@ export default function Home() {
                 at the intersection of technology and science.
               </p>
             </Reveal>
-            <Reveal delay={800} direction="scale">
+            <Reveal delay={780}>
+              <HeroActions />
+            </Reveal>
+            <Reveal delay={880} direction="scale">
               <SocialLinks />
             </Reveal>
           </div>
