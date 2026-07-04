@@ -1,0 +1,27 @@
+.reveal {
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(6px);
+  will-change: transform, opacity, filter;
+}
+
+.up {
+  transform: translateY(34px);
+}
+.left {
+  transform: translateX(-40px);
+}
+.right {
+  transform: translateX(40px);
+}
+.scale {
+  transform: scale(0.94);
+}
+
+.shown {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}

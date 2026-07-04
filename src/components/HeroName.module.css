@@ -1,0 +1,73 @@
+.name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 6rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  margin-bottom: 24px;
+  line-height: 1;
+}
+
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0 0.01em 0.12em;
+  vertical-align: top;
+}
+
+.letter {
+  --d: 0s;
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(
+    100deg,
+    #111 0%,
+    #111 40%,
+    #9a9a9a 50%,
+    #111 60%,
+    #111 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation-name: letterUp, sheen;
+  animation-duration: 0.9s, 4.5s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-delay: var(--d), 1.4s;
+  animation-fill-mode: forwards, none;
+}
+
+@keyframes letterUp {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheen {
+  0%,
+  100% {
+    background-position: 130% 0;
+  }
+  50% {
+    background-position: -30% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .name {
+    font-size: 3.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter {
+    transform: none;
+    animation: none;
+    color: #111;
+    -webkit-text-fill-color: #111;
+  }
+}

@@ -2,115 +2,133 @@ import styles from "./page.module.css";
 import commonStyles from "@/components/Components.module.css";
 import { resumeData } from "@/data/resumeData";
 import { Container, Section, SectionHeading, ProjectCard, ExperienceCard, EducationCard, PublicationCard, TechPill } from "@/components/Common";
-import { Navbar } from "@/components/Navbar";
 import { SocialLinks } from "@/components/SocialLinks";
+import { HeroName } from "@/components/HeroName";
+import { Reveal } from "@/components/Reveal";
+import { TiltCard } from "@/components/TiltCard";
 import { FaCode, FaServer, FaFlask } from 'react-icons/fa';
 
 export default function Home() {
   return (
     <div className={styles.main}>
-      <Navbar />
-
       {/* Hero Section */}
-      <Section id="about" className="animate delay-1">
+      <Section id="about">
         <Container>
           <div className={styles.heroCenter}>
-            <h1 className={styles.heroName}>{resumeData.name}</h1>
-            <p className={styles.heroDescription}>
-              Software Engineer & Researcher studying Computer Science & Mathematics at UChicago. <br />
-              Building scalable full-stack applications and advancing computational research <br />
-              at the intersection of technology and science.
-            </p>
-            <SocialLinks />
+            <HeroName text={resumeData.name} />
+            <Reveal delay={650}>
+              <p className={styles.heroDescription}>
+                Software Engineer & Researcher studying Computer Science & Mathematics at UChicago. <br />
+                Building scalable full-stack applications and advancing computational research <br />
+                at the intersection of technology and science.
+              </p>
+            </Reveal>
+            <Reveal delay={800} direction="scale">
+              <SocialLinks />
+            </Reveal>
           </div>
         </Container>
       </Section>
 
       {/* Tech Stack Section */}
-      <Section id="skills" className="animate delay-2">
+      <Section id="skills">
         <Container>
           <div className={styles.skillsContainer}>
-            <div className={styles.skillGroup}>
-              <h3 className={styles.skillGroupTitle}><FaCode /> Frontend</h3>
-              <div className={styles.pillCloud}>
-                {resumeData.skillsList.frontend.map(skill => (
-                  <TechPill key={skill.name} name={skill.name} />
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.skillGroup}>
-              <h3 className={styles.skillGroupTitle}><FaServer /> Backend</h3>
-              <div className={styles.pillCloud}>
-                {resumeData.skillsList.backend.map(skill => (
-                  <TechPill key={skill.name} name={skill.name} />
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.skillGroup}>
-              <h3 className={styles.skillGroupTitle}><FaFlask /> Research & Science</h3>
-              <div className={styles.pillCloud}>
-                {resumeData.skillsList.scientific.map(skill => (
-                  <TechPill key={skill.name} name={skill.name} />
-                ))}
-              </div>
-            </div>
+            {[
+              { title: <><FaCode /> Frontend</>, list: resumeData.skillsList.frontend },
+              { title: <><FaServer /> Backend</>, list: resumeData.skillsList.backend },
+              { title: <><FaFlask /> Research & Science</>, list: resumeData.skillsList.scientific },
+            ].map((group, gi) => (
+              <Reveal key={gi} delay={gi * 80} className={styles.skillGroup}>
+                <h3 className={styles.skillGroupTitle}>{group.title}</h3>
+                <div className={styles.pillCloud}>
+                  {group.list.map((skill, si) => (
+                    <span
+                      key={skill.name}
+                      className={styles.pillReveal}
+                      style={{ animationDelay: `${gi * 80 + si * 40}ms` }}
+                    >
+                      <TechPill name={skill.name} />
+                    </span>
+                  ))}
+                </div>
+              </Reveal>
+            ))}
           </div>
         </Container>
       </Section>
 
       {/* Projects Section */}
-      <Section id="projects" className="animate delay-3">
+      <Section id="projects">
         <Container>
-          <SectionHeading subtitle="Active work across full-stack, AI, and community tools.">
-            Projects
-          </SectionHeading>
+          <Reveal>
+            <SectionHeading subtitle="Active work across full-stack, AI, and community tools.">
+              Projects
+            </SectionHeading>
+          </Reveal>
           <div className={commonStyles.projectGrid}>
-            {resumeData.featuredProjects.map((project) => (
-              <ProjectCard key={project.title} project={project} />
+            {resumeData.featuredProjects.map((project, i) => (
+              <Reveal key={project.title} delay={(i % 2) * 90} direction="up">
+                <TiltCard>
+                  <ProjectCard project={project} />
+                </TiltCard>
+              </Reveal>
             ))}
           </div>
         </Container>
       </Section>
 
       {/* Publications Section */}
-      <Section id="publications" className="animate delay-3">
+      <Section id="publications">
         <Container>
-          <SectionHeading subtitle="Peer-reviewed research in machine learning and cell biology.">
-            Publications
-          </SectionHeading>
+          <Reveal>
+            <SectionHeading subtitle="Peer-reviewed research in machine learning and cell biology.">
+              Publications
+            </SectionHeading>
+          </Reveal>
           <div className={commonStyles.pubList}>
-            {resumeData.publications.map((pub) => (
-              <PublicationCard key={pub.title} pub={pub} />
+            {resumeData.publications.map((pub, i) => (
+              <Reveal key={pub.title} delay={i * 70}>
+                <TiltCard radius={16} max={4}>
+                  <PublicationCard pub={pub} />
+                </TiltCard>
+              </Reveal>
             ))}
           </div>
         </Container>
       </Section>
 
       {/* Experience Section */}
-      <Section id="experience" className="animate delay-4">
+      <Section id="experience">
         <Container>
-          <SectionHeading subtitle="Research internships and engineering leadership.">
-            Experience
-          </SectionHeading>
+          <Reveal>
+            <SectionHeading subtitle="Research internships and engineering leadership.">
+              Experience
+            </SectionHeading>
+          </Reveal>
           <div className={commonStyles.experienceList}>
-            {resumeData.experience.map((exp) => (
-              <ExperienceCard key={exp.company + exp.role} exp={exp} />
+            {resumeData.experience.map((exp, i) => (
+              <Reveal key={exp.company + exp.role} delay={i * 40} direction="left">
+                <ExperienceCard exp={exp} />
+              </Reveal>
             ))}
           </div>
         </Container>
       </Section>
 
       {/* Education Section */}
-      <Section id="education" className="animate delay-4">
+      <Section id="education">
         <Container>
-          <SectionHeading subtitle="Academic background and coursework.">
-            Education
-          </SectionHeading>
+          <Reveal>
+            <SectionHeading subtitle="Academic background and coursework.">
+              Education
+            </SectionHeading>
+          </Reveal>
           <div className={commonStyles.eduList}>
-            {resumeData.education.map((edu) => (
-              <EducationCard key={edu.school} edu={edu} />
+            {resumeData.education.map((edu, i) => (
+              <Reveal key={edu.school} delay={i * 60} direction="left">
+                <EducationCard edu={edu} />
+              </Reveal>
             ))}
           </div>
         </Container>

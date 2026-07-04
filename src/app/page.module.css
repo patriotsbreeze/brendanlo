@@ -1,6 +1,6 @@
 .main {
   min-height: 100vh;
-  background-color: var(--background);
+  background-color: transparent;
   color: var(--foreground);
 }
 

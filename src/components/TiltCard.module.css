@@ -1,0 +1,65 @@
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --op: 0;
+  position: relative;
+  border-radius: 20px;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 100%;
+}
+
+.inner {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Soft glow that pools under the cursor, showing through the card edges. */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--op);
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    220px circle at var(--mx) var(--my),
+    rgba(0, 0, 0, 0.06),
+    transparent 65%
+  );
+}
+
+/* A bright edge highlight that follows the pointer (masked to the border). */
+.sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  opacity: var(--op);
+  transition: opacity 0.35s ease;
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    rgba(17, 17, 17, 0.55),
+    transparent 60%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none;
+    transition: none;
+  }
+}
