@@ -195,13 +195,20 @@
 }
 
 .projectLink {
+  display: inline-flex;
   color: var(--foreground-muted);
   padding: 4px;
-  transition: color 0.2s ease;
+  transition: color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.projectLink:hover {
+.projectClickable {
+  cursor: pointer;
+  color: inherit;
+}
+
+.projectClickable:hover .projectLink {
   color: var(--foreground);
+  transform: translate(3px, -3px);
 }
 
 .projectDescription {

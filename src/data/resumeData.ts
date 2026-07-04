@@ -81,7 +81,7 @@ export const resumeData = {
       title: "GNS Web Development Club",
       description: "Co-founded and led a 70+ member community that built and maintained 20+ websites for nonprofits, churches, businesses, and school clubs.",
       technologies: ["React.js", "Next.js", "TypeScript", "Supabase"],
-      link: "https://www.gnswebdev.club/projects",
+      link: "https://gnswebdev.club/projects",
       featured: true
     },
     {

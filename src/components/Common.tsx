@@ -34,8 +34,8 @@ export const TechPill: React.FC<{ name: string; icon?: React.ReactNode }> = ({ n
 
 export const ProjectCard: React.FC<{ project: any; featured?: boolean }> = ({ project, featured }) => {
   const maxTags = featured ? 6 : 3;
-  return (
-    <div className={`${styles.projectCard} ${featured ? styles.projectFeatured : ""}`}>
+  const inner = (
+    <>
       {featured && project.image && (
         <div className={styles.projectImageWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -50,9 +50,9 @@ export const ProjectCard: React.FC<{ project: any; featured?: boolean }> = ({ pr
               <h3 className={styles.projectTitle}>{project.title}</h3>
             </div>
             {project.link && (
-              <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.projectLink} aria-label={`View ${project.title} project`}>
+              <span className={styles.projectLink} aria-hidden>
                 <ArrowUpRight size={18} />
-              </a>
+              </span>
             )}
           </div>
           <p className={styles.projectDescription}>
@@ -68,7 +68,23 @@ export const ProjectCard: React.FC<{ project: any; featured?: boolean }> = ({ pr
           </div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  const cls = `${styles.projectCard} ${featured ? styles.projectFeatured : ""}`;
+
+  return project.link ? (
+    <a
+      href={project.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${cls} ${styles.projectClickable}`}
+      aria-label={`View ${project.title} project`}
+    >
+      {inner}
+    </a>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 };
 
