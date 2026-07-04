@@ -5,6 +5,8 @@ import { Container, Section, SectionHeading, ProjectCard, ExperienceCard, Educat
 import { SocialLinks } from "@/components/SocialLinks";
 import { HeroName } from "@/components/HeroName";
 import { HeroActions } from "@/components/HeroActions";
+import { StatBand } from "@/components/StatBand";
+import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { TiltCard } from "@/components/TiltCard";
 import { FaCode, FaServer, FaFlask } from 'react-icons/fa';
@@ -40,23 +42,36 @@ export default function Home() {
         </Container>
       </Section>
 
+      {/* Impact Stats */}
+      <Section id="impact" className={styles.statSection}>
+        <Container>
+          <Reveal>
+            <StatBand />
+          </Reveal>
+        </Container>
+      </Section>
+
       {/* Tech Stack Section */}
       <Section id="skills">
         <Container>
           <div className={styles.skillsContainer}>
             {[
-              { title: <><FaCode /> Frontend</>, list: resumeData.skillsList.frontend },
-              { title: <><FaServer /> Backend</>, list: resumeData.skillsList.backend },
-              { title: <><FaFlask /> Research & Science</>, list: resumeData.skillsList.scientific },
+              { icon: <FaCode />, name: "Frontend", list: resumeData.skillsList.frontend },
+              { icon: <FaServer />, name: "Backend", list: resumeData.skillsList.backend },
+              { icon: <FaFlask />, name: "Research & Science", list: resumeData.skillsList.scientific },
             ].map((group, gi) => (
-              <Reveal key={gi} delay={gi * 80} className={styles.skillGroup}>
-                <h3 className={styles.skillGroupTitle}>{group.title}</h3>
+              <Reveal key={group.name} delay={gi * 90} className={styles.skillCard}>
+                <div className={styles.skillCardHead}>
+                  <span className={styles.skillIcon}>{group.icon}</span>
+                  <h3 className={styles.skillGroupTitle}>{group.name}</h3>
+                  <span className={styles.skillCount}>{group.list.length}</span>
+                </div>
                 <div className={styles.pillCloud}>
                   {group.list.map((skill, si) => (
                     <span
                       key={skill.name}
-                      className={styles.pillReveal}
-                      style={{ animationDelay: `${gi * 80 + si * 40}ms` }}
+                      className="pillReveal"
+                      style={{ animationDelay: `${gi * 90 + si * 45}ms` }}
                     >
                       <TechPill name={skill.name} />
                     </span>
@@ -72,18 +87,26 @@ export default function Home() {
       <Section id="projects">
         <Container>
           <Reveal>
-            <SectionHeading subtitle="Active work across full-stack, AI, and community tools.">
+            <SectionHeading index="01" subtitle="Active work across full-stack, AI, and community tools.">
               Projects
             </SectionHeading>
           </Reveal>
           <div className={commonStyles.projectGrid}>
-            {resumeData.featuredProjects.map((project, i) => (
-              <Reveal key={project.title} delay={(i % 2) * 90} direction="up">
-                <TiltCard>
-                  <ProjectCard project={project} />
-                </TiltCard>
-              </Reveal>
-            ))}
+            {resumeData.featuredProjects.map((project, i) => {
+              const large = Boolean(project.image);
+              return (
+                <Reveal
+                  key={project.title}
+                  delay={(i % 2) * 90}
+                  direction="up"
+                  className={large ? commonStyles.bentoLarge : ""}
+                >
+                  <TiltCard max={large ? 4 : 7}>
+                    <ProjectCard project={project} featured={large} />
+                  </TiltCard>
+                </Reveal>
+              );
+            })}
           </div>
         </Container>
       </Section>
@@ -92,7 +115,7 @@ export default function Home() {
       <Section id="publications">
         <Container>
           <Reveal>
-            <SectionHeading subtitle="Peer-reviewed research in machine learning and cell biology.">
+            <SectionHeading index="02" subtitle="Peer-reviewed research in machine learning and cell biology.">
               Publications
             </SectionHeading>
           </Reveal>
@@ -112,7 +135,7 @@ export default function Home() {
       <Section id="experience">
         <Container>
           <Reveal>
-            <SectionHeading subtitle="Research internships and engineering leadership.">
+            <SectionHeading index="03" subtitle="Research internships and engineering leadership.">
               Experience
             </SectionHeading>
           </Reveal>
@@ -130,7 +153,7 @@ export default function Home() {
       <Section id="education">
         <Container>
           <Reveal>
-            <SectionHeading subtitle="Academic background and coursework.">
+            <SectionHeading index="04" subtitle="Academic background and coursework.">
               Education
             </SectionHeading>
           </Reveal>
@@ -145,16 +168,7 @@ export default function Home() {
       </Section>
 
       {/* Footer */}
-      <footer className={styles.footer}>
-        <Container>
-          <p className={styles.footerText}>
-            © {new Date().getFullYear()} Brendan Lo.
-          </p>
-          <p style={{ fontSize: '0.9rem', opacity: 0.5, marginTop: '8px' }}>
-            Built with Next.js & React
-          </p>
-        </Container>
-      </footer>
+      <Footer />
     </div>
   );
 }

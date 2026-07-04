@@ -66,35 +66,88 @@
   color: var(--foreground-muted);
 }
 
-/* Skills Layout */
-.skillsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
-  margin-top: 40px;
+.statSection {
+  padding-top: 0;
 }
 
-.skillGroup {
+/* Skills Layout — glass category cards */
+.skillsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.skillCard {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+  padding: 28px 26px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skillCard:hover {
+  border-color: var(--foreground);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+}
+
+.skillCardHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.skillIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--foreground);
+  color: #fff;
+  font-size: 0.95rem;
+  flex: 0 0 auto;
 }
 
 .skillGroupTitle {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.skillCount {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--foreground-muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 2px 9px;
 }
 
 .pillCloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .skillsContainer {
+    grid-template-columns: 1fr;
+  }
 }
 
 .hero {

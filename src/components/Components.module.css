@@ -20,6 +20,27 @@
   text-align: center;
 }
 
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.eyebrowNum {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--foreground-muted);
+}
+
+.eyebrowLine {
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(to right, var(--foreground), transparent);
+}
+
 .sectionHeading {
   font-size: 3rem;
   margin-bottom: 12px;
@@ -48,7 +69,9 @@
 }
 
 .projectCard {
-  background: white;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   padding: 32px;
   border-radius: 20px;
@@ -61,15 +84,85 @@
 
 .projectCard:hover {
   border-color: var(--foreground);
-  transform: translateY(-4px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+}
+
+/* Featured (bento) card — image beside content, spans the row. */
+.bentoLarge {
+  grid-column: 1 / -1;
+}
+
+.projectFeatured {
+  flex-direction: row;
+  gap: 36px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.projectImageWrap {
+  flex: 0 0 46%;
+  position: relative;
+  overflow: hidden;
+  background: #f2f2f2;
+}
+
+.projectImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(1) contrast(1.02);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+}
+
+.projectFeatured:hover .projectImage {
+  transform: scale(1.05);
+  filter: grayscale(0);
+}
+
+.projectContent {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+  height: 100%;
+}
+
+.projectFeatured .projectContent {
+  padding: 34px 34px 34px 0;
+}
+
+.projectTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.projectBadge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: var(--foreground);
+  padding: 4px 9px;
+  border-radius: 100px;
 }
 
 .projectHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+.projectFeatured .projectHeader {
+  margin-bottom: 12px;
 }
 
 .projectTitle {
@@ -77,6 +170,28 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.03em;
+}
+
+.projectFeatured .projectTitle {
+  font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+  .projectFeatured {
+    flex-direction: column;
+    gap: 0;
+  }
+  .projectImageWrap {
+    flex-basis: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  .projectFeatured .projectContent {
+    padding: 28px;
+  }
+  .projectFeatured .projectTitle {
+    font-size: 1.6rem;
+  }
 }
 
 .projectLink {
