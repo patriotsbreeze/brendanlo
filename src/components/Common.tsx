@@ -48,23 +48,35 @@ export const ProjectCard: React.FC<{ project: any }> = ({ project }) => (
   </div>
 );
 
+const monogram = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter((w) => /^[A-Z0-9]/.test(w))
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || name.slice(0, 2).toUpperCase();
+
 export const EducationCard: React.FC<{ edu: any }> = ({ edu }) => (
   <div className={styles.expRow}>
-    <div className={styles.expHeader}>
-      <h3 className={styles.expRole}>{edu.school}</h3>
-      <span className={styles.expPeriod}>{edu.period}</span>
+    <div className={styles.node} aria-hidden>{monogram(edu.school)}</div>
+    <div className={styles.expBody}>
+      <div className={styles.expHeader}>
+        <h3 className={styles.expRole}>{edu.school}</h3>
+        <span className={styles.expPeriod}>{edu.period}</span>
+      </div>
+      <div className={styles.expMeta}>
+        <span className={styles.expCompany}>{edu.degree}</span>
+        <span className={styles.expLocation}>{edu.location}</span>
+      </div>
+      {edu.details && edu.details.length > 0 && (
+        <ul className={styles.expDescList}>
+          {edu.details.map((item: string, i: number) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      )}
     </div>
-    <div className={styles.expMeta}>
-      <span className={styles.expCompany}>{edu.degree}</span>
-      <span className={styles.expLocation}>{edu.location}</span>
-    </div>
-    {edu.details && edu.details.length > 0 && (
-      <ul className={styles.expDescList}>
-        {edu.details.map((item: string, i: number) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ul>
-    )}
   </div>
 );
 
@@ -98,19 +110,22 @@ export const PublicationCard: React.FC<{ pub: any }> = ({ pub }) => {
 
 export const ExperienceCard: React.FC<{ exp: any }> = ({ exp }) => (
   <div className={styles.expRow}>
-    <div className={styles.expHeader}>
-      <h3 className={styles.expRole}>{exp.role}</h3>
-      <span className={styles.expPeriod}>{exp.period}</span>
+    <div className={styles.node} aria-hidden>{monogram(exp.company)}</div>
+    <div className={styles.expBody}>
+      <div className={styles.expHeader}>
+        <h3 className={styles.expRole}>{exp.role}</h3>
+        <span className={styles.expPeriod}>{exp.period}</span>
+      </div>
+      <div className={styles.expMeta}>
+        <span className={styles.expCompany}>{exp.company}</span>
+        <span className={styles.expLocation}>{exp.location}</span>
+      </div>
+      <ul className={styles.expDescList}>
+        {exp.description.map((item: string, i: number) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
     </div>
-    <div className={styles.expMeta}>
-      <span className={styles.expCompany}>{exp.company}</span>
-      <span className={styles.expLocation}>{exp.location}</span>
-    </div>
-    <ul className={styles.expDescList}>
-      {exp.description.map((item: string, i: number) => (
-        <li key={i}>{item}</li>
-      ))}
-    </ul>
   </div>
 );
 

@@ -133,45 +133,133 @@
   font-weight: 500;
 }
 
-/* Experience List */
-.experienceList {
+/* Experience / Education timeline */
+.experienceList,
+.eduList {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 20px;
+}
+
+/* The beaded rail running behind the monogram nodes. */
+.experienceList::before,
+.eduList::before {
+  content: "";
+  position: absolute;
+  left: 45px;
+  top: 46px;
+  bottom: 46px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--foreground) 6%,
+    #cfcfcf 55%,
+    transparent
+  );
+  opacity: 0.35;
 }
 
 .expRow {
-  padding-bottom: 32px;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  display: flex;
+  gap: 24px;
+  padding: 20px 22px 22px 20px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.expRow:last-child {
-  border-bottom: none;
+.expRow:hover {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-color: var(--border);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
+  transform: translateX(4px);
+}
+
+/* Monogram node — a bead on the rail. */
+.node {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  color: var(--foreground);
+  background: #fff;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 0 0 5px var(--background);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.35s ease, color 0.35s ease, border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.expRow:hover .node {
+  background: var(--foreground);
+  color: #fff;
+  border-color: var(--foreground);
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 0 0 5px var(--background), 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.expBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 2px;
 }
 
 .expHeader {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
+  gap: 16px;
+  margin-bottom: 6px;
 }
 
 .expRole {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .expPeriod {
-  font-size: 0.9rem;
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--foreground-muted);
-  font-weight: 500;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  padding: 4px 11px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  white-space: nowrap;
+  transition: border-color 0.35s ease, color 0.35s ease;
+}
+
+.expRow:hover .expPeriod {
+  border-color: var(--foreground);
+  color: var(--foreground);
 }
 
 .expMeta {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 16px;
   margin-bottom: 16px;
   font-size: 1rem;
 }
@@ -183,6 +271,7 @@
 
 .expLocation {
   color: var(--foreground-muted);
+  font-size: 0.9rem;
 }
 
 .expDescList {
@@ -199,23 +288,46 @@
   color: var(--foreground-muted);
   line-height: 1.6;
   position: relative;
-  padding-left: 24px;
+  padding-left: 26px;
   max-width: 800px;
 }
 
 .expDescList li::before {
-  content: "—";
+  content: "";
   position: absolute;
-  left: 0;
-  color: var(--border);
-  font-weight: 700;
+  left: 2px;
+  top: 0.62em;
+  width: 12px;
+  height: 2px;
+  background: var(--foreground);
+  opacity: 0.35;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
-/* Education / Experience shared list gap override for tighter education block */
-.eduList {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+.expRow:hover .expDescList li::before {
+  width: 18px;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .experienceList::before,
+  .eduList::before {
+    left: 35px;
+  }
+  .node {
+    width: 44px;
+    height: 44px;
+    font-size: 0.8rem;
+  }
+  .expRow {
+    gap: 16px;
+    padding: 16px 14px;
+  }
+  .expHeader,
+  .expMeta {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 /* Publications */
