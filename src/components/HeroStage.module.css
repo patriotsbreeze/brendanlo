@@ -1,0 +1,46 @@
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 680px);
+  height: min(92vw, 680px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 30%,
+    #000 44%,
+    #000 62%,
+    transparent 82%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 30%,
+    #000 44%,
+    #000 62%,
+    transparent 82%
+  );
+}
+
+.layers {
+  --px: 0px;
+  --py: 0px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate3d(var(--px), var(--py), 0);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}

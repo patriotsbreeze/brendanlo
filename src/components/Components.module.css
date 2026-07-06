@@ -84,7 +84,35 @@
 
 .projectCard:hover {
   border-color: var(--foreground);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* 3D depth: lift key elements toward the viewer inside the tilt. */
+.projectCard,
+.projectContent,
+.projectTop,
+.projectHeader {
+  transform-style: preserve-3d;
+}
+
+.projectTitleRow {
+  transform: translateZ(40px);
+}
+
+.projectDescription {
+  transform: translateZ(24px);
+}
+
+.projectLink {
+  transform: translateZ(55px);
+}
+
+.projectFooter {
+  transform: translateZ(16px);
+}
+
+.projectImageWrap {
+  transform: translateZ(10px);
 }
 
 /* Featured (bento) card — image beside content, spans the row. */
@@ -208,7 +236,7 @@
 
 .projectClickable:hover .projectLink {
   color: var(--foreground);
-  transform: translate(3px, -3px);
+  transform: translate3d(3px, -3px, 55px);
 }
 
 .projectDescription {

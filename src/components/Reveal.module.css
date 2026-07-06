@@ -19,6 +19,10 @@
 .scale {
   transform: scale(0.94);
 }
+.depth {
+  transform: perspective(1200px) rotateX(14deg) translateY(46px) scale(0.97);
+  transform-origin: 50% 100%;
+}
 
 .shown {
   opacity: 1;

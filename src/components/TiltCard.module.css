@@ -17,6 +17,7 @@
   height: 100%;
   border-radius: inherit;
   z-index: 1;
+  transform-style: preserve-3d;
 }
 
 /* Soft glow that pools under the cursor, showing through the card edges. */

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Reveal.module.css";
 
-type Direction = "up" | "left" | "right" | "scale";
+type Direction = "up" | "left" | "right" | "scale" | "depth";
 
 interface RevealProps {
   children: React.ReactNode;

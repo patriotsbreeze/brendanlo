@@ -43,7 +43,7 @@ export const ProjectCard: React.FC<{ project: any; featured?: boolean }> = ({ pr
         </div>
       )}
       <div className={styles.projectContent}>
-        <div>
+        <div className={styles.projectTop}>
           <div className={styles.projectHeader}>
             <div className={styles.projectTitleRow}>
               {featured && <span className={styles.projectBadge}>Featured</span>}

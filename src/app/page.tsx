@@ -4,6 +4,7 @@ import { resumeData } from "@/data/resumeData";
 import { Container, Section, SectionHeading, ProjectCard, ExperienceCard, EducationCard, PublicationCard, TechPill } from "@/components/Common";
 import { SocialLinks } from "@/components/SocialLinks";
 import { HeroName } from "@/components/HeroName";
+import { HeroStage } from "@/components/HeroStage";
 import { HeroActions } from "@/components/HeroActions";
 import { StatBand } from "@/components/StatBand";
 import { Footer } from "@/components/Footer";
@@ -18,26 +19,28 @@ export default function Home() {
       <Section id="about">
         <Container>
           <div className={styles.heroCenter}>
-            <Reveal delay={120} direction="scale">
-              <span className={styles.statusPill}>
-                <span className={styles.statusDot} />
-                Available for internships · CS + Math @ UChicago
-              </span>
-            </Reveal>
-            <HeroName text={resumeData.name} />
-            <Reveal delay={650}>
-              <p className={styles.heroDescription}>
-                Software Engineer & Researcher studying Computer Science & Mathematics at UChicago. <br />
-                Building scalable full-stack applications and advancing computational research <br />
-                at the intersection of technology and science.
-              </p>
-            </Reveal>
-            <Reveal delay={780}>
-              <HeroActions />
-            </Reveal>
-            <Reveal delay={880} direction="scale">
-              <SocialLinks />
-            </Reveal>
+            <HeroStage>
+              <Reveal delay={120} direction="scale">
+                <span className={styles.statusPill}>
+                  <span className={styles.statusDot} />
+                  Available for internships · CS + Math @ UChicago
+                </span>
+              </Reveal>
+              <HeroName text={resumeData.name} />
+              <Reveal delay={650}>
+                <p className={styles.heroDescription}>
+                  Software Engineer & Researcher studying Computer Science & Mathematics at UChicago. <br />
+                  Building scalable full-stack applications and advancing computational research <br />
+                  at the intersection of technology and science.
+                </p>
+              </Reveal>
+              <Reveal delay={780}>
+                <HeroActions />
+              </Reveal>
+              <Reveal delay={880} direction="scale">
+                <SocialLinks />
+              </Reveal>
+            </HeroStage>
           </div>
         </Container>
       </Section>
@@ -60,7 +63,7 @@ export default function Home() {
               { icon: <FaServer />, name: "Backend", list: resumeData.skillsList.backend },
               { icon: <FaFlask />, name: "Research & Science", list: resumeData.skillsList.scientific },
             ].map((group, gi) => (
-              <Reveal key={group.name} delay={gi * 90} className={styles.skillCard}>
+              <Reveal key={group.name} delay={gi * 90} direction="depth" className={styles.skillCard}>
                 <div className={styles.skillCardHead}>
                   <span className={styles.skillIcon}>{group.icon}</span>
                   <h3 className={styles.skillGroupTitle}>{group.name}</h3>
@@ -98,7 +101,7 @@ export default function Home() {
                 <Reveal
                   key={project.title}
                   delay={(i % 2) * 90}
-                  direction="up"
+                  direction="depth"
                   className={large ? commonStyles.bentoLarge : ""}
                 >
                   <TiltCard max={large ? 4 : 7}>
@@ -121,7 +124,7 @@ export default function Home() {
           </Reveal>
           <div className={commonStyles.pubList}>
             {resumeData.publications.map((pub, i) => (
-              <Reveal key={pub.title} delay={i * 70}>
+              <Reveal key={pub.title} delay={i * 70} direction="depth">
                 <TiltCard radius={16} max={4}>
                   <PublicationCard pub={pub} />
                 </TiltCard>
