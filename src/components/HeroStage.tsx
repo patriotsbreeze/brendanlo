@@ -3,49 +3,76 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./HeroStage.module.css";
 
-type P3 = { x: number; y: number; z: number; ring: number };
+type V3 = { x: number; y: number; z: number };
+type Label = V3 & { text: string; tier: number };
 
-/** Build a point cloud: a sphere shell + a few tilted orbit rings. */
-function buildPoints(): P3[] {
-  const pts: P3[] = [];
+/* Rings of things that make up Brendan's world — languages, the stack he
+ * ships with, and the research he does — literally orbiting his name. */
+const RINGS = [
+  {
+    R: 0.98,
+    axis: "x" as const,
+    tilt: 0.5,
+    labels: ["Python", "TypeScript", "C++", "Java", "R"],
+  },
+  {
+    R: 1.3,
+    axis: "y" as const,
+    tilt: 1.12,
+    labels: ["Next.js", "React", "Node.js", "Supabase", "SQL", "Docker"],
+  },
+  {
+    R: 1.62,
+    axis: "z" as const,
+    tilt: 0.72,
+    labels: [
+      "Machine Learning",
+      "Agentic AI",
+      "Random Forest",
+      "RNA-seq",
+      "Data Analysis",
+    ],
+  },
+  {
+    R: 1.94,
+    axis: "x" as const,
+    tilt: -0.42,
+    labels: ["Drug Discovery", "Molecular Dynamics", "Cell Biology", "ICML"],
+  },
+];
 
-  // Sphere shell via a Fibonacci lattice.
-  const N = 460;
-  const golden = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < N; i++) {
-    const y = 1 - (i / (N - 1)) * 2; // 1 -> -1
-    const r = Math.sqrt(1 - y * y);
-    const theta = golden * i;
-    pts.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, ring: 0 });
-  }
+const tiltPoint = (
+  a: number,
+  R: number,
+  axis: "x" | "y" | "z",
+  tilt: number
+): V3 => {
+  let x = Math.cos(a) * R;
+  let y = Math.sin(a) * R;
+  let z = 0;
+  const c = Math.cos(tilt);
+  const s = Math.sin(tilt);
+  if (axis === "x") [y, z] = [y * c - z * s, y * s + z * c];
+  else if (axis === "y") [x, z] = [x * c + z * s, -x * s + z * c];
+  else [x, y] = [x * c - y * s, x * s + y * c];
+  return { x, y, z };
+};
 
-  // Three orbit rings, each tilted on a different axis.
-  const ringDefs = [
-    { axis: "x" as const, tilt: 0.42, R: 1.32 },
-    { axis: "y" as const, tilt: 1.15, R: 1.28 },
-    { axis: "z" as const, tilt: 0.75, R: 1.36 },
-  ];
-  ringDefs.forEach((def, idx) => {
-    const M = 96;
-    for (let i = 0; i < M; i++) {
-      const a = (i / M) * Math.PI * 2;
-      let x = Math.cos(a) * def.R;
-      let y = Math.sin(a) * def.R;
-      let z = 0;
-      const c = Math.cos(def.tilt);
-      const s = Math.sin(def.tilt);
-      if (def.axis === "x") {
-        [y, z] = [y * c - z * s, y * s + z * c];
-      } else if (def.axis === "y") {
-        [x, z] = [x * c + z * s, -x * s + z * c];
-      } else {
-        [x, y] = [x * c - y * s, x * s + y * c];
-      }
-      pts.push({ x, y, z, ring: idx + 1 });
+function buildOrbits() {
+  const pathDots: (V3 & { tier: number })[] = [];
+  const labels: Label[] = [];
+  RINGS.forEach((ring, tier) => {
+    const DOTS = 74;
+    for (let i = 0; i < DOTS; i++) {
+      const a = (i / DOTS) * Math.PI * 2;
+      pathDots.push({ ...tiltPoint(a, ring.R, ring.axis, ring.tilt), tier });
     }
+    ring.labels.forEach((text, i) => {
+      const a = (i / ring.labels.length) * Math.PI * 2;
+      labels.push({ ...tiltPoint(a, ring.R, ring.axis, ring.tilt), text, tier });
+    });
   });
-
-  return pts;
+  return { pathDots, labels };
 }
 
 export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
@@ -53,7 +80,7 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const layersRef = useRef<HTMLDivElement>(null);
-  const rot = useRef({ x: -0.35, y: 0, tx: -0.35, ty: 0 });
+  const rot = useRef({ x: -0.32, y: 0, tx: -0.32, ty: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,7 +91,7 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    const pts = buildPoints();
+    const { pathDots, labels } = buildOrbits();
     let size = 0;
     let dpr = 1;
 
@@ -78,54 +105,82 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
 
     let raf = 0;
     let t = 0;
+    const focal = 3.4;
+
+    const project = (p: V3, cx: number, cy: number, R: number, m: number[]) => {
+      // m = [cosY, sinY, cosX, sinX]
+      const [cosY, sinY, cosX, sinX] = m;
+      let x = p.x * cosY + p.z * sinY;
+      let z = -p.x * sinY + p.z * cosY;
+      const y = p.y * cosX - z * sinX;
+      z = p.y * sinX + z * cosX;
+      const scale = focal / (focal + z);
+      return { sx: cx + x * scale * R, sy: cy + y * scale * R, scale, z };
+    };
 
     const frame = () => {
-      t += 0.004;
+      t += 0.0033;
       rot.current.x += (rot.current.tx - rot.current.x) * 0.06;
       rot.current.y += (rot.current.ty - rot.current.y) * 0.06;
 
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      ctx.clearRect(0, 0, w, h);
-
       const cx = w / 2;
       const cy = h / 2;
-      const R = size * 0.3;
-      const focal = 3.2;
+      const R = size * 0.17;
+      ctx.clearRect(0, 0, w, h);
 
-      const ry = rot.current.y + t; // continuous spin
+      const ry = rot.current.y + t;
       const rx = rot.current.x;
-      const cosY = Math.cos(ry);
-      const sinY = Math.sin(ry);
-      const cosX = Math.cos(rx);
-      const sinX = Math.sin(rx);
+      const m = [Math.cos(ry), Math.sin(ry), Math.cos(rx), Math.sin(rx)];
 
-      const projected = pts.map((p) => {
-        // rotate Y then X
-        let x = p.x * cosY + p.z * sinY;
-        let z = -p.x * sinY + p.z * cosY;
-        let y = p.y * cosX - z * sinX;
-        z = p.y * sinX + z * cosX;
-        const scale = focal / (focal + z);
-        return {
-          sx: cx + x * scale * R,
-          sy: cy + y * scale * R,
-          scale,
-          z,
-          ring: p.ring,
-        };
-      });
+      // Elliptical clear zone over the name (fade anything crossing it).
+      const exW = w * 0.46;
+      const exH = h * 0.17;
+      const nameFade = (sx: number, sy: number) => {
+        const dx = (sx - cx) / exW;
+        const dy = (sy - cy) / exH;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        return Math.min(1, Math.max(0, (d - 0.72) / 0.4));
+      };
 
-      projected.sort((a, b) => a.z - b.z);
-
-      for (const p of projected) {
-        const depth = (p.z + 1.6) / 3.2; // 0..1 far->near
-        const alpha = 0.06 + depth * 0.82;
-        const rad = p.ring === 0 ? 1.5 * p.scale : 1.9 * p.scale;
+      // Orbit path dots.
+      for (const p of pathDots) {
+        const pr = project(p, cx, cy, R, m);
+        const depth = Math.min(1, Math.max(0, (1.9 - pr.z) / 3.8));
+        const a = 0.05 + depth * 0.16;
+        const fade = nameFade(pr.sx, pr.sy);
+        if (fade <= 0.01) continue;
         ctx.beginPath();
-        ctx.arc(p.sx, p.sy, Math.max(0.4, rad), 0, Math.PI * 2);
+        ctx.arc(pr.sx, pr.sy, Math.max(0.4, 1.1 * pr.scale), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(17,17,17,${a * fade})`;
+        ctx.fill();
+      }
+
+      // Labels, drawn back-to-front.
+      const projLabels = labels
+        .map((l) => ({ l, pr: project(l, cx, cy, R, m) }))
+        .sort((a, b) => b.pr.z - a.pr.z);
+
+      for (const { l, pr } of projLabels) {
+        const depth = Math.min(1, Math.max(0, (1.9 - pr.z) / 3.8));
+        const fade = nameFade(pr.sx, pr.sy);
+        if (fade <= 0.01) continue;
+        const alpha = (0.1 + depth * depth * 0.85) * fade;
+        const fs = Math.max(8, 13.5 * pr.scale);
+
+        ctx.font = `700 ${fs}px -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        // node dot
+        ctx.beginPath();
+        ctx.arc(pr.sx, pr.sy - fs * 0.95, Math.max(0.8, 1.8 * pr.scale), 0, Math.PI * 2);
         ctx.fillStyle = `rgba(17,17,17,${alpha})`;
         ctx.fill();
+
+        ctx.fillStyle = `rgba(17,17,17,${alpha})`;
+        ctx.fillText(l.text, pr.sx, pr.sy + fs * 0.3);
       }
 
       if (!reduce) raf = requestAnimationFrame(frame);
@@ -133,11 +188,8 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
 
     resize();
     window.addEventListener("resize", resize);
-    if (reduce) {
-      frame();
-    } else {
-      raf = requestAnimationFrame(frame);
-    }
+    if (reduce) frame();
+    else raf = requestAnimationFrame(frame);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -145,15 +197,14 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  // Pointer parallax across the whole stage.
   const onMove = (e: React.PointerEvent) => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = e.currentTarget as HTMLElement;
     const r = el.getBoundingClientRect();
-    const nx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2); // -1..1
+    const nx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
     const ny = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
     rot.current.ty = nx * 0.6;
-    rot.current.tx = -0.35 + ny * 0.4;
+    rot.current.tx = -0.32 + ny * 0.4;
     if (layersRef.current) {
       layersRef.current.style.setProperty("--px", `${nx * 14}px`);
       layersRef.current.style.setProperty("--py", `${ny * 10}px`);
@@ -161,7 +212,7 @@ export const HeroStage: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const onLeave = () => {
-    rot.current.tx = -0.35;
+    rot.current.tx = -0.32;
     rot.current.ty = 0;
     if (layersRef.current) {
       layersRef.current.style.setProperty("--px", "0px");
