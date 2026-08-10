@@ -1,214 +1,134 @@
 .main {
-  min-height: 100vh;
   background-color: transparent;
   color: var(--foreground);
 }
 
-.heroCenter {
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+
+.heroSection {
+  padding-top: clamp(120px, 18vh, 200px);
+  padding-bottom: var(--band-loose);
+}
+
+/* Flush-left, one axis. Nothing on this page is centered. */
+.hero {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: var(--s-6);
+}
+
+/* Lead + ledger + actions travel together as one block so the figure can sit
+ * beside them without the hero rhythm depending on which column is taller. */
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-6);
+  min-width: 0;
+}
+
+/* Two columns only once the Ledger stops wrapping — that is 1024, not the
+ * 900px used for the section grid. */
+@media (min-width: 1024px) {
+  .hero {
+    --fig-col: clamp(320px, 32vw, 448px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--fig-col);
+    /* Declared explicitly: with no explicit rows, line -1 resolves to line 1
+     * and a `3 / -1` placement would collide with the name. */
+    grid-template-rows: repeat(3, auto);
+    column-gap: clamp(32px, 4.5vw, 72px);
+    row-gap: var(--s-6);
+    align-items: start;
+  }
+
+  .spanFull {
+    grid-column: 1 / -1;
+  }
+
+  .heroBody {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .colFig {
+    grid-column: 2;
+    grid-row: 3;
+    min-width: 0;
+  }
+}
+
+.heroMeta {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-mono);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+/* Newsreader's italic ampersand is a genuinely handsome character. */
+.amp {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1em;
+}
+
+.heroLead {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  line-height: 1.35;
+  color: var(--ink-2);
+  max-width: 34ch;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.heroLead em {
+  font-style: italic;
+}
+
+.heroFoot {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding-top: 120px;
-  padding-bottom: 40px;
+  gap: var(--s-7);
 }
 
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--foreground);
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  padding: 7px 16px;
-  margin-bottom: 28px;
-}
+/* ── Section rhythm — deliberately non-uniform ─────────────────────────── */
 
-.statusDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #16a34a;
-  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
-  animation: statusPulse 2.2s ease-out infinite;
-}
-
-@keyframes statusPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
-  }
-}
-
-@media (max-width: 768px) {
-  .statusPill {
-    font-size: 0.72rem;
-    padding: 6px 13px;
-  }
-}
-
-.heroDescription {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  max-width: 700px;
-  margin: 0 auto;
-  color: var(--foreground-muted);
-}
-
-.statSection {
+/* The hero's bottom band already separates these two. */
+.researchSection {
   padding-top: 0;
 }
 
-/* Skills Layout — glass category cards */
-.skillsContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 8px;
+/* Research positions and engineering are one idea in two parts. */
+.tightBand {
+  padding-top: var(--band-tight);
 }
 
-.skillCard {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  padding: 28px 26px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.skillCard:hover {
-  border-color: var(--foreground);
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.06);
-  transform: translateY(-4px);
-}
-
-.skillCardHead {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-
-.skillIcon {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--foreground);
-  color: #fff;
-  font-size: 0.95rem;
-  flex: 0 0 auto;
-}
-
-.skillGroupTitle {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--foreground);
+.colMono {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
   margin: 0;
-  flex: 1 1 auto;
-}
-
-.skillCount {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--foreground-muted);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  padding: 2px 9px;
-}
-
-.pillCloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-@media (max-width: 900px) {
-  .skillsContainer {
-    grid-template-columns: 1fr;
-  }
-}
-
-.hero {
-  padding: 80px 0 40px;
-}
-
-.heroContent {
-  max-width: 800px;
-}
-
-.heroTitle {
-  font-size: 80px;
-  line-height: 0.9;
-  margin-bottom: 24px;
-  letter-spacing: -0.06em;
-}
-
-.heroTitle strong {
-  font-weight: 800;
-}
-
-.heroSubtitle {
-  font-size: 20px;
-  color: var(--foreground-muted);
-  max-width: 600px;
-  line-height: 1.4;
-  font-weight: 500;
+  line-height: 1.7;
+  max-width: var(--measure);
 }
 
 @media (max-width: 768px) {
-  .heroTitle {
-    font-size: 60px;
+  .heroSection {
+    padding-top: clamp(96px, 14vh, 140px);
   }
-}
-
-.projectList {
-  display: flex;
-  flex-direction: column;
-}
-
-.experienceList {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Footer */
-.footer {
-  padding: 80px 0;
-  border-top: 1px solid var(--border);
-  text-align: center;
-}
-
-.footerText {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.footerContact {
-  display: inline-block;
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--foreground);
+  .hero {
+    gap: var(--s-5);
+  }
+  .heroLead {
+    max-width: none;
+  }
+  .heroFoot {
+    gap: var(--s-5);
+  }
 }

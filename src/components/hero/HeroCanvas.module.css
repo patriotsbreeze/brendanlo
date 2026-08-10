@@ -1,0 +1,7 @@
+/* The canvas fills the plate. The plate's border is the crop, so there is no
+ * radial mask any more — a vignette would soften exactly the frame edge that
+ * now carries the perspective reading. */
+.field {
+  position: absolute;
+  inset: 0;
+}

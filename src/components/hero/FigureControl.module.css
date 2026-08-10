@@ -1,0 +1,33 @@
+.surface {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* The whole mouse affordance for drag-to-orbit. A system cursor, unrelated to
+   * the blend-mode custom cursor the audit removed. */
+  cursor: grab;
+  /* pan-y alone would remove pinch-zoom, which fails WCAG 1.4.4. */
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Below the two-column breakpoint, and on any coarse pointer, the figure is
+ * autoplay-only. display:none also removes it from the tab order and the
+ * accessibility tree, which conditional rendering would not do hydration-safely. */
+@media (pointer: coarse), (max-width: 1023px) {
+  .surface {
+    display: none;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  /* clip-path rather than opacity: an opacity-0 text node is still an LCP
+   * candidate and would compete with the <h1>. */
+  clip-path: inset(50%);
+}

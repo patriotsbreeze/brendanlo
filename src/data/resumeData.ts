@@ -26,8 +26,23 @@ export interface Publication {
   year: string;
   title: string;
   venue: string;
+  /** Short form for tight columns, e.g. "J. Cell Biol." */
+  venueShort: string;
   type: string;
+  /** Bare DOI, rendered in mono so the claim is checkable in one click. */
+  doi?: string;
   link?: string;
+}
+
+export type ExperienceKind = "research" | "engineering";
+
+export interface Experience {
+  company: string;
+  role: string;
+  location: string;
+  period: string;
+  kind: ExperienceKind;
+  description: string[];
 }
 
 export const resumeData = {
@@ -100,7 +115,9 @@ export const resumeData = {
       year: "2026",
       title: "Sequential changes in calcium transients during M phase regulate cardiomyocyte proliferation.",
       venue: "Journal of Cell Biology",
+      venueShort: "J. Cell Biol.",
       type: "Journal Article",
+      doi: "10.1083/jcb.202505134",
       link: "https://doi.org/10.1083/jcb.202505134"
     },
     {
@@ -108,6 +125,7 @@ export const resumeData = {
       year: "2026",
       title: "A horizon-dependent intrinsic-dimension theory of scaling for biological forecasting.",
       venue: "HiLD Workshop, International Conference on Machine Learning (ICML)",
+      venueShort: "ICML · HiLD",
       type: "Poster",
       link: "https://openreview.net/forum?id=1ZFyQRalEc"
     },
@@ -116,6 +134,7 @@ export const resumeData = {
       year: "2026",
       title: "ERVNet: A three-module framework for predicting endogenous retrovirus reactivation, gene propagation, and immunogenicity.",
       venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
+      venueShort: "ICML · FM4LS",
       type: "Poster",
       link: "https://openreview.net/forum?id=kbn0sqjGFv"
     },
@@ -124,6 +143,7 @@ export const resumeData = {
       year: "2026",
       title: "PROTEUS: Predicting how post-translational modifications alter drug binding affinity.",
       venue: "FM4LS Workshop, International Conference on Machine Learning (ICML)",
+      venueShort: "ICML · FM4LS",
       type: "Poster",
       link: "https://openreview.net/forum?id=wZVHPYvc65"
     }
@@ -135,6 +155,7 @@ export const resumeData = {
       role: "Summer Research Intern — Blumberg Lab",
       location: "New York, NY",
       period: "Summer 2026",
+      kind: "research",
       description: [
         "Applying Topological Data Analysis (TDA) to RNA-Seq annotation."
       ]
@@ -144,6 +165,7 @@ export const resumeData = {
       role: "Summer Research Intern — Shasha Lab",
       location: "New York, NY",
       period: "Summer 2026",
+      kind: "research",
       description: [
         "Building an agentic AI workflow for a calorie-tracking application."
       ]
@@ -153,6 +175,7 @@ export const resumeData = {
       role: "Pediatrics Summer Research Intern — Heart Regeneration (Kühn & Liu Lab)",
       location: "New York, NY",
       period: "Summer 2025",
+      kind: "research",
       description: [
         "Ran data analyses with Python, Fiji/ImageJ, and VBA to uncover calcium's role in cardiomyocyte proliferation.",
         "Co-authored the resulting paper, published in the Journal of Cell Biology."
@@ -163,6 +186,7 @@ export const resumeData = {
       role: "Summer Research Intern — Epigenetics of Congenital Heart Disease (Long Lab)",
       location: "New York, NY",
       period: "Summer 2024",
+      kind: "research",
       description: [
         "Performed PCR, Western blot, cloning, and RNA-seq analyses in R and Python to identify genes regulated by JARID2.",
         "Investigated the role of the PRC2 complex in heart development and congenital heart disease."
@@ -173,6 +197,7 @@ export const resumeData = {
       role: "Co-President / Co-Founder",
       location: "Great Neck, NY",
       period: "Oct 2024 - Present",
+      kind: "engineering",
       description: [
         "Recruited and led full-stack projects with 70+ members using JavaScript, TypeScript, React.js, Supabase, and SQL.",
         "Built and maintained 20+ websites for nonprofits, churches, businesses, and school clubs."
@@ -183,6 +208,7 @@ export const resumeData = {
       role: "Chief Technology Officer / Head of Newsletter",
       location: "Great Neck, NY",
       period: "Jan 2024 - Present",
+      kind: "engineering",
       description: [
         "Led 15+ people to build the website and newsletter, growing a following of 7000+ students for volunteer opportunities."
       ]
@@ -192,6 +218,7 @@ export const resumeData = {
       role: "Board Member / App Leader",
       location: "Great Neck, NY",
       period: "Jan 2024 - Present",
+      kind: "engineering",
       description: [
         "Taught 20+ students to code in AI/ML, Python, and Java.",
         "Led 10+ students to build a school app for 1300+ students using Swift."
@@ -202,6 +229,7 @@ export const resumeData = {
       role: "Head Webmaster / Lead Programmer",
       location: "Great Neck, NY",
       period: "Sep 2024 - Present",
+      kind: "engineering",
       description: [
         "Coded trajectory-generation algorithms and robot control, competing at the FIRST Robotics World Championship (2025)."
       ]
@@ -211,12 +239,13 @@ export const resumeData = {
       role: "Independent Researcher",
       location: "New York, NY",
       period: "Sep 2024 - Sep 2025",
+      kind: "research",
       description: [
         "Ran ML-based (Random Forest, Python, Schrödinger Maestro) virtual screening and GROMACS molecular dynamics simulations.",
         "Repurposed drugs to inhibit the PRC2 protein complex as a target for cancer and congenital heart disease."
       ]
     }
-  ],
+  ] as Experience[],
 
   skillsList: {
     frontend: [

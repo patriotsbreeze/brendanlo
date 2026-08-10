@@ -1,31 +1,38 @@
+/* Motion is the act of typesetting: rules draw, then their content rises.
+ * Amplitude is 12px, not 34-46px — big travel is the template-reveal tell.
+ * No blur (it also forces expensive compositing on large subtrees). */
+
 .reveal {
-  opacity: 0;
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: blur(6px);
-  will-change: transform, opacity, filter;
+  transition-timing-function: var(--ease-out);
 }
 
-.up {
-  transform: translateY(34px);
+.rise {
+  opacity: 0;
+  transform: translateY(12px);
+  transition-property: opacity, transform;
+  transition-duration: var(--dur-3);
 }
-.left {
-  transform: translateX(-40px);
-}
-.right {
-  transform: translateX(40px);
-}
-.scale {
-  transform: scale(0.94);
-}
-.depth {
-  transform: perspective(1200px) rotateX(14deg) translateY(46px) scale(0.97);
-  transform-origin: 50% 100%;
+
+.rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition-property: transform;
+  transition-duration: var(--dur-4);
 }
 
 .shown {
   opacity: 1;
-  filter: blur(0);
   transform: none;
+}
+
+/* The global reduced-motion block zeroes durations but leaves the transform in
+ * place, so state has to be neutralised here or content stays displaced. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .rise,
+  .rule {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }

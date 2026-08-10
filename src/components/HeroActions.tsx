@@ -1,56 +1,18 @@
-"use client";
-
-import React, { useRef } from "react";
-import { FaArrowDown, FaFileArrowDown } from "react-icons/fa6";
+import React from "react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import styles from "./HeroActions.module.css";
 
-const Magnetic: React.FC<{
-  children: React.ReactNode;
-  href: string;
-  variant: "solid" | "ghost";
-  download?: boolean;
-}> = ({ children, href, variant, download }) => {
-  const ref = useRef<HTMLAnchorElement>(null);
-
-  const onMove = (e: React.PointerEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const r = el.getBoundingClientRect();
-    const x = e.clientX - (r.left + r.width / 2);
-    const y = e.clientY - (r.top + r.height / 2);
-    el.style.transform = `translate(${x * 0.25}px, ${y * 0.4}px)`;
-  };
-  const onLeave = () => {
-    if (ref.current) ref.current.style.transform = "translate(0,0)";
-  };
-
-  return (
-    <a
-      ref={ref}
-      href={href}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-      className={`${styles.btn} ${variant === "solid" ? styles.solid : styles.ghost}`}
-      {...(download
-        ? { download: "BrendanLo_Resume.pdf" }
-        : {})}
-      {...(href.startsWith("http")
-        ? { target: "_blank", rel: "noopener noreferrer" }
-        : {})}
-    >
-      <span className={styles.btnInner}>{children}</span>
-    </a>
-  );
-};
-
+/* No pills, no magnetism, no gradient loop. A 1px underline that draws
+ * left-to-right on hover, via background-size so it never triggers layout. */
 export const HeroActions: React.FC = () => (
   <div className={styles.actions}>
-    <Magnetic href="/BrendanLo_Resume.pdf" variant="solid" download>
-      <FaFileArrowDown size={15} /> Resume
-    </Magnetic>
-    <Magnetic href="#projects" variant="ghost">
-      View Work <FaArrowDown size={13} />
-    </Magnetic>
+    <a href="/BrendanLo_Resume.pdf" download="BrendanLo_Resume.pdf" className={styles.btn}>
+      Résumé
+      <ArrowDown size={14} strokeWidth={1.25} aria-hidden />
+    </a>
+    <a href="#publications" className={styles.btn}>
+      Selected research
+      <ArrowRight size={14} strokeWidth={1.25} aria-hidden />
+    </a>
   </div>
 );

@@ -1,111 +1,85 @@
+/* Inverted band. Note the accent is unusable here — accent on ink is only
+ * 2.47:1 — so the highlight colour in this section is paper, not accent. */
 .footer {
-  position: relative;
-  margin-top: 80px;
-  padding: 110px 0 40px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--band-loose) 0 var(--band-tight);
+  margin-top: var(--band);
 }
 
 .inner {
-  position: relative;
-  z-index: 1;
-  max-width: var(--container-max-width);
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 0 30px;
+  padding: 0 var(--page-pad);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: var(--s-6);
 }
 
 .kicker {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-mono);
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--foreground-muted);
-  margin-bottom: 20px;
+  color: var(--ink-4);
+  margin: 0;
 }
 
 .big {
-  font-size: clamp(2.6rem, 8vw, 5.5rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.98;
-  margin: 0 0 44px;
-  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: var(--t-title);
+  font-weight: 400;
+  line-height: var(--lh-title);
+  letter-spacing: var(--tr-display);
+  color: var(--paper);
+  margin: 0;
 }
 
-.emailBtn {
+.email {
   display: inline-flex;
   align-items: center;
-  padding: 16px 34px;
-  border-radius: 100px;
-  background: var(--foreground);
-  color: #fff;
-  font-size: 1.05rem;
-  font-weight: 600;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.3s ease;
-  will-change: transform;
+  gap: var(--s-2);
+  font-size: var(--t-lead);
+  color: var(--paper);
+  min-height: 44px;
+  background-image: linear-gradient(var(--paper), var(--paper));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size var(--dur-2) var(--ease-io);
 }
 
-.emailBtn:hover {
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
-}
-
-.emailInner {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.socials {
-  margin-top: 8px;
+.email:hover,
+.email:focus-visible {
+  background-size: 100% 1px;
 }
 
 .bar {
-  margin-top: 72px;
   width: 100%;
-  padding-top: 26px;
-  border-top: 1px solid var(--border);
+  margin-top: var(--s-7);
+  padding-top: var(--s-5);
+  border-top: 1px solid rgba(245, 243, 238, 0.16);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
 }
 
 .copy {
-  font-size: 0.85rem;
-  color: var(--foreground-muted);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-mono);
+  text-transform: uppercase;
+  color: var(--ink-4);
 }
 
-.top {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--foreground);
-  opacity: 0.7;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+.bar a {
+  color: var(--ink-4);
 }
 
-.top:hover {
-  opacity: 1;
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .footer {
-    padding: 80px 0 32px;
-    margin-top: 40px;
-  }
-  .bar {
-    flex-direction: column;
-    text-align: center;
-  }
+.bar a:hover,
+.bar a:focus-visible {
+  color: var(--paper);
 }
