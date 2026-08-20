@@ -87,6 +87,13 @@ export const resumeData = {
       featured: true
     },
     {
+      title: "SIDEWALK",
+      description: "Turns New York City's PDF-only street-vending rules into a queryable geospatial dataset behind an offline-first map, in seven languages. 2nd place, NYC Hackathon (Shopify × Base44).",
+      impact: "A Deno and TypeScript ETL resolves each restriction to a block face by breadth-first search over the street centerline graph; the React and Leaflet PWA is covered by 180+ unit and Playwright end-to-end tests.",
+      technologies: ["Deno", "TypeScript", "React", "Leaflet", "Playwright", "PWA"],
+      featured: true
+    },
+    {
       title: "SATsaurus",
       description: "Gamified SAT-prep platform delivering free, interactive practice to 1000+ students worldwide.",
       technologies: ["Next.js", "Supabase", "SQL", "TailwindCSS"],

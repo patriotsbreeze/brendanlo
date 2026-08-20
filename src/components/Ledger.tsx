@@ -8,6 +8,7 @@ const ROWS: { key: string; value: string; note?: string }[] = [
   { key: "Research", value: "4 papers, 2026", note: "J. Cell Biol. · ICML ×3" },
   { key: "Labs", value: "4 positions", note: "Columbia · NYU · Weill Cornell ×2" },
   { key: "Engineering", value: "20+ sites shipped", note: "club of 70, co-founded" },
+  { key: "Recognition", value: "Y Combinator Startup School 2026", note: "selected attendee" },
   { key: "Now", value: "Open to research and engineering positions" },
 ];
 
