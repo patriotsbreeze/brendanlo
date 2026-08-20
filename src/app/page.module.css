@@ -132,3 +132,61 @@
     gap: var(--s-5);
   }
 }
+
+/* ── Short viewports ───────────────────────────────────────────────────────
+ * The hero has to land five things above the fold: the meta line, the name,
+ * the lead, the ledger, and the résumé/social row. A laptop's real viewport
+ * is the panel minus browser chrome — about 780px on a 1440x900 display, and
+ * 720px on a 1280x800 one — and at the design's full spacing the links sat
+ * 100px below it.
+ *
+ * Compressing the hero's own rhythm rather than cutting content: nothing is
+ * removed and nothing is resized here, the air between blocks just closes up.
+ * Screens tall enough to afford the full spacing never see any of this.
+ *
+ * 900px, not a rounder 860: at full spacing the row ends 880px down, so a
+ * breakpoint below that leaves a band of viewport heights that miss the
+ * compression and still clip. The threshold has to sit above the tallest
+ * layout it is correcting.
+ *
+ * row-gap, not gap: .hero is a grid above 1024px, where the column gap is a
+ * horizontal measure that has nothing to do with vertical fit. On the flex
+ * column below that breakpoint row-gap is the gap, so one property serves
+ * both layouts. */
+@media (max-height: 900px) {
+  /* Doubled class deliberately. Components.module.css declares
+   * `.section { padding-top: var(--band) }`, it is bundled after this file,
+   * and both selectors are a single class — so a plain `.heroSection` loses
+   * the tie and the padding-top silently does nothing. 0,2,0 beats 0,1,0.
+   * The floor clears the fixed masthead, which is about 48px tall. */
+  .heroSection.heroSection {
+    padding-top: clamp(76px, 10vh, 120px);
+    padding-bottom: var(--band);
+  }
+
+  .hero {
+    row-gap: var(--s-5);
+  }
+
+  .heroBody {
+    gap: var(--s-5);
+  }
+}
+
+/* Second tier: on a 720px viewport the spacing cuts alone still leave the
+ * social row a few pixels short, so the lead — four lines of display type at
+ * 28px — gives up a step as well. It is the only block here with slack that
+ * does not cost information. */
+@media (max-height: 760px) {
+  .heroLead {
+    font-size: clamp(1.125rem, 1.9vw, 1.375rem);
+  }
+
+  /* One more step out of the gaps. At 720px the type cut alone left the social
+   * row 10px off the fold, which font-loading jitter or a 110% zoom would eat.
+   * 16px still reads as a deliberate interval between blocks rather than a
+   * collapse, and it buys ~26px of real clearance. */
+  .heroBody {
+    gap: var(--s-4);
+  }
+}

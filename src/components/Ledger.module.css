@@ -48,3 +48,12 @@
     gap: var(--s-1);
   }
 }
+
+/* Five rows at 50px each is 250px of the hero's height budget. Closing the
+ * row padding one step reclaims 40px of that on short viewports without
+ * touching the type, and the rules stay on the same 1px hairline. */
+@media (max-height: 900px) {
+  .row {
+    padding: var(--s-2) 0;
+  }
+}
