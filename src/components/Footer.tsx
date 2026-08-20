@@ -10,9 +10,9 @@ export const Footer: React.FC = () => (
     <div className={styles.inner}>
       <p className={styles.kicker}>§ Contact</p>
       <h2 className={styles.big}>
-        Looking for summer 2027 research
+        Open to research and engineering
         <br />
-        and engineering internships.
+        positions for summer 2027.
       </h2>
 
       <a href={`mailto:${resumeData.email}`} className={styles.email}>
