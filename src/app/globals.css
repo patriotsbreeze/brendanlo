@@ -6,6 +6,7 @@
   --ink: #000000;
   --ink-muted: #333333;
   --rule: #e5e5e5;
+  --rule-ink: #9a9a9a; /* bullet markers: visible, but quieter than the text */
 
   --font-sans: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, "Helvetica Neue", sans-serif;
@@ -120,18 +121,31 @@ a:focus-visible {
   margin-bottom: 4px;
 }
 
-/* An entry line: "name (years) - what happened". The leading token is a link
- * when there is somewhere to point, and plain text when there is not. */
-.entry {
+/* Bullets sit in the left margin rather than indenting the text, so every line
+ * of prose starts on the same axis as the headings above it. */
+ul {
   margin: 0 0 10px;
+  padding-left: 18px;
+  list-style: disc;
 }
 
-.entry .name {
-  color: var(--ink);
+li {
+  margin-bottom: 6px;
 }
 
-.year {
-  color: var(--ink-muted);
+li::marker {
+  color: var(--rule-ink);
+}
+
+/* Nested takes: a hollow marker, so the second level reads as a footnote to the
+ * claim above it rather than a sibling claim. */
+li > ul {
+  margin: 6px 0 0;
+  list-style: circle;
+}
+
+li > ul > li:last-child {
+  margin-bottom: 0;
 }
 
 .footer {
