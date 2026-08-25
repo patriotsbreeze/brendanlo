@@ -37,10 +37,8 @@ export default function Page() {
       </p>
 
       <p className="bio">
-        hi, i&apos;m brendan lo, 18, cs + math @ uchicago. i&apos;m pretty
-        interested in ai/ml (sometimes bio) research. i enjoy going to hackathons
-        (esp b/c free things + prizes), hanging out with my friends, and building
-        really cool things.
+        hi, i&apos;m brendan lo, 18, cs + math @ uchicago. i enjoy ai/ml
+        research, hanging out with my friends, and building really cool things.
       </p>
 
       <h2>highlights &amp; accomplishments</h2>
