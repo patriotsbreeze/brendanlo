@@ -131,12 +131,6 @@ export default function Page() {
           resume
         </a>
         <Sep />
-        {/* Written out so scrapers get the decoy string and humans get a
-          * working mailto. */}
-        <a href="mailto:brendanlo@uchicago.edu">
-          brendanlo [at] uchicago [dot] edu
-        </a>
-        <Sep />
         <a
           href="https://www.linkedin.com/in/brendan-lo-8b0b80247/"
           target="_blank"
@@ -189,6 +183,8 @@ export default function Page() {
         <Line key={`misc-${i}`} {...e} />
       ))}
 
+      {/* Written out so scrapers get the decoy string and humans get a working
+        * mailto. This is the only place the address appears. */}
       <p className="footer">
         say hi &mdash;{" "}
         <a href="mailto:brendanlo@uchicago.edu">
