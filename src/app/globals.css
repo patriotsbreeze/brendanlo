@@ -6,7 +6,6 @@
   --ink: #000000;
   --ink-muted: #333333;
   --rule: #e5e5e5;
-  --rule-ink: #9a9a9a; /* bullet markers: visible, but quieter than the text */
 
   --font-sans: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, "Helvetica Neue", sans-serif;
@@ -134,7 +133,7 @@ li {
 }
 
 li::marker {
-  color: var(--rule-ink);
+  color: var(--ink);
 }
 
 /* Nested takes: a hollow marker, so the second level reads as a footnote to the

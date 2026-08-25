@@ -43,9 +43,9 @@ export default function Page() {
 
       <h2>highlights &amp; accomplishments</h2>
       <p>
-        3x icml, yc sus &rsquo;26, eagle scout, 1x journal of cell biology
-        paper, frc robotics world&rsquo;s engineering inspiration award, 2nd @
-        nyc hackathon, and a bunch of projects totalling 10k users.
+        3x icml, yc sus &rsquo;26, eagle scout, 2nd @ nyc hackathon, 1x journal
+        of cell biology paper, frc robotics world&rsquo;s engineering inspiration
+        award, and a bunch of projects totalling 10k users.
       </p>
 
       <h2>my takes</h2>
@@ -53,6 +53,10 @@ export default function Page() {
         <li>
           philosophy is important; but uncontrolled philosophical thinking
           -&gt; arrogance.
+        </li>
+        <li>
+          distribution is the most important thing not at scale; but the product
+          is the most important thing at scale.
         </li>
         <li>
           agi will be reached when we are able to make something capable of all
