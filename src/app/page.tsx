@@ -45,9 +45,9 @@ export default function Page() {
 
       <h2>highlights &amp; accomplishments</h2>
       <p>
-        3x icml, yc sus &rsquo;26, eagle scout, 2nd @ nyc hackathon, 1x journal
-        of cell biology paper, frc robotics world&rsquo;s engineering inspiration
-        award, and a bunch of projects totalling 10k users.
+        3x icml, yc sus &rsquo;26, eagle scout, 1x journal of cell biology
+        paper, frc robotics world&rsquo;s engineering inspiration award, 2nd @
+        nyc hackathon, and a bunch of projects totalling 10k users.
       </p>
 
       <h2>my takes</h2>
@@ -58,9 +58,12 @@ export default function Page() {
         </li>
         <li>
           agi will be reached when we are able to make something capable of all
-          human senses. for ex, neural networks and CoT reasoning are partially
-          based on how the brain works.
+          human senses.
           <ul>
+            <li>
+              for ex, neural networks and CoT reasoning are partially based on
+              how the brain works.
+            </li>
             <li>
               world models, better synthetic data generation (digital twins or
               better?), llms, and some new architecture (still unknown) will get
