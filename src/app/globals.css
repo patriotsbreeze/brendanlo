@@ -1,220 +1,157 @@
+/* One stylesheet, no CSS modules. The page is a single column of text, so the
+ * whole thing fits in ~120 lines and there is nothing to scope. */
+
 :root {
-  /* Declares a light-only site. The previous @media (prefers-color-scheme: dark)
-   * block re-declared identical light values, which told the browser nothing —
-   * form controls and scrollbars still got auto-darkened. */
+  --bg: #ffffff;
+  --ink: #000000;
+  --ink-muted: #333333;
+  --rule: #e5e5e5;
+
+  --font-sans: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Helvetica Neue", sans-serif;
+
+  --measure: 640px;
   color-scheme: light;
+}
 
-  /* ── Paper & ink ──────────────────────────────────────────────
-   * Warm stock, not #fff: a 1px near-black hairline on pure white
-   * aliases and reads digital; on paper at L*≈90 it reads printed.
-   * Not yet wired to the legacy aliases below — see the palette step. */
-  --paper: #f5f3ee;
-  --paper-raised: #fbfaf7;
-  --paper-plate: #ffffff;
+/* System dark preference only — there is no toggle, so nothing needs to win
+ * over a [data-theme] attribute here. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0d0d;
+    --ink: #f2f2f2;
+    --ink-muted: #b8b8b8;
+    --rule: #262626;
+    color-scheme: dark;
+  }
+}
 
-  --ink: #14120f;   /* 16.86:1 on paper */
-  --ink-2: #3c3833; /* 10.49:1 */
-  --ink-3: #625d55; /*  5.89:1 — muted text */
-  --ink-4: #948e84; /*  2.93:1 — NON-TEXT ONLY */
-
-  --rule: #dbd6cc;
-  --rule-strong: #c0bab0;
-
-  /* Iron-oxide, the editor's proof mark. 6.83:1 — passes AA for body. */
-  --accent: #9b2c1e;
-  --accent-tint: rgba(155, 44, 30, 0.08);
-
-  /* ── Type roles ─────────────────────────────────────────────── */
-  --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  --font-ui: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
-
-  --t-display: clamp(3.25rem, 11vw, 8.5rem);
-  --t-title: clamp(2.25rem, 5.2vw, 3.75rem);
-  --t-lead: clamp(1.25rem, 2.1vw, 1.75rem);
-  --t-h3: clamp(1.25rem, 1.6vw, 1.5rem);
-  --t-body: 1.0625rem;
-  --t-small: 0.9375rem;
-  --t-meta: 0.75rem;
-  --t-micro: 0.6875rem;
-
-  --lh-display: 0.92;
-  --lh-title: 1.02;
-  --lh-body: 1.55;
-  --tr-display: -0.02em;
-  --tr-mono: 0.09em;
-  --measure: 66ch;
-
-  /* ── Space (4px base, non-linear) ───────────────────────────── */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-  --s-10: 128px;
-  --s-11: 176px;
-
-  /* ── Rhythm — deliberately non-uniform ──────────────────────── */
-  --band-tight: clamp(48px, 7vw, 88px);
-  --band: clamp(72px, 10vw, 136px);
-  --band-loose: clamp(104px, 14vw, 192px);
-
-  /* ── Grid ───────────────────────────────────────────────────── */
-  --page-max: 1280px;
-  --page-pad: clamp(20px, 5vw, 64px);
-  --gutter-col: 168px;
-  --col-gap: clamp(20px, 3vw, 40px);
-
-  /* ── Radii — print-like. There is no pill radius. ───────────── */
-  --r-0: 0;
-  --r-1: 2px;
-  --r-2: 4px;
-
-  /* ── Motion ─────────────────────────────────────────────────── */
-  /* The old expo curve overshot into springy at 0.9s; this settles. */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-1: 120ms;
-  --dur-2: 240ms;
-  --dur-3: 480ms;
-  --dur-4: 720ms;
-  --stagger: 60ms;
-
-  /* One elevation token, used on exactly one element. */
-  --lift: 0 1px 2px rgba(20, 18, 15, 0.04), 0 8px 24px rgba(20, 18, 15, 0.05);
-
-  /* ── Legacy aliases ───────────────────────────────────────────
-   * --foreground-muted alone has 21 references and --border 18, so the whole
-   * site repaints from here rather than from a 100-site find-and-replace.
-   * Retire these once every module speaks the ink/paper vocabulary. */
-  --background: var(--paper);
-  --foreground: var(--ink);
-  --foreground-muted: var(--ink-3);
-  --border: var(--rule);
-  --section-spacing: var(--band);
-  --container-max-width: var(--page-max);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html {
-  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
+body {
   margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  background: var(--background);
-  color: var(--foreground);
-  /* Was 'Inter', which is never loaded anywhere — the site silently fell
-   * through to -apple-system, rendering as SF on macOS and Segoe UI on Windows. */
-  font-family: var(--font-ui);
-  font-size: var(--t-body);
-}
-
-
-/* Static paper: a 24px baseline grid plus SVG grain, both painted by the
- * compositor. Replaces the full-viewport requestAnimationFrame dot field that
- * warped ~1,500 dots away from the cursor — zero JS, zero battery, and it
- * frees the whole animation budget for the hero canvas. */
-body {
-  min-height: 100vh;
-  line-height: var(--lh-body);
+  background: var(--bg);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  background-color: var(--paper);
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
-  background-attachment: fixed;
+  text-rendering: optimizeLegibility;
 }
 
-/* Site content sits above the hero canvas layer. */
 main {
-  position: relative;
-  z-index: 1;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 72px 20px 96px;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: var(--tr-display);
-  line-height: var(--lh-title);
+@media (max-width: 640px) {
+  main {
+    padding: 40px 18px 64px;
+  }
+}
+
+h1 {
+  margin: 0;
   color: var(--ink);
-  text-wrap: balance;
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  margin: 32px 0 8px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 p {
-  color: var(--ink-3);
-  font-size: var(--t-body);
-  line-height: var(--lh-body);
-  text-wrap: pretty;
-}
-
-em {
-  font-style: italic;
-}
-
-/* Gene and protein symbols are italicised by convention in biology. */
-.sci {
-  font-family: var(--font-display);
-  font-style: italic;
+  margin: 0 0 10px;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s ease;
 }
 
-/* The custom blend-mode cursor set `cursor: none` on body, which broke
- * large-cursor and high-contrast-cursor users. Real focus rings instead. */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: var(--r-1);
+a:hover {
+  opacity: 0.55;
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--paper);
+a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 1px;
 }
 
-img {
-  max-width: 100%;
+/* The header line: name left, one nav link right, baselines aligned. */
+.headerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.headerRow .aside {
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.links {
+  margin-bottom: 14px;
+}
+
+/* Separator between the inline link list items. A real character rather than a
+ * border so it wraps with the text on narrow screens. --rule is tuned for
+ * hairlines and disappears at text size, so this takes the body ink. */
+.links .sep {
+  color: var(--ink-muted);
+  padding: 0 5px;
+}
+
+.bio {
+  margin-bottom: 4px;
+}
+
+/* An entry line: "name (years) - what happened". The leading token is a link
+ * when there is somewhere to point, and plain text when there is not. */
+.entry {
+  margin: 0 0 10px;
+}
+
+.entry .name {
+  color: var(--ink);
+}
+
+.year {
+  color: var(--ink-muted);
+}
+
+.footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  a {
+    transition: none;
   }
-  /* Zeroing durations alone leaves transforms in place, so neutralise both. */
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* setPointerCapture routes EVENTS, but the CSS cursor still resolves against
- * whatever is under the pointer — so a drag that leaves the plate would show
- * the wrong cursor without a document-level flag. Scoped to an attribute on
- * <html>, not a bare `body *` restyle. These are system cursors, unrelated to
- * the blend-mode custom cursor the audit removed. */
-html[data-hero-drag="orbit"],
-html[data-hero-drag="orbit"] * {
-  cursor: grabbing !important;
-}
-
-html[data-hero-drag="scrub"],
-html[data-hero-drag="scrub"] * {
-  cursor: ns-resize !important;
 }

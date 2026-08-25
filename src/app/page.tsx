@@ -1,140 +1,217 @@
-import styles from "./page.module.css";
-import { resumeData } from "@/data/resumeData";
-import {
-  Container,
-  Section,
-  EditorialSection,
-  ProjectPlate,
-  ProjectRow,
-  PublicationRow,
-  ExperienceRow,
-  EducationRow,
-  ColophonRow,
-} from "@/components/Common";
-import { SocialLinks } from "@/components/SocialLinks";
-import { HeroName } from "@/components/HeroName";
-import { HeroFigure } from "@/components/hero/HeroFigure";
-import { HeroActions } from "@/components/HeroActions";
-import { Ledger } from "@/components/Ledger";
-import { Footer } from "@/components/Footer";
-import { Reveal } from "@/components/Reveal";
+import type { ReactNode } from "react";
 
-export default function Home() {
-  const { experience, featuredProjects, publications, education, skillsList } = resumeData;
+/* Every section on this page is the same shape: a leading token that is
+ * sometimes a link, an optional year, and a sentence. One component, one data
+ * array per heading. */
+type Entry = {
+  name: string;
+  href?: string;
+  years?: string;
+  body: ReactNode;
+};
 
-  const research = experience.filter((e) => e.kind === "research");
-  const engineering = experience.filter((e) => e.kind === "engineering");
-  const [plate, ...rest] = featuredProjects;
+const research: Entry[] = [
+  {
+    name: "columbia",
+    href: "https://www.columbia.edu/",
+    years: "2026",
+    body: "topological data analysis for rna-seq annotation in the blumberg lab.",
+  },
+  {
+    name: "nyu",
+    href: "https://cs.nyu.edu/~shasha/",
+    years: "2026",
+    body: "built an agentic ai workflow for a calorie-tracking app in the shasha lab.",
+  },
+  {
+    name: "weill cornell",
+    href: "https://doi.org/10.1083/jcb.202505134",
+    years: "2025",
+    body: "python + fiji/imagej + vba analysis on how calcium drives cardiomyocyte proliferation (kühn & liu lab). ended up as a paper in the journal of cell biology.",
+  },
+  {
+    name: "weill cornell",
+    years: "2024",
+    body: "pcr, western blot, cloning, and rna-seq in r + python to find genes regulated by jarid2 (long lab). basically: what prc2 does to a developing heart.",
+  },
+  {
+    name: "prc2 drug discovery",
+    years: "2024-2025",
+    body: "random-forest virtual screening in schrödinger maestro + gromacs md sims, repurposing drugs to inhibit prc2 for cancer and congenital heart disease.",
+  },
+];
 
+const papers: Entry[] = [
+  {
+    name: "sequential changes in calcium transients during M phase",
+    href: "https://doi.org/10.1083/jcb.202505134",
+    years: "2026",
+    body: "journal of cell biology. liu et al., i'm the ninth author.",
+  },
+  {
+    name: "a horizon-dependent intrinsic-dimension theory of scaling",
+    href: "https://openreview.net/forum?id=1ZFyQRalEc",
+    years: "2026",
+    body: "icml hild workshop. why biological forecasting scales the way it does.",
+  },
+  {
+    name: "ervnet",
+    href: "https://openreview.net/forum?id=kbn0sqjGFv",
+    years: "2026",
+    body: "icml fm4ls workshop. three-module framework predicting endogenous retrovirus reactivation, propagation, and immunogenicity.",
+  },
+  {
+    name: "proteus",
+    href: "https://openreview.net/forum?id=wZVHPYvc65",
+    years: "2026",
+    body: "icml fm4ls workshop. predicting how post-translational modifications change drug binding affinity.",
+  },
+];
+
+const projects: Entry[] = [
+  {
+    name: "resource",
+    href: "https://devpost.com/software/resource-i3nq1y",
+    body: "ai marketplace for donating, reselling, or recycling stuff you don't want. next.js, supabase, postgres, gemini for image recognition, mapbox for the community map.",
+  },
+  {
+    name: "sidewalk",
+    body: "turned nyc's pdf-only street-vending rules into a queryable geospatial dataset behind an offline-first map, in 7 languages. deno etl resolves each restriction to a block face via bfs over the street centerline graph. 2nd place, nyc hackathon (shopify × base44).",
+  },
+  {
+    name: "satsaurus",
+    body: "gamified sat prep, free, 1000+ students. next.js + supabase.",
+  },
+  {
+    name: "gns web dev club",
+    href: "https://gnswebdev.club/projects",
+    body: "cofounded it, 70+ members, 20+ sites shipped for nonprofits, churches, businesses, and school clubs.",
+  },
+  {
+    name: "force network",
+    href: "https://forcenetwork.cloud",
+    body: "hosting hub for 100+ minecraft servers, 800+ users. node, docker, mongodb, pterodactyl.",
+  },
+];
+
+const misc: Entry[] = [
+  {
+    name: "y combinator startup school",
+    years: "2026",
+    body: "selected attendee.",
+  },
+  {
+    name: "first robotics 2638",
+    years: "2024-2026",
+    body: "lead programmer + head webmaster. wrote the trajectory generation and robot control; went to worlds in 2025.",
+  },
+  {
+    name: "kudos connect",
+    years: "2024-2026",
+    body: "cto + newsletter lead, 15+ people, 7000+ students reading about volunteer opportunities.",
+  },
+  {
+    name: "other stuff",
+    body: "eagle scout, 3x 1st place science olympiad regionals, cross country all-conference.",
+  },
+];
+
+function Line({ name, href, years, body }: Entry) {
   return (
-    <div className={styles.main}>
-      {/* Hero */}
-      <Section id="about" className={styles.heroSection}>
-        <Container>
-          <div className={styles.hero}>
-            {/* immediate: above the fold, so it ships visible in the SSR HTML
-              * rather than at opacity 0 until hydration lands. */}
-            <Reveal immediate className={styles.spanFull}>
-              <p className={styles.heroMeta}>
-                CS <span className={styles.amp}>&amp;</span> Mathematics · University of
-                Chicago · 2030
-              </p>
-            </Reveal>
+    <p className="entry">
+      {href ? (
+        <a href={href} target="_blank" rel="noopener noreferrer">
+          {name}
+        </a>
+      ) : (
+        <span className="name">{name}</span>
+      )}
+      {years ? <span className="year"> ({years})</span> : null} - {body}
+    </p>
+  );
+}
 
-            <HeroName text={resumeData.name} className={styles.spanFull} />
+function Sep() {
+  return <span className="sep">|</span>;
+}
 
-            <div className={styles.heroBody}>
-              <Reveal immediate index={1}>
-                <p className={styles.heroLead}>
-                  Computational biology and machine learning. Co-author on four 2026
-                  papers — one in the <em>Journal of Cell Biology</em>, three at ICML
-                  workshops — written in high school.
-                </p>
-              </Reveal>
+export default function Page() {
+  return (
+    <main>
+      <div className="headerRow">
+        <h1>brendan lo</h1>
+        <span className="aside">chicago, il</span>
+      </div>
 
-              <Reveal immediate index={2}>
-                <Ledger />
-              </Reveal>
+      <p className="links">
+        <a href="/BrendanLo_Resume.pdf" target="_blank" rel="noopener noreferrer">
+          resume
+        </a>
+        <Sep />
+        {/* Written out so scrapers get the decoy string and humans get a
+          * working mailto. */}
+        <a href="mailto:brendanlo@uchicago.edu">
+          brendanlo [at] uchicago [dot] edu
+        </a>
+        <Sep />
+        <a
+          href="https://www.linkedin.com/in/brendan-lo-8b0b80247/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          linkedin
+        </a>
+        <Sep />
+        <a
+          href="https://github.com/patriotsbreeze"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          github
+        </a>
+        <Sep />
+        <a
+          href="https://beliapp.co/app/brendanlo"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          beli
+        </a>
+      </p>
 
-              <Reveal immediate index={3}>
-                <div className={styles.heroFoot}>
-                  <HeroActions />
-                  <SocialLinks />
-                </div>
-              </Reveal>
-            </div>
+      <p className="bio">
+        hi, i&apos;m brendan lo, 18, cs + math @ uchicago. i&apos;m pretty
+        interested in ai/ml (sometimes bio) research. i enjoy going to hackathons
+        (esp b/c free things + prizes), hanging out with my friends, and building
+        really cool things.
+      </p>
 
-            {/* Last in DOM order, so single-column reading order stays correct
-              * and no `order` override is needed on mobile. */}
-            <HeroFigure className={styles.colFig} />
-          </div>
-        </Container>
-      </Section>
+      <h2>research</h2>
+      {research.map((e, i) => (
+        <Line key={`research-${i}`} {...e} />
+      ))}
 
-      {/* The strongest signal, first and with the most air on the page. */}
-      <EditorialSection
-        id="publications"
-        label="Selected research"
-        accent
-        className={styles.researchSection}
-      >
-        {publications.map((pub, i) => (
-          <Reveal key={pub.title} index={i}>
-            <PublicationRow pub={pub} />
-          </Reveal>
-        ))}
-      </EditorialSection>
+      <h2>papers</h2>
+      {papers.map((e, i) => (
+        <Line key={`paper-${i}`} {...e} />
+      ))}
 
-      <EditorialSection id="experience" label="Research positions">
-        {research.map((exp, i) => (
-          <Reveal key={exp.company + exp.role} index={i}>
-            <ExperienceRow exp={exp} />
-          </Reveal>
-        ))}
-      </EditorialSection>
+      <h2>projects</h2>
+      {projects.map((e, i) => (
+        <Line key={`project-${i}`} {...e} />
+      ))}
 
-      {/* Tight band: these two groups are one idea in two parts. */}
-      <EditorialSection label="Engineering &amp; leadership" className={styles.tightBand}>
-        {engineering.map((exp, i) => (
-          <Reveal key={exp.company + exp.role} index={i}>
-            <ExperienceRow exp={exp} />
-          </Reveal>
-        ))}
-      </EditorialSection>
+      <h2>otherwise</h2>
+      {misc.map((e, i) => (
+        <Line key={`misc-${i}`} {...e} />
+      ))}
 
-      <EditorialSection id="projects" label="Selected work">
-        <Reveal>
-          <ProjectPlate project={plate} />
-        </Reveal>
-        {rest.map((project, i) => (
-          <Reveal key={project.title} index={i}>
-            <ProjectRow project={project} />
-          </Reveal>
-        ))}
-      </EditorialSection>
-
-      <EditorialSection label="Colophon" className={styles.tightBand}>
-        {education.map((edu) => (
-          <EducationRow key={edu.school} edu={edu} />
-        ))}
-        <ColophonRow label="Frontend">
-          <p className={styles.colMono}>
-            {skillsList.frontend.map((s) => s.name).join(", ")}
-          </p>
-        </ColophonRow>
-        <ColophonRow label="Backend">
-          <p className={styles.colMono}>
-            {skillsList.backend.map((s) => s.name).join(", ")}
-          </p>
-        </ColophonRow>
-        <ColophonRow label="Research">
-          <p className={styles.colMono}>
-            {skillsList.scientific.map((s) => s.name).join(", ")}
-          </p>
-        </ColophonRow>
-      </EditorialSection>
-
-      <Footer />
-    </div>
+      <p className="footer">
+        say hi &mdash;{" "}
+        <a href="mailto:brendanlo@uchicago.edu">
+          brendanlo [at] uchicago [dot] edu
+        </a>
+      </p>
+    </main>
   );
 }
