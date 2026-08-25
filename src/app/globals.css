@@ -11,19 +11,11 @@
     Cantarell, "Helvetica Neue", sans-serif;
 
   --measure: 640px;
-  color-scheme: light;
-}
 
-/* System dark preference only — there is no toggle, so nothing needs to win
- * over a [data-theme] attribute here. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d0d0d;
-    --ink: #f2f2f2;
-    --ink-muted: #b8b8b8;
-    --rule: #262626;
-    color-scheme: dark;
-  }
+  /* Light no matter what the OS prefers. This also has to be declared — with
+   * no color-scheme the browser auto-darkens form controls and scrollbars for
+   * dark-mode users even though the page paints light. */
+  color-scheme: light;
 }
 
 *,

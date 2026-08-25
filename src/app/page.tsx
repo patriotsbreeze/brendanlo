@@ -12,32 +12,16 @@ type Entry = {
 
 const research: Entry[] = [
   {
-    name: "columbia",
-    href: "https://www.columbia.edu/",
-    years: "2026",
-    body: "topological data analysis for rna-seq annotation in the blumberg lab.",
-  },
-  {
     name: "nyu",
     href: "https://cs.nyu.edu/~shasha/",
     years: "2026",
-    body: "built an agentic ai workflow for a calorie-tracking app in the shasha lab.",
+    body: "software engineer intern in the shasha lab. built an ai calorie-tracking app that beats commercial apps on accuracy — bayesian map estimation, lidar depth capture, arkit, and the gemini api, all in swift.",
   },
   {
     name: "weill cornell",
     href: "https://doi.org/10.1083/jcb.202505134",
-    years: "2025",
-    body: "python + fiji/imagej + vba analysis on how calcium drives cardiomyocyte proliferation (kühn & liu lab). ended up as a paper in the journal of cell biology.",
-  },
-  {
-    name: "weill cornell",
-    years: "2024",
-    body: "pcr, western blot, cloning, and rna-seq in r + python to find genes regulated by jarid2 (long lab). basically: what prc2 does to a developing heart.",
-  },
-  {
-    name: "prc2 drug discovery",
     years: "2024-2025",
-    body: "random-forest virtual screening in schrödinger maestro + gromacs md sims, repurposing drugs to inhibit prc2 for cancer and congenital heart disease.",
+    body: "two summers of data analysis. in the kuhn & liu lab i characterized calcium's role in cardiomyocyte proliferation with python + fiji/imagej image and signal analysis, which became the journal of cell biology paper below. in the long lab (genomics) it was rna-seq, pcr, western blot, and cloning in r + python to find jarid2 gene targets and probe prc2 in congenital heart disease.",
   },
 ];
 
@@ -70,49 +54,48 @@ const papers: Entry[] = [
 
 const projects: Entry[] = [
   {
-    name: "resource",
-    href: "https://devpost.com/software/resource-i3nq1y",
-    body: "ai marketplace for donating, reselling, or recycling stuff you don't want. next.js, supabase, postgres, gemini for image recognition, mapbox for the community map.",
-  },
-  {
     name: "sidewalk",
-    body: "turned nyc's pdf-only street-vending rules into a queryable geospatial dataset behind an offline-first map, in 7 languages. deno etl resolves each restriction to a block face via bfs over the street centerline graph. 2nd place, nyc hackathon (shopify × base44).",
+    years: "2026",
+    body: "marketplace app that helps nyc street vendors sell online and get licensed, and makes the city's vending rules searchable for the first time — a deno/typescript pipeline turns a 190-entry pdf into map data by graph search over nyc street records. offline-capable react/leaflet map in 7 languages, 180+ automated tests. 2nd place, nyc hackathon (shopify × base44).",
   },
   {
     name: "satsaurus",
-    body: "gamified sat prep, free, 1000+ students. next.js + supabase.",
-  },
-  {
-    name: "gns web dev club",
-    href: "https://gnswebdev.club/projects",
-    body: "cofounded it, 70+ members, 20+ sites shipped for nonprofits, churches, businesses, and school clubs.",
+    years: "2025-2026",
+    body: "cofounder + software lead. led a team of five building a gamified sat-prep web app in next.js and supabase, now used by 1000+ students.",
   },
   {
     name: "force network",
     href: "https://forcenetwork.cloud",
-    body: "hosting hub for 100+ minecraft servers, 800+ users. node, docker, mongodb, pterodactyl.",
+    years: "2022-present",
+    body: "cofounder + software lead. built and run a linux hosting hub for 100+ game servers, shipping docker deployment tooling and bandwidth to 800+ users.",
   },
 ];
 
 const misc: Entry[] = [
   {
-    name: "y combinator startup school",
-    years: "2026",
-    body: "selected attendee.",
+    name: "gns web dev club",
+    href: "https://gnswebdev.club/projects",
+    years: "2024-2026",
+    body: "cofounded and co-led it. full-stack teams across 70+ members in typescript, react, and supabase; 20+ sites shipped and maintained for nonprofits, businesses, and school organizations.",
+  },
+  {
+    name: "kudos connect",
+    years: "2024-present",
+    body: "cto. directed a 15-person team building the site and newsletter, reaching 7000+ students.",
   },
   {
     name: "first robotics 2638",
     years: "2024-2026",
-    body: "lead programmer + head webmaster. wrote the trajectory generation and robot control; went to worlds in 2025.",
+    body: "head webmaster + lead programmer. wrote the trajectory-generation algorithms and robot control code; team advanced to the frc world championship in 2025.",
   },
   {
-    name: "kudos connect",
+    name: "programming club",
     years: "2024-2026",
-    body: "cto + newsletter lead, 15+ people, 7000+ students reading about volunteer opportunities.",
+    body: "software + app lead. taught 20+ students python, java, and applied ml; led 10 students building a swift school app for 1300+ students.",
   },
   {
-    name: "other stuff",
-    body: "eagle scout, 3x 1st place science olympiad regionals, cross country all-conference.",
+    name: "awards",
+    body: "y combinator startup school 2026 (selected attendee), eagle scout, science olympiad national qualifier and 2nd in new york state, engineering inspiration award at the frc world championship, honorable mention at the long island science & engineering fair.",
   },
 ];
 
