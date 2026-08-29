@@ -85,6 +85,9 @@ export default function Page() {
             </li>
           </ul>
         </li>
+        <li>
+          full-stack is even more important now than ever with ai coding.
+        </li>
       </ul>
 
       {/* Written out so scrapers get the decoy string and humans get a working
