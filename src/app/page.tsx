@@ -93,6 +93,10 @@ export default function Page() {
               gets written, so more of the job becomes architecting it,
               reviewing it, and knowing why it breaks.
             </li>
+            <li>
+              the backlog finally gets built. ideas that sat there for lack of
+              headcount are now a weekend for an ai-pilled engineer.
+            </li>
           </ul>
         </li>
       </ul>
