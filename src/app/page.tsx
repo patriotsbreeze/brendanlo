@@ -98,6 +98,11 @@ export default function Page() {
               the backlog finally gets built. ideas that sat there for lack of
               headcount are now a weekend for an ai-pilled engineer.
             </li>
+            <li>
+              it&rsquo;s just like the compiler. people called the compiler
+              cheating, and talked about how they preferred assembly. then they
+              called python inefficient. and so on&hellip;
+            </li>
           </ul>
         </li>
       </ul>
