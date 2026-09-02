@@ -89,9 +89,10 @@ export default function Page() {
           full-stack is even more important now than ever with ai coding.
           <ul>
             <li>
-              swe&rsquo;s aren&rsquo;t going away, the bar moves up. more code
-              gets written, so more of the job becomes architecting it,
-              reviewing it, and knowing why it breaks.
+              swe&rsquo;s won&rsquo;t be replaced by ai; instead, they will be
+              expected to get more work done. more code gets written, so more of
+              the job becomes architecting it, reviewing it, and knowing why it
+              breaks.
             </li>
             <li>
               the backlog finally gets built. ideas that sat there for lack of
