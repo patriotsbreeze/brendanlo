@@ -99,6 +99,11 @@ export default function Page() {
               gets built by an ai-pilled engineer.
             </li>
             <li>
+              security matters more than effort now. when code is cheap to
+              write, the scarce thing isn&rsquo;t how hard you worked on it
+              &mdash; it&rsquo;s whether anyone checked what it exposes.
+            </li>
+            <li>
               it&rsquo;s just like the compiler. people called the compiler
               cheating, and talked about how they preferred assembly. then they
               called python inefficient. and so on&hellip;
