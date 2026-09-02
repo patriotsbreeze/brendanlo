@@ -95,8 +95,8 @@ export default function Page() {
               breaks.
             </li>
             <li>
-              the backlog of ideas that people have finally gets built by an
-              ai-pilled engineer.
+              there&rsquo;s a massive backlog of ideas from people that finally
+              gets built by an ai-pilled engineer.
             </li>
             <li>
               it&rsquo;s just like the compiler. people called the compiler
