@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://brendanlo.com/sitemap.xml
+Sitemap: https://brendanlo.dev/sitemap.xml

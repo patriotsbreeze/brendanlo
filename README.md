@@ -1,4 +1,4 @@
-# brendanlo.com
+# brendanlo.dev
 
 Personal site. One static page: name, links, bio, highlights, takes.
 

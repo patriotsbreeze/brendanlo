@@ -54,7 +54,7 @@ I build at the intersection of software engineering and biological science. From
 ### 📬 Connect with Me
 - **LinkedIn**: [in/brendan-lo](https://www.linkedin.com/in/brendan-lo-8b0b80247/)
 - **Email**: brendanlo@uchicago.edu
-- **Website**: [brendanlo.com](https://brendanlo.com)
+- **Website**: [brendanlo.dev](https://brendanlo.dev)
 
 ---
 *"Accelerating progress through tech and science."*

@@ -8,7 +8,7 @@ const DESCRIPTION =
   "brendan lo — 18, cs + math at uchicago. ai/ml (sometimes bio) research, hackathons, and building things.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://brendanlo.com"),
+  metadataBase: new URL("https://brendanlo.dev"),
   title: "hi, i'm brendan lo",
   description: DESCRIPTION,
   authors: [{ name: "Brendan Lo" }],
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://brendanlo.com",
+    url: "https://brendanlo.dev",
     title: "hi, i'm brendan lo",
     description: DESCRIPTION,
     siteName: "brendan lo",
@@ -37,7 +37,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Brendan Lo",
-    url: "https://brendanlo.com",
+    url: "https://brendanlo.dev",
     description: DESCRIPTION,
     affiliation: {
       "@type": "CollegeOrUniversity",
