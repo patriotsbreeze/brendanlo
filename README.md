@@ -1,6 +1,7 @@
 # brendanlo.dev
 
-Personal site. One static page: name, links, bio, highlights, takes.
+Personal site, live at <https://brendanlo.dev>. One static page: name, links,
+bio, highlights, takes.
 
 Next.js 16 App Router, no CSS framework, no client components, no `next/font` —
 the page is a single column of text on the system UI stack.
@@ -26,6 +27,21 @@ page copy lives only in `page.tsx`.
 
 The email is written out as a decoy string with a working `mailto` underneath, in
 `page.tsx` only.
+
+## Domain
+
+The canonical URL is hard-coded rather than read from an env var, so changing
+domains means editing each of these by hand:
+
+| Path | What to change |
+| :--- | :--- |
+| `src/app/layout.tsx` | `metadataBase`, the OpenGraph `url`, and the JSON-LD `url` |
+| `public/sitemap.xml` | `<loc>` |
+| `public/robots.txt` | the `Sitemap:` line |
+
+DNS and the domain binding itself live in Vercel, outside this repo. The build
+passes either way, so a missed record only shows up as a dead link. `brendanlo.com`
+is the previous domain and should stay pointed here so old links survive.
 
 ## Deploy
 
