@@ -1,0 +1,87 @@
+/* Global styles for the (lab) root only. The home root never loads this file
+ * (separate root layouts), so bare element selectors are safe here. */
+
+:root {
+  /* Every value is a material on the bed or the ink printed beside it. */
+  --ground: #e3e5e0; /* bead-blasted aluminum: the page and the tray */
+  --anodize: #c2c7c1; /* the pins */
+  --key: #eceee9; /* controls, a step lighter than the ground */
+  --key-hover: #f5f6f2;
+  --ink: #1b1e1d; /* graphite */
+  --lead: #4f5651; /* secondary text, AA on --ground */
+  --rule: #c2c7c1;
+  --well: #2b2f2d; /* the dark well under the pins */
+  --well-ink: #e3e5e0;
+  --yellow: #ffd60a; /* what a model said. never text */
+  --green: #00a050; /* what something deterministic checked. never body text */
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+/* Grader view (press g): every marked paragraph dims to nothing but its last
+ * number, the way the released grader reads a completion. */
+html[data-grader] [data-gv] {
+  color: rgb(27 30 29 / 0.22);
+}
+
+html[data-grader] [data-gv] a {
+  color: inherit;
+}
+
+.gv-num {
+  background: none;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-decoration-color: var(--yellow);
+  text-underline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
