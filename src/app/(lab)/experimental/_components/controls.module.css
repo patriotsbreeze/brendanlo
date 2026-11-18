@@ -1,0 +1,395 @@
+/* Controls look like the hardware they drive: square keys with a machined
+ * bottom edge, a small painted tip where the key is a model event (yellow) or
+ * a deterministic one (green), same as the pins. */
+
+.panel {
+  margin: 1.5rem 0 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.panelLead {
+  margin: 0;
+  font-weight: 500;
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.key {
+  position: relative;
+  appearance: none;
+  min-height: 44px;
+  padding: 0.55rem 0.85rem 0.55rem 1.55rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--key);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  box-shadow: inset 0 -3px 0 rgb(27 30 29 / 0.14);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out;
+}
+
+/* The painted tip. Plain keys get a bare-metal tip. */
+.key::before {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: -0.25rem;
+  background: var(--anodize);
+  box-shadow: inset 0 0 0 1px rgb(27 30 29 / 0.5);
+}
+
+.key[data-dye="model"]::before {
+  background: var(--yellow);
+}
+
+.key[data-dye="check"]::before {
+  background: var(--green);
+}
+
+.key:hover {
+  background: var(--key-hover);
+}
+
+.key:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 -1px 0 rgb(27 30 29 / 0.14);
+}
+
+.key[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--ground);
+  box-shadow: none;
+}
+
+.key:focus-visible,
+.textButton:focus-visible,
+.index a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.textButton {
+  appearance: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.textButton[aria-pressed="true"] {
+  text-decoration-thickness: 2px;
+}
+
+.value {
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--lead);
+  font-variant-numeric: tabular-nums;
+}
+
+.value output {
+  color: var(--ink);
+}
+
+/* Protocol steps, drawn like the rail on the bed. */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 1.6rem 0.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--lead);
+}
+
+.steps li::before {
+  content: counter(step);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+.steps li::after {
+  content: "";
+  order: -0;
+  grid-column: 2;
+  grid-row: 1;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--anodize);
+}
+
+.steps li[data-state="done"],
+.steps li[data-state="current"] {
+  color: var(--ink);
+}
+
+.steps li[data-state="done"]::after,
+.steps li[data-state="current"]::after {
+  background: var(--green);
+}
+
+.steps li[data-state="current"] {
+  font-weight: 600;
+}
+
+.log {
+  min-height: 7.5em;
+  padding: 0.75rem 0.9rem;
+  background: var(--well);
+  color: var(--well-ink);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.log p {
+  margin: 0;
+  opacity: 0.62;
+}
+
+.log p:last-child {
+  opacity: 1;
+}
+
+.radios {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.radios legend {
+  padding: 0;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.radios label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.radios[data-inline] {
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 1.5rem;
+}
+
+.radios input {
+  margin: 0.25rem 0 0;
+  accent-color: var(--ink);
+  width: 1rem;
+  height: 1rem;
+}
+
+.faces {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--lead);
+  font-size: 0.9375rem;
+}
+
+.faces li::marker {
+  color: var(--green);
+}
+
+.range {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.range output {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.range input {
+  width: 100%;
+  min-height: 32px;
+  accent-color: var(--ink);
+}
+
+.table {
+  border-collapse: collapse;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.table caption {
+  text-align: left;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.875rem;
+  color: var(--lead);
+  margin-bottom: 0.35rem;
+}
+
+.table th,
+.table td {
+  padding: 0.2rem 1.2rem 0.2rem 0;
+  text-align: right;
+  border-bottom: 1px solid var(--rule);
+}
+
+.table th[scope="col"] {
+  font-weight: 400;
+  color: var(--lead);
+}
+
+.plot {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  overflow: visible;
+}
+
+.plotLabel {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  fill: var(--ink);
+}
+
+.legendLine {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--lead);
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin: 0 0.3rem 0 0.6rem;
+  vertical-align: baseline;
+  box-shadow: inset 0 0 0 1px rgb(27 30 29 / 0.5);
+}
+
+.swatch:first-child {
+  margin-left: 0;
+}
+
+.swatch[data-dye="model"] {
+  background: var(--yellow);
+}
+
+.swatch[data-dye="check"] {
+  background: var(--green);
+}
+
+.swatch[data-dye="ink"] {
+  background: var(--ink);
+}
+
+/* ---------------- hero index ---------------- */
+
+.index ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.index li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.index a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 44px;
+  padding: 0.45rem 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.indexName {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.6rem, 2.4vw, 2.05rem);
+  font-weight: 600;
+  line-height: 1;
+  transition: font-weight 180ms ease-out;
+}
+
+.indexShape {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--lead);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The only type motion on the page, tied to the bed re-pressing. */
+.index a:hover .indexName,
+.index a:focus-visible .indexName,
+.index a[data-active] .indexName {
+  font-weight: 850;
+}
+
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 0;
+}
+
+.video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--well);
+}
+
+.video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key,
+  .indexName {
+    transition: none;
+  }
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
