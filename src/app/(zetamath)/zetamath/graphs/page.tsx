@@ -3,7 +3,7 @@ import { Graphs } from "../_components/Graphs";
 
 export const metadata: Metadata = {
   title: "graphs",
-  description: "every zetamath run brendan lo has played, and the best of each day.",
+  description: "brendan lo's zetamath runs, and the best of each day.",
   alternates: { canonical: "/zetamath/graphs" },
 };
 

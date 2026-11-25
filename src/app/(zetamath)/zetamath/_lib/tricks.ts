@@ -26,13 +26,18 @@ const tens = (n: number) => Math.floor(n / 10) * 10;
 const ones = (n: number) => n % 10;
 const twoDigit = (n: number) => n >= 10 && n <= 99;
 
+/** Rounding tricks earn their extra step only when there is a carry or a borrow
+ * to dodge. Without one, plain left to right is quicker. */
+const carries = (p: Problem) => ones(p.a) + ones(p.b) >= 10;
+const borrows = (p: Problem) => ones(p.a) < ones(p.b);
+
 export const TRICKS: readonly Trick[] = [
   // ------------------------------------------------------------- addition
   {
     id: "add-left-to-right",
     op: "add",
     title: "add from the left",
-    idea: "keep the first number whole. add the other one's tens, then its ones. you only ever hold one running total, and it is already in the order you type it.",
+    idea: "keep the first number whole. add the other one's tens, then its ones. you only ever hold one running total.",
     example: [67, 58],
     fits: (p) => twoDigit(p.a) && twoDigit(p.b) && ones(p.b) !== 0,
     work: ({ a, b }) => {
@@ -72,7 +77,7 @@ export const TRICKS: readonly Trick[] = [
     title: "round up the 7, 8 or 9",
     idea: "when a number ends in 7, 8 or 9, add the next ten instead and take back the difference. no carrying.",
     example: [46, 39],
-    fits: (p) => [p.a, p.b].some((n) => n >= 17 && n < 100 && ones(n) >= 7),
+    fits: (p) => carries(p) && [p.a, p.b].some((n) => n >= 17 && n < 100 && ones(n) >= 7),
     work: ({ a, b }) => {
       const score = (n: number) => (n >= 17 && n < 100 ? ones(n) : 0);
       const [x, y] = score(b) >= score(a) ? [a, b] : [b, a];
@@ -89,7 +94,8 @@ export const TRICKS: readonly Trick[] = [
     title: "fill the big one up to 100",
     idea: "if one number is close to 100, see what it is missing, take that out of the other number, and whatever is left sits on top of 100.",
     example: [88, 67],
-    fits: (p) => Math.max(p.a, p.b) >= 80 && Math.max(p.a, p.b) < 100 && p.a + p.b > 100,
+    fits: (p) =>
+      carries(p) && Math.max(p.a, p.b) >= 80 && Math.max(p.a, p.b) < 100 && p.a + p.b > 100,
     work: ({ a, b }) => {
       const hi = Math.max(a, b);
       const lo = Math.min(a, b);
@@ -126,9 +132,9 @@ export const TRICKS: readonly Trick[] = [
     id: "sub-through-100",
     op: "sub",
     title: "go through 100",
-    idea: "when the first number is over 100, don't subtract. measure the two pieces either side of 100 and add them. no borrowing, ever.",
+    idea: "when the first number is over 100 and the ones would borrow, don't subtract. measure the two pieces either side of 100 and add them. no borrowing, ever.",
     example: [143, 87],
-    fits: (p) => p.a > 100 && p.b > 10 && p.b < 100,
+    fits: (p) => borrows(p) && p.a > 100 && p.b > 10 && p.b < 100,
     work: ({ a, b }) => {
       const below = 100 - b;
       const above = a - 100;
@@ -162,9 +168,9 @@ export const TRICKS: readonly Trick[] = [
     id: "sub-round-up",
     op: "sub",
     title: "slide both numbers up",
-    idea: "adding the same amount to both numbers doesn't change the gap. so if you are subtracting something that ends in 7, 8 or 9, push both up until it ends in 0.",
+    idea: "adding the same amount to both numbers doesn't change the gap. so if the ones would borrow and you are subtracting something that ends in 7, 8 or 9, push both up until it ends in 0.",
     example: [92, 38],
-    fits: (p) => p.b >= 17 && p.b < 100 && ones(p.b) >= 7,
+    fits: (p) => borrows(p) && p.b >= 17 && p.b < 100 && ones(p.b) >= 7,
     work: ({ a, b }) => {
       const k = 10 - ones(b);
       return {
@@ -179,7 +185,7 @@ export const TRICKS: readonly Trick[] = [
     title: "count up instead of borrowing",
     idea: "if the ones would force a borrow, climb from the small number: first to the next ten, then the rest of the way.",
     example: [83, 47],
-    fits: (p) => p.a <= 100 && p.b > 10 && ones(p.b) !== 0 && ones(p.a) < ones(p.b),
+    fits: (p) => borrows(p) && p.a <= 100 && p.b > 10,
     work: ({ a, b }) => {
       const next = tens(b) + 10;
       return {
@@ -254,7 +260,7 @@ export const TRICKS: readonly Trick[] = [
     id: "mul-9",
     op: "mul",
     title: "× 9: go down, then finish the ten",
-    idea: "subtract one more than the tens digit: that is the front of the answer. the last digit is 10 minus the ones digit. it is ×10 minus the number, with the subtraction already done.",
+    idea: "subtract one more than the tens digit: that is the front of the answer. the last digit is 10 minus the ones digit (a 0 stays 0: just do the tens). it is ×10 minus the number, with the subtraction already done.",
     example: [9, 47],
     fits: (p) => p.a === 9 && twoDigit(p.b) && ones(p.b) !== 0,
     work: ({ b }) => {
@@ -324,7 +330,7 @@ export const TRICKS: readonly Trick[] = [
     id: "mul-7",
     op: "mul",
     title: "× 7: five of it, plus two of it",
-    idea: "seven is the one table with no pattern. build it from the two easiest ones: half with a zero, plus a double.",
+    idea: "seven is the table with no shortcut of its own. build it from the two easiest ones: half with a zero, plus a double.",
     example: [7, 46],
     fits: (p) => p.a === 7 && p.b >= 11 && p.b < 100,
     work: ({ b }) => ({
@@ -335,7 +341,7 @@ export const TRICKS: readonly Trick[] = [
   {
     id: "mul-left-to-right",
     op: "mul",
-    title: "anything else: tens first",
+    title: "tens first, then ones",
     idea: "multiply the tens, then the ones, then add. it is the method everything above is a shortcut for, and you can often type the first digit before you have finished.",
     example: [3, 78],
     fits: (p) => p.a <= 9 && twoDigit(p.b) && ones(p.b) !== 0,
@@ -397,7 +403,8 @@ export const TRICKS: readonly Trick[] = [
     title: "× 25 and × 75: think quarters",
     idea: "four 25s make 100, like quarters in a dollar. for 75, do the 25s and triple it.",
     example: [8, 75],
-    fits: (p) => (p.b === 25 || p.b === 75) && p.a !== 10,
+    // 5, 9, 10 and 11 have a quicker move of their own.
+    fits: (p) => (p.b === 25 || p.b === 75) && ![5, 9, 10, 11].includes(p.a),
     work: ({ a, b }) => {
       const q = a * 25;
       return {
@@ -570,7 +577,7 @@ export const TRICKS: readonly Trick[] = [
     id: "div-9",
     op: "div",
     title: "÷ 9: ten minus the last digit",
-    idea: "in the 9s the last digits run backwards, so the ones digit is always 10 minus the last digit you see. size gives the tens.",
+    idea: "in the 9s the last digits run backwards, so the ones digit is 10 minus the last digit you see (a 0 stays 0). size gives the tens.",
     example: [423, 9],
     fits: (p) => p.b === 9 && twoDigit(p.answer) && ones(p.answer) !== 0,
     work: ({ a }) => {
@@ -605,7 +612,7 @@ export const TRICKS: readonly Trick[] = [
   {
     id: "div-peel",
     op: "div",
-    title: "anything else: peel off the tens",
+    title: "peel off the tens",
     idea: "take out the biggest multiple of ten you can see, and the leftover is a times-table fact.",
     example: [468, 6],
     fits: (p) => p.b !== 10 && twoDigit(p.answer) && ones(p.answer) !== 0,

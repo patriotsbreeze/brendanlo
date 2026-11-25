@@ -14,11 +14,9 @@ import { parseRun, type Run } from "../_lib/runs";
 const URL_ = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 
-/** Preview deployments share the database but not the data. */
-const KEY =
-  process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
-    ? `zetamath:runs:${process.env.VERCEL_ENV}`
-    : "zetamath:runs";
+/** Previews and local dev share the database but not the data. */
+const ENV = process.env.NODE_ENV === "development" ? "development" : process.env.VERCEL_ENV;
+const KEY = ENV && ENV !== "production" ? `zetamath:runs:${ENV}` : "zetamath:runs";
 
 const DEV_FILE = path.join(process.cwd(), ".data", "zetamath-runs.json");
 

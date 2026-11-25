@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { unsynced } from "../_lib/browser";
+import { ownerHint, unsynced } from "../_lib/browser";
 import { oldestFirst, parseRun, type Run, type Solved } from "../_lib/runs";
 
 /* One copy of the runs for all three tabs. The layout that mounts this stays
@@ -24,8 +24,10 @@ type RunsContext = {
   result: Result | null;
   finish: (result: Result) => void;
   clearResult: () => void;
+  record: (run: Run) => void;
   setExcluded: (id: string, excluded: boolean) => void;
-  signIn: (password: string) => Promise<string | null>;
+  /** Returns what went wrong, or null. `run` is recorded once logged in. */
+  signIn: (password: string, run?: Run) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -48,6 +50,10 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
   const [waiting, setWaiting] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   const flushing = useRef(false);
+  /** Counts loads, so that only the newest one's answer is used. */
+  const asked = useRef(0);
+  /** Saved while the current load is out, so its answer may predate them. */
+  const confirmed = useRef<Record<string, Run>>({});
 
   const flush = useCallback(async () => {
     if (flushing.current) return;
@@ -67,12 +73,16 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ runs: batch }),
         });
         if (!res.ok) {
-          if (res.status === 401) setOwner(false);
+          if (res.status === 401) {
+            setOwner(false);
+            ownerHint.set(false);
+          }
           const body = (await res.json().catch(() => null)) as { error?: string } | null;
           setSync(body?.error === "no storage connected" ? "no-storage" : "offline");
           return;
         }
         unsynced.confirm(batch);
+        for (const r of batch) confirmed.current[r.id] = r;
       }
     } catch {
       setSync("offline");
@@ -82,22 +92,32 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const load = useCallback(async () => {
-    const queued = unsynced.all();
-    setWaiting(queued.length);
-    const local = Object.fromEntries(queued.map((r) => [r.id, r]));
+    const mine = ++asked.current;
+    confirmed.current = {};
+    setWaiting(unsynced.all().length);
+    let server: Run[] = [];
     try {
       const res = await fetch(RUNS_API, { cache: "no-store" });
       const body = (await res.json()) as { owner?: boolean; storage?: Storage; runs?: unknown[] };
-      const list = (body.runs ?? []).map(parseRun).filter((r) => r !== null);
+      if (mine !== asked.current) return;
+      server = (body.runs ?? []).map(parseRun).filter((r) => r !== null);
       setOwner(Boolean(body.owner));
-      // The queue wins: it holds whatever the server has not heard about yet.
-      setById({ ...Object.fromEntries(list.map((r) => [r.id, r])), ...local });
+      ownerHint.set(Boolean(body.owner));
       setStatus(res.ok ? "ready" : "error");
       if (body.owner) void flush();
     } catch {
-      setById((now) => ({ ...now, ...local }));
+      if (mine !== asked.current) return;
+      // Could not ask, so go by last time: a run finished now still queues.
+      setOwner(ownerHint.get());
       setStatus("error");
+      if (ownerHint.get()) void flush();
     }
+    // Newest word last: the queue, read now rather than before the request,
+    // holds whatever the server has not heard about yet.
+    const merged = Object.fromEntries(
+      [...server, ...Object.values(confirmed.current), ...unsynced.all()].map((r) => [r.id, r]),
+    );
+    setById((now) => ({ ...now, ...merged }));
   }, [flush]);
 
   useEffect(() => {
@@ -105,9 +125,11 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
   }, [load]);
 
   useEffect(() => {
-    if (!owner) return;
+    if (!owner && status !== "error") return;
     const retry = () => {
-      if (document.visibilityState === "visible" && unsynced.all().length > 0) void flush();
+      if (document.visibilityState !== "visible") return;
+      if (status === "error") void load();
+      else if (unsynced.all().length > 0) void flush();
     };
     window.addEventListener("online", retry);
     document.addEventListener("visibilitychange", retry);
@@ -115,7 +137,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("online", retry);
       document.removeEventListener("visibilitychange", retry);
     };
-  }, [owner, flush]);
+  }, [owner, status, load, flush]);
 
   const save = useCallback(
     (run: Run) => {
@@ -137,14 +159,15 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
       result,
       finish(next) {
         setResult(next);
-        if (owner) save(next.run);
+        if (owner || (status === "loading" && ownerHint.get())) save(next.run);
       },
       clearResult: () => setResult(null),
+      record: save,
       setExcluded(id, excluded) {
         const run = byId[id];
         if (owner && run && run.excluded !== excluded) save({ ...run, excluded });
       },
-      async signIn(password) {
+      async signIn(password, run) {
         try {
           const res = await fetch(SESSION_API, {
             method: "POST",
@@ -155,15 +178,18 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         } catch {
           return "couldn't reach the server.";
         }
-        setOwner(true);
-        // Logging in from the results screen records the run on it.
-        if (result && !byId[result.run.id]) unsynced.put(result.run);
+        ownerHint.set(true);
+        if (run && !byId[run.id]) unsynced.put(run);
         await load();
         return null;
       },
       async signOut() {
-        await fetch(SESSION_API, { method: "DELETE" }).catch(() => null);
+        const res = await fetch(SESSION_API, { method: "DELETE" }).catch(() => null);
+        // The cookie is still good, so still logged in.
+        if (!res?.ok) return;
+        asked.current++;
         setOwner(false);
+        ownerHint.set(false);
       },
     }),
     [status, owner, byId, sync, waiting, result, save, load],

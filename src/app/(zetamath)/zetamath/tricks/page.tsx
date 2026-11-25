@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { TrickWork } from "../_components/TrickCard";
-import { allProblems, OP_NAME, OPS, STANDARD, type Op } from "../_lib/problems";
-import { coverage, TRICKS } from "../_lib/tricks";
+import { OP_NAME, OPS, STANDARD, type Op } from "../_lib/problems";
+import { coverage, TRICKS, type Trick } from "../_lib/tricks";
 
 export const metadata: Metadata = {
   title: "tricks",
@@ -15,8 +15,7 @@ export const metadata: Metadata = {
 
 const percent = (x: number) => (x < 0.01 ? "under 1%" : `${Math.round(x * 100)}%`);
 
-const subs = allProblems("sub");
-const crossing = subs.filter((p) => p.a > 100).length / subs.length;
+const through100 = coverage(TRICKS.find((t) => t.id === "sub-through-100") as Trick);
 const factors = STANDARD.mul[0][1] - STANDARD.mul[0][0] + 1;
 const perFactor = (50 * 0.5) / factors;
 
@@ -30,9 +29,9 @@ const lastDigits = [3, 7, 9].map((n) => ({
 const PACE = [40, 50, 60, 70, 80];
 
 const SECTION_NOTE: Record<Op, string> = {
-  add: "two numbers from 2 to 100. both of the first two methods let you type the answer from the left while you are still thinking.",
+  add: "two numbers from 2 to 100. the second method lets you type from the left while you are still thinking.",
   sub: "a sum run backwards, so the answer is always between 2 and 100.",
-  mul: `the first number is always 2 to 12 and the second is 2 to 100. learn one move for each of 2 to 12 and you have covered every multiplication. the first eight below are those moves, the rest depend on the second number.`,
+  mul: `the first number is always 2 to 12 and the second is 2 to 100. learn one move for each of 2 to 12 and you have covered every multiplication. the first eight below are the moves for 4 to 9, 11 and 12 (2, 3 and 10 you already have). the rest depend on the second number, or fit anything.`,
   div: "a product run backwards. the divisor is always 2 to 12, the answer is always a whole number from 2 to 100, and there is never a remainder. so never do long division: pin down the tens, then pin down the ones.",
 };
 
@@ -57,20 +56,20 @@ export default function Page() {
 
       <section id="first">
         <h2>start here</h2>
-        <p>if you only learn four things, these change the most answers:</p>
+        <p>if you only learn a few things, start with these:</p>
         <ul>
           <li>
-            <a href="#sub-through-100">go through 100</a> when subtracting.{" "}
-            {Math.round(crossing * 100)}% of subtractions start above 100.
+            <a href="#sub-through-100">go through 100</a> when a subtraction starts above 100 and
+            the ones would borrow. that is {percent(through100)} of subtractions.
           </li>
           <li>
             <a href="#div-last-digit">read the last digit</a> when dividing by 3, 7 or 9. no
             division happens at all.
           </li>
           <li>
-            <a href="#mul-11">× 11</a> and <a href="#mul-12">× 12</a>, with{" "}
-            <a href="#div-11">÷ 11</a> and <a href="#div-12">÷ 12</a> as the same tricks
-            backwards. they look like the hardest tables and are two of the easiest.
+            <a href="#mul-11">× 11</a> and <a href="#mul-12">× 12</a>, then{" "}
+            <a href="#div-11">÷ 11</a> (the same trick backwards) and{" "}
+            <a href="#div-12">÷ 12</a>. they look like the hardest tables and are two of the easiest.
           </li>
           <li>
             <a href="#add-peek">peek, then write</a>. work from the left so your fingers start
@@ -169,8 +168,8 @@ export default function Page() {
         <h2>habits</h2>
         <ul>
           <li>
-            type digits as you get them. every method above that works from the left lets your
-            hands run ahead, and a three-digit answer is mostly typing.
+            type each digit as soon as it can no longer change. a three-digit answer is mostly
+            typing.
           </li>
           <li>
             don&rsquo;t check. the box moves on when you&rsquo;re right, so the game checks for

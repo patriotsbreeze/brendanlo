@@ -1,10 +1,11 @@
 "use client";
 
 import { useId, useState } from "react";
+import type { Run } from "../_lib/runs";
 import { useRuns } from "./RunsProvider";
 
 /** A quiet "log in" that opens into a password box. */
-export function SignIn({ label = "log in" }: { label?: string }) {
+export function SignIn({ label = "log in", save }: { label?: string; save?: Run }) {
   const { signIn } = useRuns();
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
@@ -26,7 +27,7 @@ export function SignIn({ label = "log in" }: { label?: string }) {
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
-        const problem = await signIn(password);
+        const problem = await signIn(password, save);
         // On success the parent stops rendering this form.
         setBusy(false);
         setError(problem);

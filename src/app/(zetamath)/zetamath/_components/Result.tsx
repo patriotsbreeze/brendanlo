@@ -13,7 +13,7 @@ type Props = { result: RunResult; onAgain: () => void; onSettings: () => void };
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
 export function Result({ result, onAgain, onSettings }: Props) {
-  const { runs, owner, setExcluded } = useRuns();
+  const { status, runs, owner, record, setExcluded } = useRuns();
   const { run, solved } = result;
   const recorded = runs.find((r) => r.id === run.id);
   const again = useRef<HTMLButtonElement>(null);
@@ -51,7 +51,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
         {run.settings !== STANDARD_KEY && <span className="note"> ({describeKey(run.settings)})</span>}
       </p>
       <p className="lede">
-        {comparison(run.score, best, bestToday, owner)}
+        {status === "ready" && comparison(run.score, best, bestToday, owner)}
         {run.score > 0 && ` ${secs((run.seconds * 1000) / run.score)} a problem.`}
       </p>
 
@@ -64,7 +64,14 @@ export function Result({ result, onAgain, onSettings }: Props) {
         </button>
       </div>
 
-      {owner ? (
+      {owner && !recorded ? (
+        <div className="note exclude">
+          not recorded.{" "}
+          <button type="button" className="link" onClick={() => record(run)}>
+            save this run
+          </button>
+        </div>
+      ) : owner ? (
         <label className="check exclude">
           <input
             type="checkbox"
@@ -73,9 +80,10 @@ export function Result({ result, onAgain, onSettings }: Props) {
           />
           leave this run out of the graphs
         </label>
-      ) : (
+      ) : recorded ? null : (
         <div className="note exclude">
-          not recorded: the graphs are brendan&rsquo;s runs. <SignIn label="log in to save it" />
+          not recorded: the graphs are brendan&rsquo;s runs.{" "}
+          <SignIn label="log in to save it" save={run} />
         </div>
       )}
 
@@ -112,7 +120,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
                           {trick ? (
                             <Link href={`/zetamath/tricks#${trick.id}`}>{trick.title}</Link>
                           ) : (
-                            <span className="note">just know it</span>
+                            <span className="note">no trick for this one</span>
                           )}
                         </td>
                       </tr>

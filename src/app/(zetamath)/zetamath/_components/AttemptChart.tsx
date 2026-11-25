@@ -1,6 +1,6 @@
 "use client";
 
-import { trailingMean, type Run } from "../_lib/runs";
+import type { Run } from "../_lib/runs";
 import {
   clock,
   nearestIndex,
@@ -20,11 +20,18 @@ export const WINDOW = 10;
 export function AttemptChart({
   runs,
   bestIds,
+  means,
+  before,
   domain,
 }: {
   /** Oldest first. Excluded runs, if any, are drawn but not averaged. */
   runs: readonly Run[];
   bestIds: ReadonlySet<string>;
+  /** Average of the last `n` runs up to each counted run, over the whole
+   * history: a date range must not restart it. */
+  means: ReadonlyMap<string, { mean: number; n: number }>;
+  /** Attempts earlier than the first one shown. */
+  before: number;
   domain: readonly [number, number];
 }) {
   const [ref, width] = useWidth();
@@ -38,15 +45,17 @@ export function AttemptChart({
   const y = (score: number) => PAD.top + (1 - (score - lo) / (hi - lo)) * (base - PAD.top);
   const r = step >= 9 ? 4 : 3;
 
-  const counted = runs.flatMap((run, i) => (run.excluded ? [] : [{ run, x: xs[i] }]));
-  const means = trailingMean(counted.map((c) => c.run.score), WINDOW);
-  const meanOf = new Map(counted.map((c, i) => [c.run.id, means[i]]));
-  const averaged = new Map(counted.map((c, i) => [c.run.id, Math.min(WINDOW, i + 1)]));
+  const line = runs.flatMap((run, i) => {
+    const m = means.get(run.id);
+    return m ? [`${xs[i]},${y(m.mean)}`] : [];
+  });
 
   const [at, handlers] = useCursor(n, (px) => nearestIndex(xs, px));
   const hover = at === null ? null : runs[at];
+  const hoverMean = hover && means.get(hover.id);
 
-  const xTicks = ticks(1, n, Math.max(2, Math.floor(plotW / 90))).filter((t) => t >= 1 && t <= n);
+  const nice = ticks(before + 1, before + n, Math.max(2, Math.floor(plotW / 90)));
+  const xTicks = nice.length > 1 ? nice : n > 1 ? [before + 1, before + n] : [before + 1];
 
   return (
     <div className="chart" ref={ref}>
@@ -68,7 +77,7 @@ export function AttemptChart({
           ))}
           <line className="axis" x1={PAD.left} x2={width - PAD.right} y1={base} y2={base} />
           {xTicks.map((t) => (
-            <text key={t} className="tickLabel" x={xs[t - 1]} y={base + 16} textAnchor="middle">
+            <text key={t} className="tickLabel" x={xs[t - before - 1]} y={base + 16} textAnchor="middle">
               {t}
             </text>
           ))}
@@ -89,9 +98,7 @@ export function AttemptChart({
               r={run.excluded ? r - 0.5 : r}
             />
           ))}
-          {counted.length > 1 && (
-            <polyline className="meanLine" points={counted.map((c, i) => `${c.x},${y(means[i])}`).join(" ")} />
-          )}
+          {line.length > 1 && <polyline className="meanLine" points={line.join(" ")} />}
           {hover && at !== null && (
             <circle className="halo" cx={xs[at]} cy={y(hover.score)} r={r + 4} />
           )}
@@ -101,20 +108,20 @@ export function AttemptChart({
         <Tooltip
           x={xs[at]}
           width={width}
-          title={`${shortDay(hover.day)}, ${clock(hover.at)}`}
+          title={`${shortDay(hover.day)}, ${clock(hover)}`}
           rows={
-            hover.excluded
+            !hoverMean
               ? [{ key: "excluded", value: String(hover.score), label: "left out" }]
               : [
                   {
                     key: bestIds.has(hover.id) ? "best" : "try",
                     value: String(hover.score),
-                    label: bestIds.has(hover.id) ? "best that day" : `attempt ${at + 1}`,
+                    label: bestIds.has(hover.id) ? "best that day" : `attempt ${before + at + 1}`,
                   },
                   {
                     key: "mean",
-                    value: (meanOf.get(hover.id) ?? 0).toFixed(1),
-                    label: `average of last ${averaged.get(hover.id)}`,
+                    value: hoverMean.mean.toFixed(1),
+                    label: `average of last ${hoverMean.n}`,
                   },
                 ]
           }

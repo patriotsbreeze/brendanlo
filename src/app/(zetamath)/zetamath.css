@@ -559,9 +559,17 @@ input[type="checkbox"] {
   margin-bottom: 30px;
 }
 
+/* Lets the select shrink to its max-width instead of its longest option. */
+.filters label {
+  min-width: 0;
+}
+
 .filters select {
   max-width: 100%;
-  font-size: 0.875rem;
+}
+
+.loadNote {
+  margin-bottom: 16px;
 }
 
 .stats {
@@ -760,7 +768,6 @@ figcaption h2 {
   box-shadow: 0 2px 10px rgb(0 0 0 / 0.08);
   font-size: 0.8125rem;
   line-height: 1.5;
-  white-space: nowrap;
   pointer-events: none;
 }
 

@@ -1,6 +1,6 @@
 /* A finished run, as stored and as charted. Shared by the client and the API. */
 
-import { OPS, type Op, type Problem } from "./problems.ts";
+import { OPS, SETTINGS_KEY, type Op, type Problem } from "./problems.ts";
 
 export type Run = {
   id: string;
@@ -9,6 +9,8 @@ export type Run = {
   /** YYYY-MM-DD on the clock of whoever played. Stored rather than derived, so
    * a visitor in another time zone sees the same days. */
   day: string;
+  /** Their getTimezoneOffset(), so the time shown belongs to that day. */
+  offset?: number;
   score: number;
   seconds: number;
   /** settingsKey() of the settings it was played on. */
@@ -51,7 +53,8 @@ export function parseRun(v: unknown): Run | null {
   if (typeof r.day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.day)) return null;
   if (Number.isNaN(dayToMs(r.day))) return null;
   if (!int(r.score, 0, 5000) || !int(r.seconds, 1, 3600)) return null;
-  if (typeof r.settings !== "string" || !/^[\w.+-]{1,80}$/.test(r.settings)) return null;
+  if (typeof r.settings !== "string" || !SETTINGS_KEY.test(r.settings)) return null;
+  if (r.offset !== undefined && !int(r.offset, -900, 900)) return null;
   if (typeof r.excluded !== "boolean") return null;
   const ops: Run["ops"] = {};
   const raw = (typeof r.ops === "object" && r.ops !== null ? r.ops : {}) as Record<string, unknown>;
@@ -65,6 +68,7 @@ export function parseRun(v: unknown): Run | null {
     id: r.id,
     at: r.at,
     day: r.day,
+    ...(r.offset === undefined ? {} : { offset: r.offset }),
     score: r.score,
     seconds: r.seconds,
     settings: r.settings,

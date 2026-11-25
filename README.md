@@ -38,7 +38,7 @@ domains means editing each of these by hand:
 
 | Path | What to change |
 | :--- | :--- |
-| `src/app/(zetamath)/layout.tsx` | `metadataBase` and the OpenGraph `url` |
+| `src/app/(zetamath)/layout.tsx` | `metadataBase` |
 | `src/app/(home)/layout.tsx` | `metadataBase`, the OpenGraph `url`, and the JSON-LD `url` |
 | `public/sitemap.xml` | `<loc>` |
 | `public/robots.txt` | the `Sitemap:` line |
@@ -49,8 +49,8 @@ is the previous domain and should stay pointed here so old links survive.
 
 ## /zetamath
 
-Anyone can play. Only runs played while logged in are recorded, and everyone
-sees the graphs of those.
+Anyone can play. Runs are recorded when you are logged in, or when you choose to
+save one on the results screen, and everyone sees the graphs of those.
 
 | Path (under `src/app/(zetamath)/zetamath/`) | What's in it |
 | :--- | :--- |
@@ -71,11 +71,13 @@ sees the graphs of those.
   set it if strangers adding runs would bother you. Changing it, or connecting
   the database, logs everyone out. A recorded score can never be edited or
   deleted through the API, only left out of the graphs and put back.
-- **Local.** `npm run dev` records to `.data/zetamath-runs.json` (gitignored).
+- **Local.** `npm run dev` records to `.data/zetamath-runs.json` (gitignored), or
+  to a separate development key if the database variables are in `.env.local`.
 - Runs on different settings are never graphed together; `settingsKey()` is what
   decides "different".
 - After editing a trick, run `node scripts/verify-tricks.mts`. It works every
-  trick on every standard problem it fits and checks each line it prints.
+  trick on every standard problem it fits, and checks the result and every
+  equation it prints.
 
 ## Deploy
 

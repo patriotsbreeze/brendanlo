@@ -41,6 +41,7 @@ export function Play() {
           id: crypto.randomUUID(),
           at,
           day: dayKey(at),
+          offset: new Date(at).getTimezoneOffset(),
           score: solved.length,
           seconds: played.seconds,
           settings: settingsKey(played),

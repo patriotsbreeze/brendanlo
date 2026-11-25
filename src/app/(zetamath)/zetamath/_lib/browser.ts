@@ -42,6 +42,17 @@ export const settingsStore = {
   },
 };
 
+// ------------------------------------------------------------------- owner
+
+const OWNER = "zetamath.owner";
+
+/** Whether this browser was logged in last time the server said. Only decides
+ * what to queue while the server cannot be asked; the server still checks. */
+export const ownerHint = {
+  get: () => read(OWNER) === true,
+  set: (v: boolean) => write(OWNER, v),
+};
+
 // ------------------------------------------------------------- unsynced runs
 
 const UNSYNCED = "zetamath.unsynced";

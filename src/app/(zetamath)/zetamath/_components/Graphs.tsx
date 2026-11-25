@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { describeKey, OP_NAME, OPS, STANDARD_KEY } from "../_lib/problems";
-import { byDay, DAY_MS, dayKey, dayToMs, type Run } from "../_lib/runs";
+import { byDay, DAY_MS, dayKey, dayToMs, trailingMean, type Run } from "../_lib/runs";
 import { AttemptChart, WINDOW } from "./AttemptChart";
 import { clock, scoreDomain, shortDay } from "./chartKit";
 import { DayChart } from "./DayChart";
@@ -25,15 +25,19 @@ export function Graphs() {
   const [today] = useState(() => dayKey(Date.now()));
 
   // Scores on different settings do not belong on one axis, so the page shows
-  // one kind at a time, standard first.
+  // one kind at a time, standard first. A kind with nothing but left-out runs
+  // is listed only for the owner, who can put them back.
   const kinds = useMemo(() => {
     const count = new Map<string, number>([[STANDARD_KEY, 0]]);
-    for (const r of runs) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
+    for (const r of runs) {
+      if (owner || !r.excluded) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
+    }
     return [...count.entries()].sort(([a, n], [b, m]) =>
       a === STANDARD_KEY ? -1 : b === STANDARD_KEY ? 1 : m - n,
     );
-  }, [runs]);
-  const kind = picked ?? (kinds[0][1] > 0 ? STANDARD_KEY : (kinds[1]?.[0] ?? STANDARD_KEY));
+  }, [runs, owner]);
+  const fallback = kinds[0][1] > 0 ? STANDARD_KEY : (kinds[1]?.[0] ?? STANDARD_KEY);
+  const kind = picked !== null && kinds.some(([key]) => key === picked) ? picked : fallback;
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
 
@@ -57,13 +61,21 @@ export function Graphs() {
   }
 
   const since = range === "all" ? -Infinity : dayToMs(today) - (Number(range) - 1) * DAY_MS;
-  const inView = runs.filter((r) => r.settings === kind && dayToMs(r.day) >= since);
+  const everything = runs.filter((r) => r.settings === kind);
+  const history = everything.filter((r) => !r.excluded);
+  const inView = everything.filter((r) => dayToMs(r.day) >= since);
   const counted = inView.filter((r) => !r.excluded);
   const excluded = inView.filter((r) => r.excluded);
   const shown = showExcluded ? inView : counted;
+  const before = (showExcluded ? everything : history).length - shown.length;
 
   return (
     <>
+      {status === "error" && (
+        <p role="status" className="note loadNote">
+          couldn&rsquo;t load the recorded runs, so some may be missing. reload to try again.
+        </p>
+      )}
       <div className="filters">
         <label>
           <span className="srOnly">date range</span>
@@ -87,7 +99,7 @@ export function Graphs() {
             </select>
           </label>
         )}
-        {excluded.length > 0 && (
+        {counted.length > 0 && excluded.length > 0 && (
           <label className="check">
             <input
               type="checkbox"
@@ -102,7 +114,14 @@ export function Graphs() {
       {counted.length === 0 ? (
         <p className="lede holding">nothing to graph in this range.</p>
       ) : (
-        <Figures counted={counted} shown={shown} excluded={showExcluded ? excluded : []} today={today} />
+        <Figures
+          history={history}
+          counted={counted}
+          shown={shown}
+          before={before}
+          excluded={showExcluded ? excluded : []}
+          today={today}
+        />
       )}
 
       <RunTable key={`${kind} ${range}`} runs={inView} />
@@ -111,22 +130,36 @@ export function Graphs() {
 }
 
 function Figures({
+  history,
   counted,
   shown,
+  before,
   excluded,
   today,
 }: {
+  /** Every counted run on these settings, whatever the date range. */
+  history: readonly Run[];
+  /** The ones in the date range. */
   counted: readonly Run[];
+  /** What the attempt chart draws: counted, plus left-out runs if asked. */
   shown: readonly Run[];
+  before: number;
   excluded: readonly Run[];
   today: string;
 }) {
   const days = byDay(counted);
   const bestIds = new Set(days.map((d) => d.best.id));
-  const domain = scoreDomain(shown);
-  const best = days.reduce((top, d) => (d.best.score > top.score ? d.best : top), days[0].best);
+  const trailing = trailingMean(history.map((r) => r.score), WINDOW);
+  const means = new Map(
+    history.map((r, i) => [r.id, { mean: trailing[i], n: Math.min(WINDOW, i + 1) }]),
+  );
+  const domain = scoreDomain([
+    ...shown.map((r) => r.score),
+    ...counted.flatMap((r) => means.get(r.id)?.mean ?? []),
+  ]);
+  const best = history.reduce((top, r) => (r.score > top.score ? r : top));
   const lastDay = days[days.length - 1];
-  const lastTen = counted.slice(-WINDOW);
+  const lastTen = history.slice(-WINDOW);
   const avg = lastTen.reduce((sum, r) => sum + r.score, 0) / lastTen.length;
 
   const speed = OPS.flatMap((op) => {
@@ -152,7 +185,7 @@ function Figures({
         <Stat
           label={`average of last ${lastTen.length}`}
           value={avg.toFixed(1)}
-          note={`${(lastTen[0].seconds / avg).toFixed(2)} s a problem`}
+          note={avg ? `${(lastTen[0].seconds / avg).toFixed(2)} s a problem` : ""}
         />
         <Stat
           label="tries"
@@ -201,7 +234,7 @@ function Figures({
             )}
           </ul>
         </figcaption>
-        <AttemptChart runs={shown} bestIds={bestIds} domain={domain} />
+        <AttemptChart runs={shown} bestIds={bestIds} means={means} before={before} domain={domain} />
       </figure>
 
       {speed.length > 1 && (
@@ -268,14 +301,14 @@ function RunTable({ runs }: { runs: readonly Run[] }) {
           {newest.slice(0, limit).map((r) => (
             <tr key={r.id} className={r.excluded ? "out" : undefined}>
               <td>{shortDay(r.day)}</td>
-              <td>{clock(r.at)}</td>
+              <td>{clock(r)}</td>
               <td className="right">{r.score}</td>
               <td className="right">{r.score ? (r.seconds / r.score).toFixed(2) : ""}</td>
               <td className="right">
                 {owner ? (
                   <input
                     type="checkbox"
-                    aria-label={`leave out the ${r.score} from ${shortDay(r.day)}, ${clock(r.at)}`}
+                    aria-label={`leave out the ${r.score} from ${shortDay(r.day)}, ${clock(r)}`}
                     checked={r.excluded}
                     onChange={(e) => setExcluded(r.id, e.target.checked)}
                   />

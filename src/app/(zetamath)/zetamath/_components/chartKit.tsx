@@ -35,8 +35,7 @@ export function ticks(lo: number, hi: number, count: number): number[] {
 
 /** Same score axis for every chart on the page. Not from zero: these are
  * positions, not lengths, and the story is a few points of movement. */
-export function scoreDomain(runs: readonly Run[]): [number, number] {
-  const scores = runs.map((r) => r.score);
+export function scoreDomain(scores: readonly number[]): [number, number] {
   const lo = Math.max(0, Math.floor((Math.min(...scores) - 2) / 10) * 10);
   const hi = Math.ceil((Math.max(...scores) + 2) / 10) * 10;
   return [lo, Math.max(hi, lo + 20)];
@@ -121,5 +120,14 @@ export function longDay(day: string): string {
   return `${WEEKDAYS[d.getUTCDay()]}, ${shortDay(day)}, ${d.getUTCFullYear()}`;
 }
 
-export const clock = (ms: number) =>
-  new Date(ms).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }).toLowerCase();
+/** The time on the player's clock, to match run.day, wherever it is read. */
+export function clock(run: Run): string {
+  const there = run.offset === undefined ? run.at : run.at - run.offset * 60_000;
+  return new Date(there)
+    .toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      ...(run.offset === undefined ? {} : { timeZone: "UTC" }),
+    })
+    .toLowerCase();
+}

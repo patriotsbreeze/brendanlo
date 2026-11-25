@@ -5,27 +5,17 @@ import "./zetamath.css";
  * metadata to itself, and so does this. System fonts only. */
 
 const DESCRIPTION =
-  "two minutes of arithmetic, as fast as you can. plus a graph of every run i've played, and tricks for getting faster.";
+  "two minutes of arithmetic, as fast as you can. plus a graph of my runs, and tricks for getting faster.";
 
 export const metadata: Metadata = {
   // Not inherited across root layouts, so it is set again here.
   metadataBase: new URL("https://brendanlo.dev"),
   title: { default: "zetamath", template: "%s | zetamath" },
   description: DESCRIPTION,
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://brendanlo.dev/zetamath",
-    title: "zetamath",
-    description: DESCRIPTION,
-    siteName: "brendan lo",
-  },
-  twitter: {
-    card: "summary",
-    title: "zetamath",
-    description: DESCRIPTION,
-    creator: "@patriotsbreeze",
-  },
+  // No title, description or url here: the tabs inherit this object, and each
+  // one fills the gaps from its own.
+  openGraph: { type: "website", locale: "en_US", siteName: "brendan lo" },
+  twitter: { card: "summary", creator: "@patriotsbreeze" },
   robots: { index: true, follow: true },
 };
 
