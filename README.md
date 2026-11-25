@@ -50,8 +50,8 @@ is the previous domain and should stay pointed here so old links survive.
 ## /zetamath
 
 Anyone can play. With an account (a username and a password, no email) your runs
-are kept and graphed, and nobody else can open them. The `brendan` account is the
-owner: its graphs are the ones everyone sees.
+are kept and graphed, and nobody else can open them. `blo` is the owner, which only
+means it can't be deleted through the site.
 
 | Path (under `src/app/(zetamath)/zetamath/`) | What's in it |
 | :--- | :--- |
@@ -73,7 +73,7 @@ owner: its graphs are the ones everyone sees.
   `supabase db push` (after `supabase link --project-ref qsgcljgkbtenripxkegb`).
 - **A new database.** Push the migrations, then make the owner before anyone else
   can take the name: `insert into zetamath.accounts (username, password_hash, owner)
-  values ('brendan', zetamath.hash_password('...'), true);`
+  values ('blo', zetamath.hash_password('...'), true);`
 - **Passwords.** Stored as bcrypt. Forgotten ones are reset in the Supabase SQL
   editor: `select zetamath.set_password('someone', 'a new password');`
 - **Free plan.** Supabase pauses a free project that gets few requests for a week,
@@ -83,7 +83,7 @@ owner: its graphs are the ones everyone sees.
 - **Scores** are written once. They can be left out of the graphs and put back,
   never edited.
 - **Local.** `npm run dev` runs the same migrations in a Postgres inside the
-  process and keeps it in `.data/` (gitignored). The owner there is `brendan` /
+  process and keeps it in `.data/` (gitignored). The owner there is `blo` /
   `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and
   `ZETAMATH_DB_KEY` would give them one.
 - Runs on different settings are never graphed together; `settingsKey()` is what

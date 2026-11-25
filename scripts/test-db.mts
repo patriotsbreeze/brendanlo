@@ -11,7 +11,7 @@ import { settingsKey, STANDARD, STANDARD_KEY } from "../src/app/(zetamath)/zetam
 
 const db = await open();
 await db.exec(`insert into zetamath.accounts (username, password_hash, owner)
-  values ('brendan', zetamath.hash_password('owner pass'), true)`);
+  values ('blo', zetamath.hash_password('owner pass'), true)`);
 
 type Answer = {
   error?: string;
@@ -19,7 +19,6 @@ type Answer = {
   token: string;
   account: { username: string; owner: boolean } | null;
   runs: { id: string; score: number; excluded: boolean; at: number }[];
-  ownerRuns: { id: string; score: number }[];
   replaced: string[];
 };
 
@@ -126,21 +125,20 @@ await test("a score is written once", async () => {
   assert.deepEqual((await read(token)).runs[0], first);
 });
 
-await test("everyone sees the owner's runs, and only their own", async () => {
-  const owner = await logIn("brendan", "owner pass");
+await test("everyone sees their own runs and nobody else's", async () => {
+  const owner = await logIn("blo", "owner pass");
   assert.equal(owner.account?.owner, true);
-  await save(owner.token, "brendan", [run({ score: 31 })]);
-  const stranger = await read(null);
-  assert.equal(stranger.account, null);
-  assert.deepEqual(stranger.runs, []);
-  assert.deepEqual(stranger.ownerRuns.map((r) => r.score), [31]);
-  assert.deepEqual((await call("read")).ownerRuns.map((r) => r.score), [31]);
+  await save(owner.token, "blo", [run({ score: 31 })]);
+  for (const stranger of [await read(null), await call("read"), await read("0".repeat(64))]) {
+    assert.deepEqual(stranger, { account: null, runs: [] });
+  }
   const friend = await read((await logIn("friend", "password1")).token);
   assert.deepEqual(friend.runs.map((r) => r.score), [27, 0]);
-  assert.deepEqual(friend.ownerRuns.map((r) => r.score), [31]);
-  const me = await read(owner.token);
-  assert.deepEqual(me.runs.map((r) => r.score), [31]);
-  assert.deepEqual(me.ownerRuns, []);
+  assert.deepEqual((await read(owner.token)).runs.map((r) => r.score), [31]);
+});
+
+await test("the owner's first name is not up for grabs", async () => {
+  assert.equal((await signUp("brendan", "password1")).error, "taken");
 });
 
 await test("the same run id in two accounts stays two runs", async () => {
@@ -157,7 +155,7 @@ await test("saving needs the right account", async () => {
   const { token } = await logIn("friend", "password1");
   assert.equal((await save(null, "friend", [run()])).error, "not_logged_in");
   assert.equal((await save("0".repeat(64), "friend", [run()])).error, "not_logged_in");
-  assert.equal((await save(token, "brendan", [run()])).error, "other_account");
+  assert.equal((await save(token, "blo", [run()])).error, "other_account");
   assert.equal((await save(token, null, [run()])).error, "other_account");
   assert.equal((await read(token)).runs.length, 2);
 });
@@ -203,7 +201,7 @@ await test("the database accepts every settings key the game can make", async ()
 });
 
 await test("a real run takes the place of the one typed in by hand", async () => {
-  const owner = await logIn("brendan", "owner pass");
+  const owner = await logIn("blo", "owner pass");
   const typed = async (time: string, score: number) =>
     String(
       await one(`insert into zetamath.runs
@@ -213,7 +211,7 @@ await test("a real run takes the place of the one typed in by hand", async () =>
     );
   const seen = async () => (await read(owner.token)).runs;
   const has = async (id: unknown) => (await seen()).some((r) => r.id === id);
-  const put = async (...runs: unknown[]) => (await save(owner.token, "brendan", runs)).replaced;
+  const put = async (...runs: unknown[]) => (await save(owner.token, "blo", runs)).replaced;
 
   const x = await typed("14:45", 27);
   const y = await typed("14:39", 17);
@@ -351,8 +349,8 @@ await test("deleting an account takes everything with it", async () => {
     Number(await one("select count(*) from zetamath.accounts where not owner")) + 1,
     "and the sign-up still counts",
   );
-  const owner = await logIn("brendan", "owner pass");
-  assert.equal((await del(owner.token, "owner pass", "brendan")).error, "owner");
+  const owner = await logIn("blo", "owner pass");
+  assert.equal((await del(owner.token, "owner pass", "blo")).error, "owner");
 });
 
 await test("sessions expire and are capped", async () => {
@@ -375,12 +373,12 @@ await test("sessions expire and are capped", async () => {
 });
 
 await test("the owner can reset any password from the SQL editor", async () => {
-  const b = await logIn("brendan", "owner pass");
-  assert.equal(await one("select zetamath.set_password('brendan', 'a new one')"), true);
+  const b = await logIn("blo", "owner pass");
+  assert.equal(await one("select zetamath.set_password('blo', 'a new one')"), true);
   assert.equal(await one("select zetamath.set_password('nobody', 'a new one')"), false);
-  await assert.rejects(one(`select zetamath.set_password('brendan', '${"x".repeat(73)}')`));
+  await assert.rejects(one(`select zetamath.set_password('blo', '${"x".repeat(73)}')`));
   assert.equal((await read(b.token)).account, null);
-  assert.ok((await logIn("brendan", "a new one")).token);
+  assert.ok((await logIn("blo", "a new one")).token);
 });
 
 await test("limits on runs and sign-ups", async () => {
@@ -432,8 +430,8 @@ await test("a full disk stops everyone but the owner", async () => {
   const [first] = (await read(friend.token)).runs;
   assert.deepEqual((await save(friend.token, "friend", [{ ...first, excluded: true }])).replaced, []);
   assert.equal((await read(friend.token)).runs[0].excluded, true);
-  const owner = await logIn("brendan", "a new one");
-  assert.equal((await save(owner.token, "brendan", [run()])).error, undefined);
+  const owner = await logIn("blo", "a new one");
+  assert.equal((await save(owner.token, "blo", [run()])).error, undefined);
 });
 
 await test("a stranger can reach nothing else", async () => {
@@ -448,7 +446,7 @@ await test("a stranger can reach nothing else", async () => {
       await assert.rejects(asAnon(`delete from zetamath.${table}`, role), /permission denied/);
     }
     for (const fn of [
-      "set_password('brendan', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
+      "set_password('blo', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
       "start_session(gen_random_uuid())", "runs_of(gen_random_uuid())", "hash_password('x')",
       "runs_limit()",
     ]) {

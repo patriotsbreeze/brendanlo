@@ -62,8 +62,7 @@ export function settingsKey(s: Settings): string {
   return parts.join(".");
 }
 
-/** Exactly what settingsKey() can produce. A key is shown to everyone, so it
- * is never free text. */
+/** Exactly what settingsKey() can produce, so a key is never free text. */
 export const SETTINGS_KEY =
   /^(?=[asmd])a?s?m?d?(\.a\d{1,4}-\d{1,4}\+\d{1,4}-\d{1,4})?(\.m\d{1,4}-\d{1,4}x\d{1,4}-\d{1,4})?\.\d{1,4}s$/;
 

@@ -1,4 +1,4 @@
-import { OWNER, parseAccount, USERNAME, type Account } from "./accounts";
+import { OWNER, parseAccount, renamed, USERNAME, type Account } from "./accounts";
 import { parseSettings, STANDARD, type Settings } from "./problems";
 import { parseRun, type Run } from "./runs";
 
@@ -52,7 +52,10 @@ const ACCOUNT = "zetamath.account";
 /** Who was logged in here last time the server said. Only decides what to queue
  * while the server cannot be asked; the server still checks. */
 export const accountHint = {
-  get: (): Account | null => parseAccount(read(ACCOUNT)),
+  get(): Account | null {
+    const last = parseAccount(read(ACCOUNT));
+    return last && { ...last, username: renamed(last.username) };
+  },
   set(v: Account | null) {
     write(ACCOUNT, v);
   },
@@ -88,7 +91,7 @@ function load(): Queue {
     for (const v of Object.values(stored) as { run?: unknown; username?: unknown }[]) {
       const run = parseRun(v?.run);
       if (run && typeof v.username === "string" && USERNAME.test(v.username)) {
-        out[run.id] = { run, username: v.username };
+        out[run.id] = { run, username: renamed(v.username) };
       }
     }
   }
