@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./(home)/globals.css";
 
-/* The site has two root layouts — (home) for "/" and (lab) for
- * "/experimental" — so there is no single layout left to compose a 404 from.
+/* Every page has its own root layout ((home), (lab), (zetamath)), so there is
+ * no single layout left to compose a 404 from.
  * Per node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/not-found.md
  * this file (behind `experimental.globalNotFound` in next.config.ts) renders
  * unmatched URLs instead.
