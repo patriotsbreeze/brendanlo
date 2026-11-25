@@ -1,0 +1,941 @@
+/* Everything under /zetamath. Its own root layout, so bare selectors are safe.
+ * Same paper and ink as the home page, plus one red: the ribbon colour an
+ * adding machine prints in, used only for what stands out (the day's best, the
+ * slowest answers). */
+
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+  --ink-muted: #333333;
+  --soft: #666666;
+  --rule: #e5e5e5;
+  --field: #f5f5f5;
+
+  --red: #b3202c;
+  --try: #8a8a8a;
+  --grid: #ececec;
+
+  --font-sans: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Light no matter what the OS prefers, like the home page. */
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 20px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px 28px;
+}
+
+main {
+  flex: 1;
+}
+
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+h3 {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+a,
+.link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover,
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.note {
+  margin: 0;
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+.lede {
+  max-width: 34rem;
+  margin: 6px 0 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- frame */
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+
+.mark {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.tabs {
+  display: flex;
+  gap: 18px;
+}
+
+.tabs a {
+  padding: 4px 0;
+  color: var(--soft);
+  text-decoration: none;
+}
+
+.tabs a:hover {
+  color: var(--ink);
+}
+
+.tabs a[aria-current="page"] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-height: 46px;
+  margin-top: 56px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------- controls */
+
+.button {
+  padding: 10px 26px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--bg);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #2b2b2b;
+}
+
+.button:disabled {
+  border-color: var(--rule);
+  background: var(--rule);
+  color: var(--soft);
+  cursor: default;
+}
+
+.button.small {
+  padding: 3px 12px;
+  font-size: 0.8125rem;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+  padding: 5px 8px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  /* 16px or iOS zooms the page when one is focused. */
+  font-size: 1rem;
+}
+
+input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.signIn {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.signIn input {
+  width: 9rem;
+  padding: 2px 8px;
+}
+
+.signIn [role="alert"] {
+  color: var(--red);
+}
+
+/* ---------------------------------------------------------------- setup */
+
+.settings {
+  margin: 30px 0 26px;
+  border-top: 1px solid var(--rule);
+}
+
+.opRow {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  align-items: center;
+  min-height: 48px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.opRow select {
+  justify-self: start;
+}
+
+.hint {
+  color: var(--soft);
+}
+
+.ranges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.range {
+  white-space: nowrap;
+}
+
+.num {
+  width: 3.6rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.startRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+
+/* ----------------------------------------------------------------- game */
+
+.game {
+  padding-top: 8px;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.status b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.question {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 0.28em;
+  margin: clamp(28px, 9vh, 88px) 0;
+  color: var(--ink);
+  font-size: clamp(2.1rem, 9vw, 4.25rem);
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Wide enough for "1200 ÷ 12 =", so the = and the box stay put from one
+ * problem to the next. */
+.problem {
+  min-width: 5.8em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.eq {
+  margin-left: 0.28em;
+  color: var(--soft);
+}
+
+.question input.answer {
+  width: 4.2ch;
+  padding: 0 0.1em;
+  border: 0;
+  border-bottom: 2px solid var(--ink);
+  border-radius: 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.question input.answer:focus {
+  outline: none;
+}
+
+.tape {
+  display: block;
+  width: 100%;
+  height: 20px;
+}
+
+.tape line {
+  stroke: var(--rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.tape .run {
+  stroke: var(--ink);
+}
+
+.tape .tick {
+  stroke: var(--ink);
+}
+
+.tape .tick.slow {
+  stroke: var(--red);
+  stroke-width: 2;
+}
+
+.tape .gap {
+  fill: var(--red);
+  opacity: 0.1;
+}
+
+.quit {
+  margin-top: 18px;
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+/* --------------------------------------------------------------- result */
+
+.score {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.score b {
+  margin-right: 0.08em;
+  font-size: 4rem;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.result .startRow {
+  margin-top: 22px;
+}
+
+.exclude {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.result .tape {
+  height: 32px;
+  margin-top: 38px;
+}
+
+.caption {
+  margin: 8px 0 0;
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 32px;
+  margin-top: 34px;
+}
+
+/* --------------------------------------------------------------- tables */
+
+.rows {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.rows th,
+.rows td {
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.rows thead th {
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+.rows .right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rows .right + * {
+  padding-left: 12px;
+}
+
+.rows tr > :last-child {
+  padding-right: 0;
+}
+
+.rows.digits {
+  width: auto;
+}
+
+.rows.digits td,
+.rows.digits thead th[scope="col"] {
+  min-width: 2.6rem;
+  text-align: right;
+}
+
+.rows.digits th[scope="row"] {
+  padding-right: 18px;
+  color: var(--soft);
+  white-space: nowrap;
+}
+
+.rows.runs {
+  margin-bottom: 10px;
+}
+
+.rows .out td {
+  color: var(--soft);
+}
+
+.rows .out td:nth-child(3) {
+  text-decoration: line-through;
+}
+
+.rows.bars th {
+  width: 8.5rem;
+  white-space: nowrap;
+}
+
+.rows.bars td {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.bar {
+  display: inline-block;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 0 4px 4px 0;
+  background: var(--try);
+}
+
+.mono {
+  white-space: nowrap;
+}
+
+.scroll {
+  margin-bottom: 8px;
+  overflow-x: auto;
+}
+
+/* --------------------------------------------------------------- graphs */
+
+.holding {
+  min-height: 40vh;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 30px;
+}
+
+.filters select {
+  max-width: 100%;
+  font-size: 0.875rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0 0 42px;
+}
+
+.stats dt {
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+.stats dd {
+  margin: 0;
+}
+
+.stats b {
+  display: block;
+  color: var(--ink);
+  font-size: 2.1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+figure {
+  margin: 0 0 46px;
+}
+
+figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 20px;
+  margin-bottom: 6px;
+}
+
+figcaption h2 {
+  margin: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin: 0;
+  padding: 0;
+  color: var(--soft);
+  font-size: 0.8125rem;
+  list-style: none;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.swatch.best {
+  background: var(--red);
+}
+
+.swatch.try {
+  background: var(--try);
+}
+
+.swatch.excluded {
+  border: 1.5px solid var(--try);
+}
+
+.swatch.mean {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ink);
+}
+
+.chart {
+  position: relative;
+  min-height: 250px;
+}
+
+.chart svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.chart svg:focus {
+  outline: none;
+}
+
+.chart svg:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.grid {
+  stroke: var(--grid);
+}
+
+.axis {
+  stroke: #cfcfcf;
+}
+
+.crosshair {
+  stroke: #b5b5b5;
+}
+
+.tickLabel,
+.panelLabel {
+  fill: var(--soft);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.markLabel {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  /* Keeps the number legible where it crosses a gridline or a dot. */
+  stroke: var(--bg);
+  stroke-width: 4px;
+  paint-order: stroke;
+}
+
+.dot {
+  stroke: var(--bg);
+  stroke-width: 2px;
+  paint-order: stroke;
+}
+
+.dot.try {
+  fill: var(--try);
+}
+
+.dot.best {
+  fill: var(--red);
+}
+
+.dot.excluded {
+  fill: var(--bg);
+  stroke: var(--try);
+  stroke-width: 1.5px;
+  paint-order: normal;
+}
+
+.halo {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5px;
+}
+
+.bestLine,
+.meanLine {
+  fill: none;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bestLine {
+  stroke: var(--red);
+}
+
+.meanLine {
+  stroke: var(--ink);
+}
+
+.count {
+  fill: var(--try);
+}
+
+.count.on {
+  fill: var(--ink);
+}
+
+.tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  padding: 7px 11px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.08);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip p {
+  margin: 0;
+  color: var(--soft);
+}
+
+.tooltip b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.tooltip .key {
+  display: inline-block;
+  width: 10px;
+  height: 2px;
+  margin-right: 7px;
+  vertical-align: 0.25em;
+}
+
+.key.try {
+  background: var(--try);
+}
+
+.key.best {
+  background: var(--red);
+}
+
+.key.mean {
+  background: var(--ink);
+}
+
+.key.excluded {
+  height: 0;
+  border-top: 2px dotted var(--try);
+}
+
+/* --------------------------------------------------------------- tricks */
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 18px 0 0;
+}
+
+.tricks > section {
+  margin-top: 48px;
+}
+
+.tricks > section > p,
+.tricks > section > ul {
+  max-width: 38rem;
+}
+
+.tricks h2 {
+  font-size: 1.25rem;
+}
+
+.tricks h3 + .scroll {
+  margin-top: 4px;
+}
+
+.tricks .scroll + .note + h3,
+.tricks ul + h3 {
+  margin-top: 24px;
+}
+
+.trick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
+  gap: 10px 32px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.trick h3 {
+  font-size: 1rem;
+  text-wrap: balance;
+}
+
+.trick p {
+  margin-bottom: 4px;
+}
+
+.trick:target h3 {
+  color: var(--red);
+}
+
+.work {
+  padding: 12px 16px;
+  border-radius: 4px;
+  background: var(--field);
+  align-self: start;
+  font-variant-numeric: tabular-nums;
+}
+
+.work .workProblem {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 1.125rem;
+}
+
+.workProblem b {
+  font-weight: 600;
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  list-style: none;
+}
+
+.steps li {
+  margin: 0;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+
+.work .workActions {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+}
+
+.work input.drillAnswer {
+  width: 6rem;
+  margin: 2px 0;
+}
+
+/* --------------------------------------------------------------- narrow */
+
+@media (max-width: 640px) {
+  .page {
+    padding: 22px 18px 20px;
+  }
+
+  .top {
+    margin-bottom: 30px;
+  }
+
+  .opRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 10px 0;
+  }
+
+  .question {
+    margin: 26px 0;
+  }
+
+  .split,
+  .trick {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Fingers, not a mouse. */
+  .tabs a {
+    padding: 8px 0;
+  }
+
+  .work .workActions {
+    gap: 22px;
+  }
+
+  .work .workActions .link {
+    padding: 6px 0;
+  }
+}
