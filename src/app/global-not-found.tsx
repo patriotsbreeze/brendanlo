@@ -7,8 +7,9 @@ import "./(home)/globals.css";
  * this file (behind `experimental.globalNotFound` in next.config.ts) renders
  * unmatched URLs instead.
  *
- * It reproduces the 404 the site served before the split: Next's default
- * not-found markup on top of the home stylesheet. */
+ * It is Next's default not-found markup on top of the home stylesheet, like the
+ * 404 the site served before the split, but without Next's
+ * `prefers-color-scheme: dark` rule: it is always light. */
 
 export const metadata: Metadata = {
   title: "404: This page could not be found.",

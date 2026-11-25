@@ -28,7 +28,7 @@ load). See `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventi
 | `src/app/(home)/page.tsx` | The home page. Content is inline JSX, not data arrays; edit the copy in place. |
 | `src/app/(home)/globals.css` | Every home style. ~160 lines, no CSS modules, locked to light via `color-scheme: light`. |
 | `src/app/(home)/layout.tsx` | Home metadata, OpenGraph/Twitter cards, and the `Person` JSON-LD block. |
-| `src/app/global-not-found.tsx` | The 404 for unmatched URLs (needs `experimental.globalNotFound` in `next.config.ts`, since there is no shared root layout). Renders the same 404 the site always had. |
+| `src/app/global-not-found.tsx` | The 404 for unmatched URLs (needs `experimental.globalNotFound` in `next.config.ts`, since there is no shared root layout). Renders Next's default 404 markup on the home stylesheet, always light: unlike the 404 before the split, it has no dark-mode colors. |
 | `src/app/(lab)/layout.tsx` | `/experimental` root: fonts, `lab.css`, metadata (`noindex` while experimental). |
 | `src/app/(lab)/experimental/page.tsx` | All `/experimental` copy, server-rendered. Client islands enhance it. |
 | `src/app/(lab)/experimental/_tensors/` | Pure functions that build each bed's pin heights and dyes (no three, no React). Shared by the WebGL beds, the SVG posters and the DOM readouts. |
