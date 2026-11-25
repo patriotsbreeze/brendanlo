@@ -44,14 +44,17 @@ export function opTotals(solved: readonly Solved[]): Run["ops"] {
 const int = (v: unknown, lo: number, hi: number): v is number =>
   Number.isInteger(v) && (v as number) >= lo && (v as number) <= hi;
 
+const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
+
 /** Trust boundary: rebuild a run field by field, or reject it. */
 export function parseRun(v: unknown): Run | null {
   if (typeof v !== "object" || v === null) return null;
   const r = v as Record<string, unknown>;
-  if (typeof r.id !== "string" || !/^[0-9a-f-]{36}$/.test(r.id)) return null;
+  if (typeof r.id !== "string" || !UUID.test(r.id)) return null;
   if (!int(r.at, 1_577_836_800_000, 4_102_444_800_000)) return null;
   if (typeof r.day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.day)) return null;
-  if (Number.isNaN(dayToMs(r.day))) return null;
+  // No 31st of February.
+  if (dayToMs(r.day) % DAY_MS !== 0 || !new Date(dayToMs(r.day)).toISOString().startsWith(r.day)) return null;
   if (!int(r.score, 0, 5000) || !int(r.seconds, 1, 3600)) return null;
   if (typeof r.settings !== "string" || !SETTINGS_KEY.test(r.settings)) return null;
   if (r.offset !== undefined && !int(r.offset, -900, 900)) return null;

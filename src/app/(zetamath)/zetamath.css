@@ -58,8 +58,13 @@ main {
   flex: 1;
 }
 
+h1:focus {
+  outline: none;
+}
+
 h1 {
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--ink);
   font-size: 1.5rem;
   font-weight: 500;
@@ -169,6 +174,11 @@ a:hover,
   text-decoration: none;
 }
 
+/* "account" and "log in" take the same room, so the others stay put. */
+.tabs a:last-child {
+  min-width: 3.35rem;
+}
+
 .tabs a:hover {
   color: var(--ink);
 }
@@ -249,20 +259,48 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.signIn {
-  display: inline-flex;
-  flex-wrap: wrap;
+.fields {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 15rem);
   align-items: center;
-  gap: 8px;
+  gap: 8px 14px;
 }
 
-.signIn input {
-  width: 9rem;
-  padding: 2px 8px;
+.fields .wide {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
-.signIn [role="alert"] {
+.fields .startRow {
+  margin-top: 4px;
+}
+
+.problemNote {
+  margin: 0;
   color: var(--red);
+  font-size: 0.8125rem;
+}
+
+.button.danger:not(:disabled) {
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.button.danger:not(:disabled):hover {
+  background: #8f1a24;
+}
+
+.holding > .fields,
+.accountRow {
+  margin-top: 22px;
+}
+
+.accountPart {
+  margin-top: 40px;
+}
+
+.accountLine {
+  text-align: right;
 }
 
 /* ---------------------------------------------------------------- setup */
@@ -427,6 +465,10 @@ input[type="checkbox"] {
 
 .result .startRow {
   margin-top: 22px;
+}
+
+.exclude.keep {
+  display: block;
 }
 
 .exclude {

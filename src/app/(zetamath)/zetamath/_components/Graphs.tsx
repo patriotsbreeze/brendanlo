@@ -18,7 +18,10 @@ const RANGES = [
 const PAGE = 20;
 
 export function Graphs() {
-  const { status, runs, owner } = useRuns();
+  const { status, account, runs: mine, ownerRuns } = useRuns();
+  const [whose, setWhose] = useState<"mine" | "owner">("mine");
+  const own = account !== null && whose === "mine";
+  const runs = own ? mine : ownerRuns;
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("all");
   const [picked, setPicked] = useState<string | null>(null);
   const [showExcluded, setShowExcluded] = useState(false);
@@ -26,29 +29,47 @@ export function Graphs() {
 
   // Scores on different settings do not belong on one axis, so the page shows
   // one kind at a time, standard first. A kind with nothing but left-out runs
-  // is listed only for the owner, who can put them back.
+  // is listed only for whoever played them, who can put them back.
   const kinds = useMemo(() => {
     const count = new Map<string, number>([[STANDARD_KEY, 0]]);
     for (const r of runs) {
-      if (owner || !r.excluded) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
+      if (own || !r.excluded) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
     }
     return [...count.entries()].sort(([a, n], [b, m]) =>
       a === STANDARD_KEY ? -1 : b === STANDARD_KEY ? 1 : m - n,
     );
-  }, [runs, owner]);
+  }, [runs, own]);
   const fallback = kinds[0][1] > 0 ? STANDARD_KEY : (kinds[1]?.[0] ?? STANDARD_KEY);
   const kind = picked !== null && kinds.some(([key]) => key === picked) ? picked : fallback;
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
 
+  const choice = account && !account.owner && (
+    <label>
+      <span className="srOnly">whose runs</span>
+      <select value={whose} onChange={(e) => setWhose(e.target.value as typeof whose)}>
+        <option value="mine">my runs</option>
+        <option value="owner">brendan&rsquo;s runs</option>
+      </select>
+    </label>
+  );
+  const invite = !account && status === "ready" && (
+    <p className="note loadNote">
+      these are brendan&rsquo;s runs. <Link href="/zetamath/account">log in or sign up</Link> to
+      graph your own.
+    </p>
+  );
+
   if (runs.length === 0) {
     return (
       <div className="holding">
+        {invite}
+        {choice && <div className="filters">{choice}</div>}
         <h1>{status === "error" ? "couldn't load the runs." : "no runs yet."}</h1>
         <p className="lede">
           {status === "error" ? (
             "the database didn't answer. reload to try again."
-          ) : owner ? (
+          ) : own ? (
             <>
               finish one on the <Link href="/zetamath">play tab</Link> and it shows up here.
             </>
@@ -76,7 +97,9 @@ export function Graphs() {
           couldn&rsquo;t load the recorded runs, so some may be missing. reload to try again.
         </p>
       )}
+      {invite}
       <div className="filters">
+        {choice}
         <label>
           <span className="srOnly">date range</span>
           <select value={range} onChange={(e) => setRange(e.target.value as typeof range)}>
@@ -124,7 +147,7 @@ export function Graphs() {
         />
       )}
 
-      <RunTable key={`${kind} ${range}`} runs={inView} />
+      <RunTable key={`${kind} ${range} ${own}`} runs={inView} own={own} />
     </>
   );
 }
@@ -273,8 +296,8 @@ function Stat({ label, value, note }: { label: string; value: string; note: stri
   );
 }
 
-function RunTable({ runs }: { runs: readonly Run[] }) {
-  const { owner, setExcluded } = useRuns();
+function RunTable({ runs, own }: { runs: readonly Run[]; own: boolean }) {
+  const { setExcluded } = useRuns();
   const [limit, setLimit] = useState(PAGE);
   const newest = [...runs].reverse();
   if (newest.length === 0) return null;
@@ -293,7 +316,7 @@ function RunTable({ runs }: { runs: readonly Run[] }) {
               s a problem
             </th>
             <th scope="col" className="right">
-              {owner ? "leave out" : ""}
+              {own ? "leave out" : ""}
             </th>
           </tr>
         </thead>
@@ -305,7 +328,7 @@ function RunTable({ runs }: { runs: readonly Run[] }) {
               <td className="right">{r.score}</td>
               <td className="right">{r.score ? (r.seconds / r.score).toFixed(2) : ""}</td>
               <td className="right">
-                {owner ? (
+                {own ? (
                   <input
                     type="checkbox"
                     aria-label={`leave out the ${r.score} from ${shortDay(r.day)}, ${clock(r)}`}

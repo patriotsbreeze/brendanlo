@@ -1,45 +1,33 @@
-import { parseRun } from "../../_lib/runs";
-import { isOwner } from "../../_server/owner";
-import { readRuns, storageKind, writeRuns } from "../../_server/store";
+import { parseRun, type Run } from "../../_lib/runs";
+import { call, readBody, Refused, respond, text } from "../../_server/db";
+import { token } from "../../_server/session";
+import type { Account } from "../../_lib/accounts";
 
-const NO_STORE = { "Cache-Control": "no-store" };
 const MAX_RUNS = 200;
 
-/** Anyone may look at the graphs. */
+/** Your own runs if you are logged in, and the owner's, which anyone may see. */
 export async function GET() {
-  const owner = await isOwner();
-  try {
-    return Response.json({ owner, storage: storageKind(), runs: await readRuns() }, { headers: NO_STORE });
-  } catch (e) {
-    console.error("zetamath: reading runs failed", e);
-    return Response.json({ owner, error: "could not read runs" }, { status: 503, headers: NO_STORE });
-  }
+  return respond(async () =>
+    call<{ account: Account | null; runs: Run[]; ownerRuns: Run[] }>("read", {
+      p_token: await token(),
+    }),
+  );
 }
 
-/** Only the owner may record. A retry or a changed exclude box is the same
- * request. There is no delete and no editing a score: excluding covers it, and
- * can be undone. */
+/** Record runs. A retry or a changed exclude box is the same request. There is
+ * no delete and no editing a score: excluding covers it, and can be undone. */
 export async function POST(request: Request) {
-  if (!(await isOwner())) {
-    return Response.json({ error: "not signed in" }, { status: 401, headers: NO_STORE });
-  }
-  if (storageKind() === "none") {
-    return Response.json({ error: "no storage connected" }, { status: 503, headers: NO_STORE });
-  }
-  const body = (await request.json().catch(() => null)) as { runs?: unknown } | null;
-  const list = body?.runs;
-  if (!Array.isArray(list) || list.length > MAX_RUNS) {
-    return Response.json({ error: "expected a list of runs" }, { status: 400, headers: NO_STORE });
-  }
-  const runs = list.map(parseRun);
-  if (runs.some((r) => r === null)) {
-    return Response.json({ error: "a run is malformed" }, { status: 400, headers: NO_STORE });
-  }
-  try {
-    await writeRuns(runs.filter((r) => r !== null));
-    return Response.json({ saved: runs.length }, { headers: NO_STORE });
-  } catch (e) {
-    console.error("zetamath: saving runs failed", e);
-    return Response.json({ error: "could not save" }, { status: 503, headers: NO_STORE });
-  }
+  return respond(async () => {
+    const { account, runs: list } = await readBody(request);
+    // A tab from before accounts. This is the answer that makes it keep its runs.
+    if (account === undefined) throw new Refused("unreachable");
+    if (!Array.isArray(list) || list.length > MAX_RUNS) throw new Refused("bad_runs");
+    const runs = list.map(parseRun);
+    if (runs.some((r) => r === null)) throw new Refused("bad_runs");
+    return call<{ replaced: string[] }>("save", {
+      p_token: await token(),
+      p_username: text(account),
+      p_runs: runs,
+    });
+  });
 }
