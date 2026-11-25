@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:zetamath": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-db.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-tricks.mts"
   },
   "dependencies": {
     "next": "16.2.1",
@@ -14,6 +15,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.15",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -5,7 +5,7 @@ framework, no `next/font`, system UI stack. Each page has its own root layout:
 
 - `/`: one static page of text (name, links, bio, highlights, takes). No client
   components.
-- `/zetamath`: a timed arithmetic drill, graphs of every run, and tricks.
+- `/zetamath`: a timed arithmetic drill, accounts, graphs of every run, and tricks.
 
 ```bash
 npm run dev
@@ -49,45 +49,57 @@ is the previous domain and should stay pointed here so old links survive.
 
 ## /zetamath
 
-Anyone can play. Runs are recorded when you are logged in, or when you choose to
-save one on the results screen, and everyone sees the graphs of those.
+Anyone can play. With an account (a username and a password, no email) your runs
+are kept and graphed, and nobody else can open them. The `brendan` account is the
+owner: its graphs are the ones everyone sees.
 
 | Path (under `src/app/(zetamath)/zetamath/`) | What's in it |
 | :--- | :--- |
 | `_lib/problems.ts` | Settings and the problem generator. `STANDARD` is the 120 s default. |
 | `_lib/tricks.ts` | Every trick as code: which problems it fits and how it works one. The page, the drills, the percentages and the "a faster way" links all read from here. |
-| `_lib/runs.ts` | The stored shape of a run, its validation, and the grouping the graphs use. |
+| `_lib/runs.ts` | The shape of a run, its validation, and the grouping the graphs use. |
+| `_lib/accounts.ts` | The rules for usernames and passwords, and the words for every refusal. |
 | `_lib/browser.ts` | Remembered settings, and the queue of runs the server has not confirmed. |
-| `_server/store.ts`, `owner.ts` | The database, and the password and cookie. |
-| `api/runs`, `api/session` | Read and record runs; log in and out. |
-| `_components/` | Play, graphs (hand-drawn SVG, no chart library), trick drills. |
+| `_server/db.ts`, `devdb.ts`, `session.ts` | The database, the local one, and the login cookie. |
+| `api/` | Read and record runs, log in and out, change a password, delete an account. |
+| `_components/` | Play, graphs (hand-drawn SVG, no chart library), account, trick drills. |
 
-- **Database.** Vercel → the project → Storage → add *Upstash for Redis* and
-  connect it, then redeploy. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`
-  itself. Until then runs queue in the browser they were played in and upload
-  the next time that browser is logged in. Preview deployments use a separate
-  key, so they cannot touch the real runs.
-- **Password.** `pw` unless `ZETAMATH_PASSWORD` is set. This repo is public, so
-  set it if strangers adding runs would bother you. Changing it, or connecting
-  the database, logs everyone out. A recorded score can never be edited or
-  deleted through the API, only left out of the graphs and put back.
-- **Local.** `npm run dev` records to `.data/zetamath-runs.json` (gitignored), or
-  to a separate development key if the database variables are in `.env.local`.
+- **Database.** Postgres on Supabase, project `zetamath`. All of it is
+  `supabase/migrations/`: tables the API cannot see, and the `zetamath_*` functions
+  that are the only way in. The key in `_server/db.ts` is the publishable one and
+  is meant to be public, so those functions trust nobody. There are no
+  environment variables to set.
+- **Changing the schema.** Add a migration, run the tests, then
+  `supabase db push` (after `supabase link --project-ref qsgcljgkbtenripxkegb`).
+- **A new database.** Push the migrations, then make the owner before anyone else
+  can take the name: `insert into zetamath.accounts (username, password_hash, owner)
+  values ('brendan', zetamath.hash_password('...'), true);`
+- **Passwords.** Stored as bcrypt. Forgotten ones are reset in the Supabase SQL
+  editor: `select zetamath.set_password('someone', 'a new password');`
+- **Free plan.** Supabase pauses a free project that gets few requests for a week,
+  so a daily cron in `vercel.json` makes some. If it is paused anyway, restore it
+  from the Supabase dashboard: runs wait in the browser they were played in
+  meanwhile. There are no automatic backups on the free plan.
+- **Scores** are written once. They can be left out of the graphs and put back,
+  never edited.
+- **Local.** `npm run dev` runs the same migrations in a Postgres inside the
+  process and keeps it in `.data/` (gitignored). The owner there is `brendan` /
+  `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and
+  `ZETAMATH_DB_KEY` would give them one.
 - Runs on different settings are never graphed together; `settingsKey()` is what
   decides "different".
-- After editing a trick, run `node scripts/verify-tricks.mts`. It works every
-  trick on every standard problem it fits, and checks the result and every
-  equation it prints.
+- `npm run test:zetamath` checks the database functions as a stranger would call
+  them, and works every trick on every standard problem it fits.
 
 ## Deploy
 
-Vercel, from `main` (`vercel.json` pins the framework preset). Env vars are
-optional and only for `/zetamath`, above.
+Vercel, from `main` (`vercel.json` pins the framework preset and the cron). No
+environment variables.
 
 ```bash
-npm run build   # next build
-npm run lint    # eslint
-node scripts/verify-tricks.mts
+npm run build           # next build
+npm run lint            # eslint
+npm run test:zetamath   # the database and the tricks
 ```
 
 ## Other files

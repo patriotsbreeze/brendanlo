@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { describeKey, OP_NAME, OPS, show, STANDARD_KEY } from "../_lib/problems";
 import { trickFor } from "../_lib/tricks";
+import { KeepRun } from "./Account";
 import { useRuns, type Result as RunResult } from "./RunsProvider";
-import { SignIn } from "./SignIn";
 import { Tape } from "./Tape";
 
 type Props = { result: RunResult; onAgain: () => void; onSettings: () => void };
@@ -13,18 +13,22 @@ type Props = { result: RunResult; onAgain: () => void; onSettings: () => void };
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
 export function Result({ result, onAgain, onSettings }: Props) {
-  const { status, runs, owner, record, setExcluded } = useRuns();
+  const { status, account, runs, ownerRuns, record, setExcluded } = useRuns();
   const { run, solved } = result;
   const recorded = runs.find((r) => r.id === run.id);
   const again = useRef<HTMLButtonElement>(null);
   const excluded = recorded?.excluded ?? false;
 
   // Whoever was mid-answer at the buzzer is still typing. Wait a beat before
-  // enter can start the next run.
+  // enter can start the next run. Also after logging in from here, whose form has
+  // just gone away.
   useEffect(() => {
-    const t = setTimeout(() => again.current?.focus({ preventScroll: true }), 700);
+    const t = setTimeout(() => {
+      const on = document.activeElement;
+      if (!(on instanceof HTMLInputElement)) again.current?.focus({ preventScroll: true });
+    }, 700);
     return () => clearTimeout(t);
-  }, [run.id]);
+  }, [run.id, account?.username]);
 
   const slowest = useMemo(
     () => [...solved].sort((a, b) => b.ms - a.ms).slice(0, 5),
@@ -32,8 +36,11 @@ export function Result({ result, onAgain, onSettings }: Props) {
   );
   const slow = useMemo(() => new Set(slowest), [slowest]);
 
-  // Compared with the other counted runs on these same settings.
-  const rivals = runs.filter((r) => r.settings === run.settings && !r.excluded && r.id !== run.id);
+  // Compared with the other counted runs on these same settings: your own, or
+  // the owner's if you are not logged in.
+  const rivals = (account ? runs : ownerRuns).filter(
+    (r) => r.settings === run.settings && !r.excluded && r.id !== run.id,
+  );
   const best = rivals.length ? Math.max(...rivals.map((r) => r.score)) : null;
   const today = rivals.filter((r) => r.day === run.day);
   const bestToday = today.length ? Math.max(...today.map((r) => r.score)) : null;
@@ -51,7 +58,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
         {run.settings !== STANDARD_KEY && <span className="note"> ({describeKey(run.settings)})</span>}
       </p>
       <p className="lede">
-        {status === "ready" && comparison(run.score, best, bestToday, owner)}
+        {status === "ready" && comparison(run.score, best, bestToday, account !== null)}
         {run.score > 0 && ` ${secs((run.seconds * 1000) / run.score)} a problem.`}
       </p>
 
@@ -64,14 +71,18 @@ export function Result({ result, onAgain, onSettings }: Props) {
         </button>
       </div>
 
-      {owner && !recorded ? (
+      {!recorded && result.keptBy ? (
+        result.keptBy !== account?.username && (
+          <p className="note exclude">kept for {result.keptBy}.</p>
+        )
+      ) : account && !recorded ? (
         <div className="note exclude">
           not recorded.{" "}
           <button type="button" className="link" onClick={() => record(run)}>
             save this run
           </button>
         </div>
-      ) : owner ? (
+      ) : account ? (
         <label className="check exclude">
           <input
             type="checkbox"
@@ -80,11 +91,8 @@ export function Result({ result, onAgain, onSettings }: Props) {
           />
           leave this run out of the graphs
         </label>
-      ) : recorded ? null : (
-        <div className="note exclude">
-          not recorded: the graphs are brendan&rsquo;s runs.{" "}
-          <SignIn label="log in to save it" save={run} />
-        </div>
+      ) : (
+        <KeepRun key={run.id} run={run} />
       )}
 
       {solved.length > 0 && (
@@ -154,9 +162,9 @@ export function Result({ result, onAgain, onSettings }: Props) {
   );
 }
 
-function comparison(score: number, best: number | null, today: number | null, owner: boolean) {
-  if (best === null) return owner ? "first run on these settings." : "";
-  if (owner) {
+function comparison(score: number, best: number | null, today: number | null, own: boolean) {
+  if (best === null) return own ? "first run on these settings." : "";
+  if (own) {
     if (score > best) return `new best, up from ${best}.`;
     if (today === null) return `first of the day. best ever is ${best}.`;
     if (score > today) return `best today, up from ${today}. best ever is ${best}.`;

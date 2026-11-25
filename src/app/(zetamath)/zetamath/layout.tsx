@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { AccountLine } from "./_components/Account";
 import { RunsProvider } from "./_components/RunsProvider";
-import { OwnerLine } from "./_components/SignIn";
 import { Tabs } from "./_components/Tabs";
 
 export default function ZetamathLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -17,7 +17,7 @@ export default function ZetamathLayout({ children }: Readonly<{ children: React.
           <Link href="/" prefetch={false}>
             brendan lo
           </Link>
-          <OwnerLine />
+          <AccountLine />
         </footer>
       </div>
     </RunsProvider>
