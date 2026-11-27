@@ -11,20 +11,20 @@ const zetamathHost = [
 const nextConfig: NextConfig = {
   async redirects() {
     // Temporary (307), so that a name can be given to something else later
-    // without browsers holding on to where it used to go.
+    // without browsers holding on to where it used to go. The bare page has
+    // rules of its own: on Vercel an empty `:path*` leaves a trailing slash,
+    // which costs a second redirect.
+    const to = (source: string, destination: string) => ({
+      source,
+      has: zetamathHost,
+      destination: `https://brendanlo.dev/zetamath${destination}`,
+      permanent: false,
+    });
     return [
-      {
-        source: "/zetamath/:path*",
-        has: zetamathHost,
-        destination: "https://brendanlo.dev/zetamath/:path*",
-        permanent: false,
-      },
-      {
-        source: "/:path*",
-        has: zetamathHost,
-        destination: "https://brendanlo.dev/zetamath/:path*",
-        permanent: false,
-      },
+      to("/", ""),
+      to("/zetamath", ""),
+      to("/zetamath/:path+", "/:path+"),
+      to("/:path+", "/:path+"),
     ];
   },
   // The in-process Postgres `next dev` uses for /zetamath. It loads a .wasm file
