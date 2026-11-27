@@ -49,6 +49,15 @@ export const settingsStore = {
 
 const ACCOUNT = "zetamath.account";
 
+/** The username in what a tab stored, or null for nobody. */
+function nameIn(stored: string | null): string | null {
+  try {
+    return parseAccount(JSON.parse(stored ?? "null"))?.username ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Who was logged in here last time the server said. Only decides what to queue
  * while the server cannot be asked; the server still checks. */
 export const accountHint = {
@@ -62,7 +71,10 @@ export const accountHint = {
   /** Another tab logged in or out. */
   onChange(listener: () => void) {
     const heard = (e: StorageEvent) => {
-      if (e.key === ACCOUNT) listener();
+      // Only a different account counts. Tabs from two versions of the site can
+      // write the same account in two shapes, and if each reloaded on the other's
+      // write, they would go on reloading each other for ever.
+      if (e.key === ACCOUNT && nameIn(e.oldValue) !== nameIn(e.newValue)) listener();
     };
     window.addEventListener("storage", heard);
     return () => window.removeEventListener("storage", heard);
