@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { describeKey, OPS, STANDARD_KEY, type Op } from "../_lib/problems";
+import { describeKey, OP_NAME, OPS, STANDARD_KEY, type Op } from "../_lib/problems";
 import { dayKey, dayToMs } from "../_lib/runs";
 import {
   meanMs,
@@ -12,11 +12,13 @@ import {
   SPANS,
   stepTo,
   tally,
+  weakSpots,
   within,
   type Span,
 } from "../_lib/stats";
 import { EnterForm } from "./Account";
 import { Stat } from "./Graphs";
+import { KindTable } from "./KindTable";
 import { OpTable } from "./OpTable";
 import { useRuns } from "./RunsProvider";
 import { pace, pct, periodLabel, secs, versusLabel } from "./statsKit";
@@ -92,6 +94,7 @@ export function Stats() {
     () => (prior ? tally(counted.filter((r) => within(r.day, prior))) : null),
     [counted, prior],
   );
+  const spots = useMemo(() => weakSpots(stats), [stats]);
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
 
@@ -131,6 +134,13 @@ export function Stats() {
   const total = stats.total;
   const pastTotal = priorStats?.total ?? null;
   const older = stats.runs - stats.detailed;
+  // Looked at closer: the one picked, or where the worst weak spot is, or the
+  // slowest operation.
+  const closerOps = OPS.filter((o) => stats.answered[o]);
+  const slowestOp = [...closerOps].sort(
+    (a, b) => (meanMs(stats.answered[b]!) ?? 0) - (meanMs(stats.answered[a]!) ?? 0),
+  )[0];
+  const op = view.op && closerOps.includes(view.op) ? view.op : (spots[0]?.kind.kind.op ?? slowestOp);
 
   return (
     <>
@@ -253,6 +263,36 @@ export function Stats() {
                 ` ${older} of these runs ${older === 1 ? "is" : "are"} from before every answer was kept, so ${older === 1 ? "it counts" : "they count"} in the times above and nowhere below.`}
             </p>
           </section>
+
+          {op && (
+            <div id="closer" className="closer">
+              <div className="closerBar">
+                <span className="note">look closer at</span>
+                <div className="spans" role="group" aria-label="operation to look closer at">
+                  {closerOps.map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      className="link"
+                      aria-pressed={o === op}
+                      onClick={() => show({ op: o })}
+                    >
+                      {OP_NAME[o]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <section className="statPart">
+                <h2>{OP_NAME[op]}, by kind of problem</h2>
+                <KindTable stats={stats} op={op} />
+                <p className="caption">
+                  the line through the bars is the average for {OP_NAME[op]}. +18% is 18% slower than
+                  that average. red is clearly slower, with enough answers to say so.
+                </p>
+              </section>
+            </div>
+          )}
         </>
       )}
     </>

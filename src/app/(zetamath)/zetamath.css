@@ -1016,6 +1016,7 @@ figcaption h2 {
 .opTable td,
 .opTable th {
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .spark {
@@ -1037,6 +1038,179 @@ figcaption h2 {
 
 .sparkDot.last {
   fill: var(--ink);
+}
+
+/* The operation the sections below are about, kept in view while they scroll
+ * past, so switching does not mean scrolling back up. */
+.closerBar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 0 0 26px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+
+/* KindTable: one operation by kind of problem. Every group's table gets the
+ * same column widths, so the bars, and the line at the operation's pace, sit
+ * at the same place from one table to the next. Selectors start .rows.kindRows
+ * so they win over the shared .rows rules wherever they land in the file. */
+
+.kindTable {
+  --kind-track: 4.25rem;
+  --kind-pad: 12px;
+}
+
+.kindTable > p {
+  margin: 0;
+}
+
+.kindGroup {
+  margin-top: 16px;
+}
+
+.rows.kindRows th,
+.rows.kindRows td {
+  vertical-align: baseline;
+}
+
+.rows.kindRows thead th {
+  vertical-align: bottom;
+}
+
+.rows.kindRows th.kindLabel {
+  width: 8rem;
+  white-space: normal;
+}
+
+.rows.kindRows .kindCount {
+  width: 4rem;
+}
+
+.rows.kindRows .kindBar {
+  width: 8.75rem;
+  padding-left: var(--kind-pad);
+  white-space: nowrap;
+}
+
+.rows.kindRows td.kindBar {
+  position: relative;
+  color: var(--ink);
+}
+
+.kindTrack {
+  display: inline-block;
+  width: var(--kind-track);
+  margin-right: 8px;
+}
+
+.kindTrack .bar {
+  max-width: 100%;
+  margin-right: 0;
+}
+
+.kindTrack .kindSlow {
+  background: var(--red);
+}
+
+/* Few answers: the same bar, quieter, because it says less. */
+.kindTrack .kindFaint {
+  background: color-mix(in oklab, var(--try) 45%, var(--bg));
+}
+
+/* Past the end of the scale: cut short, with a slanted gap to say so. */
+.kindTrack .kindOver {
+  position: relative;
+  border-radius: 0;
+}
+
+.kindTrack .kindOver::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 5px;
+  bottom: -2px;
+  width: 3px;
+  background: var(--bg);
+  transform: skewX(-24deg);
+}
+
+/* The operation's pace, at the same place in every row, so the marks join up
+ * into one line down each table. */
+.kindPace {
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: calc(var(--kind-pad) + var(--kind-at) * var(--kind-track));
+  width: 1px;
+  background: var(--ink);
+}
+
+/* Wide enough for "+18% few answers" on one line, so rows with few answers
+ * are no taller than the rest. */
+.rows.kindRows .kindAgainst {
+  width: 8.25rem;
+  white-space: nowrap;
+}
+
+.rows.kindRows .kindStrong {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.kindSoft {
+  color: var(--soft);
+}
+
+.kindFew {
+  white-space: nowrap;
+}
+
+.rows.kindRows .kindMiss {
+  width: 4.75rem;
+}
+
+.rows.kindRows td.kindTrick {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .kindTable {
+    --kind-track: 2.75rem;
+  }
+
+  .rows.kindRows th.kindLabel {
+    width: 6.25rem;
+  }
+
+  .rows.kindRows .kindCount {
+    width: 3.75rem;
+  }
+
+  .rows.kindRows .kindBar {
+    width: 7.25rem;
+  }
+
+  /* No room here, so "few answers" goes under the figure. */
+  .rows.kindRows .kindAgainst {
+    width: 5.25rem;
+    white-space: normal;
+  }
+
+  .rows.kindRows .kindMiss {
+    width: 4.75rem;
+    padding-right: 0;
+  }
+
+  .rows.kindRows .kindTrick {
+    display: none;
+  }
 }
 
 /* --------------------------------------------------------------- narrow */
@@ -1071,6 +1245,15 @@ figcaption h2 {
 
   /* Fingers, not a mouse. */
   .tabs a {
+    padding: 8px 0;
+  }
+
+  /* Five tabs and the mark on one line. */
+  .tabs {
+    gap: 14px;
+  }
+
+  .spans .link {
     padding: 8px 0;
   }
 

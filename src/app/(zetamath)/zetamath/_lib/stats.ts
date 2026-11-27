@@ -211,8 +211,15 @@ export type Spot = {
 
 /** As if this many answers at the operation's own pace were already in. */
 const PRIOR = 8;
-const MIN_ANSWERS = 4;
-const SLOWER = 1.08;
+/** Fewer answers than this and a kind is not called slow or fast at all. */
+export const MIN_ANSWERS = 4;
+/** Held back, at least this much slower than its operation is "slower". */
+export const SLOWER = 1.08;
+
+/** How many times slower than `base` (ms an answer) a tally is, counted as if
+ * PRIOR answers at `base` were already in: one bad minute cannot make a kind
+ * look slow, and a lot of answers can. */
+export const heldBack = (t: Tally, base: number) => (t.ms + PRIOR * base) / (t.n + PRIOR) / base;
 
 /** Kinds slower than the rest of their operation, slowest first. A kind that is
  * most of its operation cannot be slower than it, so those are left out. */
@@ -222,7 +229,7 @@ export function weakSpots(stats: Stats, limit = 6): Spot[] {
     const op = stats.answered[k.kind.op];
     if (!op || k.n < MIN_ANSWERS || k.n > op.n * 0.75) continue;
     const base = op.ms / op.n;
-    const ratio = (k.ms + PRIOR * base) / (k.n + PRIOR) / base;
+    const ratio = heldBack(k, base);
     if (ratio < SLOWER) continue;
     out.push({ kind: k, mean: k.ms / k.n, base, ratio, cost: (k.ms - k.n * base) / stats.detailed });
   }
