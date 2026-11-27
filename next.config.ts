@@ -1,6 +1,32 @@
 import type { NextConfig } from "next";
 
+// Short names for /zetamath, each sending its path along: z.brendanlo.dev/stats
+// goes to brendanlo.dev/zetamath/stats. The DNS is a wildcard on Vercel's
+// nameservers, and each name is also one of the project's domains on Vercel.
+const ZETAMATH_HOSTS = ["z", "zm", "zeta", "zetam", "zmath", "zetamath"];
+const zetamathHost = [
+  { type: "host" as const, value: `(?:${ZETAMATH_HOSTS.join("|")})\\.brendanlo\\.dev` },
+];
+
 const nextConfig: NextConfig = {
+  async redirects() {
+    // Temporary (307), so that a name can be given to something else later
+    // without browsers holding on to where it used to go.
+    return [
+      {
+        source: "/zetamath/:path*",
+        has: zetamathHost,
+        destination: "https://brendanlo.dev/zetamath/:path*",
+        permanent: false,
+      },
+      {
+        source: "/:path*",
+        has: zetamathHost,
+        destination: "https://brendanlo.dev/zetamath/:path*",
+        permanent: false,
+      },
+    ];
+  },
   // The in-process Postgres `next dev` uses for /zetamath. It loads a .wasm file
   // from its own folder, so it cannot be bundled.
   serverExternalPackages: ["@electric-sql/pglite"],
