@@ -60,7 +60,7 @@ async function start(): Promise<PGlite> {
   const db = await open(DATA);
   await db.exec(`
     insert into zetamath.accounts (username, password_hash, owner)
-    values ('brendan', zetamath.hash_password('localhost'), true) on conflict do nothing`);
+    values ('blo', zetamath.hash_password('localhost'), true) on conflict do nothing`);
   return db;
 }
 

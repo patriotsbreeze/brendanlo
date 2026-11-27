@@ -11,7 +11,7 @@ import { settingsKey, STANDARD, STANDARD_KEY } from "../src/app/(zetamath)/zetam
 
 const db = await open();
 await db.exec(`insert into zetamath.accounts (username, password_hash, owner)
-  values ('brendan', zetamath.hash_password('owner pass'), true)`);
+  values ('blo', zetamath.hash_password('owner pass'), true)`);
 
 type Answer = {
   error?: string;
@@ -19,7 +19,6 @@ type Answer = {
   token: string;
   account: { username: string; owner: boolean } | null;
   runs: { id: string; score: number; excluded: boolean; at: number }[];
-  ownerRuns: { id: string; score: number }[];
   replaced: string[];
 };
 
@@ -112,6 +111,72 @@ await test("a run comes back exactly as it went in", async () => {
   assert.deepEqual(parseRun((await read(token)).runs[1]), bare);
 });
 
+await test("every answer is kept, and kept once", async () => {
+  const { token } = await signUp("answerer", "password1");
+  const answers = [
+    [0, 67, 58, 1500, 0],
+    [1, 143, 87, 4100, 2],
+    [2, 7, 58, 3200, 1],
+    [3, 84, 12, 2100, 0],
+  ];
+  const ops = { add: [1, 1500], sub: [1, 4100], mul: [1, 3200], div: [1, 2100] };
+  const sent = run({ score: 4, ops, answers });
+  await save(token, "answerer", [sent]);
+  const [back] = (await read(token)).runs;
+  assert.deepEqual(back, sent);
+  assert.deepEqual(parseRun(back), sent);
+
+  // Like the score: a second copy can leave it out, and change nothing else.
+  const changed = answers.map(([op, a, b]) => [op, a, b, 1, 0]);
+  await save(token, "answerer", [{ ...sent, answers: changed, excluded: true }]);
+  const [after] = (await read(token)).runs;
+  assert.deepEqual(after.answers, answers);
+  assert.equal(after.excluded, true);
+
+  // A run with none, as every run had before these were kept.
+  const before = run({ at: AT + 60_000 });
+  await save(token, "answerer", [before]);
+  assert.equal((await read(token)).runs[1].answers, undefined);
+  const empty = run({ at: AT + 120_000, score: 0, ops: {}, answers: [] });
+  await save(token, "answerer", [empty]);
+  assert.deepEqual((await read(token)).runs[2].answers, []);
+
+  const one = (answer: unknown) => run({ score: 1, ops: { add: [1, 1500] }, answers: [answer] });
+  const bad = [
+    run({ score: 2, answers: [[0, 1, 2, 3, 0]] }),
+    run({ score: 1, answers: [[0, 1, 2, 3, 0], [0, 1, 2, 3, 0]] }),
+    run({ score: 1, answers: "x" }),
+    run({ score: 1, answers: { 0: [0, 1, 2, 3, 0] } }),
+    one([4, 1, 2, 3, 0]),
+    one([-1, 1, 2, 3, 0]),
+    one([0, -1, 2, 3, 0]),
+    one([0, 1.5, 2, 3, 0]),
+    one([0, 1, 2, 3]),
+    one([0, 1, 2, 3, 0, 0]),
+    one([0, 123_456_789, 2, 3, 0]),
+    one([0, 1, 12_345, 3, 0]),
+    one([0, 1, 2, 12_345_678, 0]),
+    one([0, 1, 2, 3, 100]),
+    one(["0", 1, 2, 3, 0]),
+    one([0, 1, 2, 3, null]),
+    one({ op: 0 }),
+    one(null),
+  ];
+  for (const r of bad) {
+    assert.equal(parseRun(r), null, JSON.stringify(r.answers));
+    await assert.rejects(save(token, "answerer", [run(), r]), undefined, JSON.stringify(r.answers));
+  }
+  assert.equal((await read(token)).runs.length, 3);
+
+  // The shape is all the database can see. A sum that comes out negative, or a
+  // division with a remainder, gets in only by going around the site, and the
+  // browser will not show it.
+  for (const answer of [[1, 5, 9, 100, 0], [3, 10, 3, 100, 0], [3, 10, 0, 100, 0]]) {
+    assert.equal(parseRun(one(answer)), null, JSON.stringify(answer));
+  }
+  assert.ok(parseRun(one([1, 9, 9, 100, 0])), "zero is a fine difference");
+});
+
 await test("a score is written once", async () => {
   const { token } = await logIn("friend", "password1");
   const [first] = (await read(token)).runs;
@@ -126,21 +191,20 @@ await test("a score is written once", async () => {
   assert.deepEqual((await read(token)).runs[0], first);
 });
 
-await test("everyone sees the owner's runs, and only their own", async () => {
-  const owner = await logIn("brendan", "owner pass");
+await test("everyone sees their own runs and nobody else's", async () => {
+  const owner = await logIn("blo", "owner pass");
   assert.equal(owner.account?.owner, true);
-  await save(owner.token, "brendan", [run({ score: 31 })]);
-  const stranger = await read(null);
-  assert.equal(stranger.account, null);
-  assert.deepEqual(stranger.runs, []);
-  assert.deepEqual(stranger.ownerRuns.map((r) => r.score), [31]);
-  assert.deepEqual((await call("read")).ownerRuns.map((r) => r.score), [31]);
+  await save(owner.token, "blo", [run({ score: 31 })]);
+  for (const stranger of [await read(null), await call("read"), await read("0".repeat(64))]) {
+    assert.deepEqual(stranger, { account: null, runs: [] });
+  }
   const friend = await read((await logIn("friend", "password1")).token);
   assert.deepEqual(friend.runs.map((r) => r.score), [27, 0]);
-  assert.deepEqual(friend.ownerRuns.map((r) => r.score), [31]);
-  const me = await read(owner.token);
-  assert.deepEqual(me.runs.map((r) => r.score), [31]);
-  assert.deepEqual(me.ownerRuns, []);
+  assert.deepEqual((await read(owner.token)).runs.map((r) => r.score), [31]);
+});
+
+await test("the owner's first name is not up for grabs", async () => {
+  assert.equal((await signUp("brendan", "password1")).error, "taken");
 });
 
 await test("the same run id in two accounts stays two runs", async () => {
@@ -157,7 +221,7 @@ await test("saving needs the right account", async () => {
   const { token } = await logIn("friend", "password1");
   assert.equal((await save(null, "friend", [run()])).error, "not_logged_in");
   assert.equal((await save("0".repeat(64), "friend", [run()])).error, "not_logged_in");
-  assert.equal((await save(token, "brendan", [run()])).error, "other_account");
+  assert.equal((await save(token, "blo", [run()])).error, "other_account");
   assert.equal((await save(token, null, [run()])).error, "other_account");
   assert.equal((await read(token)).runs.length, 2);
 });
@@ -203,7 +267,7 @@ await test("the database accepts every settings key the game can make", async ()
 });
 
 await test("a real run takes the place of the one typed in by hand", async () => {
-  const owner = await logIn("brendan", "owner pass");
+  const owner = await logIn("blo", "owner pass");
   const typed = async (time: string, score: number) =>
     String(
       await one(`insert into zetamath.runs
@@ -213,7 +277,7 @@ await test("a real run takes the place of the one typed in by hand", async () =>
     );
   const seen = async () => (await read(owner.token)).runs;
   const has = async (id: unknown) => (await seen()).some((r) => r.id === id);
-  const put = async (...runs: unknown[]) => (await save(owner.token, "brendan", runs)).replaced;
+  const put = async (...runs: unknown[]) => (await save(owner.token, "blo", runs)).replaced;
 
   const x = await typed("14:45", 27);
   const y = await typed("14:39", 17);
@@ -351,8 +415,8 @@ await test("deleting an account takes everything with it", async () => {
     Number(await one("select count(*) from zetamath.accounts where not owner")) + 1,
     "and the sign-up still counts",
   );
-  const owner = await logIn("brendan", "owner pass");
-  assert.equal((await del(owner.token, "owner pass", "brendan")).error, "owner");
+  const owner = await logIn("blo", "owner pass");
+  assert.equal((await del(owner.token, "owner pass", "blo")).error, "owner");
 });
 
 await test("sessions expire and are capped", async () => {
@@ -375,12 +439,34 @@ await test("sessions expire and are capped", async () => {
 });
 
 await test("the owner can reset any password from the SQL editor", async () => {
-  const b = await logIn("brendan", "owner pass");
-  assert.equal(await one("select zetamath.set_password('brendan', 'a new one')"), true);
+  const b = await logIn("blo", "owner pass");
+  assert.equal(await one("select zetamath.set_password('blo', 'a new one')"), true);
   assert.equal(await one("select zetamath.set_password('nobody', 'a new one')"), false);
-  await assert.rejects(one(`select zetamath.set_password('brendan', '${"x".repeat(73)}')`));
+  await assert.rejects(one(`select zetamath.set_password('blo', '${"x".repeat(73)}')`));
   assert.equal((await read(b.token)).account, null);
-  assert.ok((await logIn("brendan", "a new one")).token);
+  assert.ok((await logIn("blo", "a new one")).token);
+});
+
+await test("answers a day are capped, the owner's aside", async () => {
+  const { token } = await signUp("chatty", "password1");
+  const full = (score: number) =>
+    run({ score, seconds: 3600, ops: { add: [score, score] }, answers: Array(score).fill([0, 1, 1, 1, 0]) });
+  // Exactly at the cap is fine, in one save.
+  assert.deepEqual((await save(token, "chatty", [full(5000), full(5000), full(5000), full(5000)])).replaced, []);
+  assert.equal((await save(token, "chatty", [full(1)])).error, "slow_down");
+  assert.deepEqual((await save(token, "chatty", [run()])).replaced, [], "a run without answers still saves");
+  const [first] = (await read(token)).runs;
+  assert.deepEqual(
+    (await save(token, "chatty", [{ ...first, excluded: true }])).replaced,
+    [],
+    "and one already saved can still be left out",
+  );
+  // A day later there is room again.
+  await db.exec("update zetamath.runs set saved_at = saved_at - interval '2 days'");
+  assert.deepEqual((await save(token, "chatty", [full(1)])).replaced, []);
+  const owner = await logIn("blo", "a new one");
+  assert.equal((await save(owner.token, "blo", Array.from({ length: 5 }, () => full(5000)))).error, undefined);
+  await db.exec("delete from zetamath.accounts where username = 'chatty'");
 });
 
 await test("limits on runs and sign-ups", async () => {
@@ -432,8 +518,8 @@ await test("a full disk stops everyone but the owner", async () => {
   const [first] = (await read(friend.token)).runs;
   assert.deepEqual((await save(friend.token, "friend", [{ ...first, excluded: true }])).replaced, []);
   assert.equal((await read(friend.token)).runs[0].excluded, true);
-  const owner = await logIn("brendan", "a new one");
-  assert.equal((await save(owner.token, "brendan", [run()])).error, undefined);
+  const owner = await logIn("blo", "a new one");
+  assert.equal((await save(owner.token, "blo", [run()])).error, undefined);
 });
 
 await test("a stranger can reach nothing else", async () => {
@@ -448,9 +534,9 @@ await test("a stranger can reach nothing else", async () => {
       await assert.rejects(asAnon(`delete from zetamath.${table}`, role), /permission denied/);
     }
     for (const fn of [
-      "set_password('brendan', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
+      "set_password('blo', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
       "start_session(gen_random_uuid())", "runs_of(gen_random_uuid())", "hash_password('x')",
-      "runs_limit()",
+      "runs_limit()", "answers_limit()",
     ]) {
       await assert.rejects(asAnon(`select zetamath.${fn}`, role), /permission denied/);
     }

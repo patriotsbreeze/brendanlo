@@ -12,7 +12,7 @@ import {
   type Problem,
   type Settings,
 } from "../_lib/problems";
-import { dayKey, opTotals, type Solved } from "../_lib/runs";
+import { answersOf, dayKey, opTotals, type Solved } from "../_lib/runs";
 import { Game } from "./Game";
 import { Result } from "./Result";
 import { useRuns } from "./RunsProvider";
@@ -46,6 +46,7 @@ export function Play() {
           seconds: played.seconds,
           settings: settingsKey(played),
           ops: opTotals(solved),
+          answers: answersOf(solved),
           excluded: false,
         },
         solved,

@@ -13,7 +13,7 @@ type Props = { result: RunResult; onAgain: () => void; onSettings: () => void };
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
 export function Result({ result, onAgain, onSettings }: Props) {
-  const { status, account, runs, ownerRuns, record, setExcluded } = useRuns();
+  const { status, account, runs, record, setExcluded } = useRuns();
   const { run, solved } = result;
   const recorded = runs.find((r) => r.id === run.id);
   const again = useRef<HTMLButtonElement>(null);
@@ -36,11 +36,8 @@ export function Result({ result, onAgain, onSettings }: Props) {
   );
   const slow = useMemo(() => new Set(slowest), [slowest]);
 
-  // Compared with the other counted runs on these same settings: your own, or
-  // the owner's if you are not logged in.
-  const rivals = (account ? runs : ownerRuns).filter(
-    (r) => r.settings === run.settings && !r.excluded && r.id !== run.id,
-  );
+  // Compared with your other counted runs on these same settings.
+  const rivals = runs.filter((r) => r.settings === run.settings && !r.excluded && r.id !== run.id);
   const best = rivals.length ? Math.max(...rivals.map((r) => r.score)) : null;
   const today = rivals.filter((r) => r.day === run.day);
   const bestToday = today.length ? Math.max(...today.map((r) => r.score)) : null;
@@ -58,7 +55,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
         {run.settings !== STANDARD_KEY && <span className="note"> ({describeKey(run.settings)})</span>}
       </p>
       <p className="lede">
-        {status === "ready" && comparison(run.score, best, bestToday, account !== null)}
+        {status === "ready" && account && comparison(run.score, best, bestToday)}
         {run.score > 0 && ` ${secs((run.seconds * 1000) / run.score)} a problem.`}
       </p>
 
@@ -89,7 +86,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
             checked={excluded}
             onChange={(e) => setExcluded(run.id, e.target.checked)}
           />
-          leave this run out of the graphs
+          leave this run out of the graphs and stats
         </label>
       ) : (
         <KeepRun key={run.id} run={run} />
@@ -100,6 +97,15 @@ export function Result({ result, onAgain, onSettings }: Props) {
           <Tape solved={solved} total={run.seconds * 1000} elapsed={run.seconds * 1000} slow={slow} />
           <p className="caption">
             every answer, when it landed. the five slowest are in red.
+            {recorded && !excluded && (
+              <>
+                {" "}
+                <Link href={`/zetamath/stats?span=day&day=${run.day}`}>
+                  the day&rsquo;s stats
+                </Link>{" "}
+                break it down by kind of problem.
+              </>
+            )}
           </p>
 
           <div className="split">
@@ -162,15 +168,10 @@ export function Result({ result, onAgain, onSettings }: Props) {
   );
 }
 
-function comparison(score: number, best: number | null, today: number | null, own: boolean) {
-  if (best === null) return own ? "first run on these settings." : "";
-  if (own) {
-    if (score > best) return `new best, up from ${best}.`;
-    if (today === null) return `first of the day. best ever is ${best}.`;
-    if (score > today) return `best today, up from ${today}. best ever is ${best}.`;
-    return `best today is ${today}, best ever is ${best}.`;
-  }
-  if (score > best) return `you beat brendan's best (${best}).`;
-  if (score === best) return `tied with brendan's best.`;
-  return `brendan's best is ${best}.`;
+function comparison(score: number, best: number | null, today: number | null) {
+  if (best === null) return "first run on these settings.";
+  if (score > best) return `new best, up from ${best}.`;
+  if (today === null) return `first of the day. best ever is ${best}.`;
+  if (score > today) return `best today, up from ${today}. best ever is ${best}.`;
+  return `best today is ${today}, best ever is ${best}.`;
 }

@@ -5,7 +5,7 @@ import "./zetamath.css";
  * metadata to itself, and so does this. System fonts only. */
 
 const DESCRIPTION =
-  "two minutes of arithmetic, as fast as you can. plus a graph of my runs, and tricks for getting faster.";
+  "two minutes of arithmetic, as fast as you can. plus graphs of your runs, and tricks for getting faster.";
 
 export const metadata: Metadata = {
   // Not inherited across root layouts, so it is set again here.

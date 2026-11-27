@@ -153,7 +153,7 @@ export function AccountPage() {
         {status === "error"
           ? "couldn't load your runs. reload to try again. "
           : `${count(Math.max(0, recorded))} recorded. `}
-        {account.owner ? "anyone can see your graphs." : "nobody else can open your graphs."}
+        nobody else can open your graphs.
       </p>
       <div className="startRow accountRow">
         <button

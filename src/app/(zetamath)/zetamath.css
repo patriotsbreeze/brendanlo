@@ -58,7 +58,8 @@ main {
   flex: 1;
 }
 
-h1:focus {
+h1:focus,
+h2:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -945,6 +946,656 @@ figcaption h2 {
   margin: 2px 0;
 }
 
+/* ---------------------------------------------------------------- stats */
+
+.spans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.spans .link {
+  padding: 4px 0;
+  color: var(--soft);
+  text-decoration: none;
+}
+
+.spans .link:hover {
+  color: var(--ink);
+}
+
+.spans .link[aria-pressed="true"] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.periodRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: -12px 0 26px;
+}
+
+.periodRow h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.step {
+  min-width: 1.6rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.step[aria-disabled="true"] {
+  color: var(--rule);
+  cursor: default;
+}
+
+.statPart {
+  margin: 0 0 46px;
+}
+
+.statPart > h2 {
+  margin-bottom: 6px;
+}
+
+.rows th[scope="row"] {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.barCell {
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.opTable td,
+.opTable th {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.spark {
+  display: block;
+  overflow: visible;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--try);
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.sparkDot {
+  fill: var(--try);
+}
+
+.sparkDot.last {
+  fill: var(--ink);
+}
+
+/* Weak spots: the kinds of problem slowest against their own operation, worst
+ * first. Numbered by hand so the rules between items can run full width. */
+
+.wsLegend {
+  margin-bottom: 8px;
+}
+
+.wsKeyKind {
+  flex: none;
+  width: 14px;
+  height: 8px;
+  border-radius: 0 3px 3px 0;
+  background: var(--red);
+}
+
+.wsKeyBase {
+  flex: none;
+  width: 2px;
+  height: 12px;
+  background: var(--try);
+}
+
+.wsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ws;
+}
+
+.wsList > li {
+  position: relative;
+  margin: 0;
+  padding: 12px 0 12px 1.6rem;
+  counter-increment: ws;
+}
+
+.wsList > li + li {
+  border-top: 1px solid var(--rule);
+}
+
+.wsList > li::before {
+  content: counter(ws);
+  position: absolute;
+  top: 12px;
+  left: 0;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.wsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 16px;
+}
+
+.wsHead h3 {
+  margin: 0;
+}
+
+.wsOp {
+  color: var(--soft);
+  font-weight: 400;
+}
+
+/* Stays at the right edge, also when a long label pushes it onto its own line. */
+.wsCloser {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.wsSlow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 12px;
+  margin: 6px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fixed width, so every item in the list is on the same scale. */
+.wsScale {
+  position: relative;
+  flex: none;
+  width: min(12rem, 100%);
+  height: 16px;
+}
+
+.wsKind {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 10px;
+  border-radius: 0 4px 4px 0;
+  background: var(--red);
+}
+
+/* Drawn over the red bar, so a ring of paper keeps the two apart. */
+.wsBase {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--try);
+  box-shadow: 0 0 0 1px var(--bg);
+}
+
+.wsFacts {
+  margin: 0 0 4px;
+}
+
+.wsFix {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  /* Fingers, not a mouse. */
+  .wsCloser {
+    padding: 6px 0;
+  }
+}
+
+/* Whatever focus or a link scrolls to stops below the sticky bar, not under it. */
+html:has(.closerBar) {
+  scroll-padding-top: 4.5rem;
+}
+
+/* The operation the sections below are about, kept in view while they scroll
+ * past, so switching does not mean scrolling back up. */
+.closerBar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 0 0 26px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+
+/* KindTable: one operation by kind of problem. Every group's table gets the
+ * same column widths, so the bars, and the line at the operation's pace, sit
+ * at the same place from one table to the next. Selectors start .rows.kindRows
+ * so they win over the shared .rows rules wherever they land in the file. */
+
+.kindTable {
+  --kind-track: 4.25rem;
+  --kind-pad: 12px;
+}
+
+.kindTable > p {
+  margin: 0;
+}
+
+.kindGroup {
+  margin-top: 16px;
+}
+
+.rows.kindRows th,
+.rows.kindRows td {
+  vertical-align: baseline;
+}
+
+.rows.kindRows thead th {
+  vertical-align: bottom;
+}
+
+.rows.kindRows th.kindLabel {
+  width: 8rem;
+  white-space: normal;
+}
+
+.rows.kindRows .kindCount {
+  width: 4rem;
+}
+
+.rows.kindRows .kindBar {
+  width: 8.75rem;
+  padding-left: var(--kind-pad);
+  white-space: nowrap;
+}
+
+.rows.kindRows td.kindBar {
+  position: relative;
+  color: var(--ink);
+}
+
+.kindTrack {
+  display: inline-block;
+  width: var(--kind-track);
+  margin-right: 8px;
+}
+
+.kindTrack .bar {
+  max-width: 100%;
+  margin-right: 0;
+}
+
+.kindTrack .kindSlow {
+  background: var(--red);
+}
+
+/* Few answers: the same bar, quieter, because it says less. */
+.kindTrack .kindFaint {
+  background: color-mix(in oklab, var(--try) 45%, var(--bg));
+}
+
+/* Past the end of the scale: cut short, with a slanted gap to say so. */
+.kindTrack .kindOver {
+  position: relative;
+  border-radius: 0;
+}
+
+.kindTrack .kindOver::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 5px;
+  bottom: -2px;
+  width: 3px;
+  background: var(--bg);
+  transform: skewX(-24deg);
+}
+
+/* The operation's pace, at the same place in every row, so the marks join up
+ * into one line down each table. */
+.kindPace {
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: calc(var(--kind-pad) + var(--kind-at) * var(--kind-track));
+  width: 1px;
+  background: var(--ink);
+}
+
+/* Wide enough for "+18% few answers" on one line, so rows with few answers
+ * are no taller than the rest. */
+.rows.kindRows .kindAgainst {
+  width: 8.25rem;
+  white-space: nowrap;
+}
+
+.rows.kindRows .kindStrong {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.kindSoft {
+  color: var(--soft);
+}
+
+.kindFew {
+  white-space: nowrap;
+}
+
+.rows.kindRows .kindMiss {
+  width: 4.75rem;
+}
+
+.rows.kindRows td.kindTrick {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .kindTable {
+    --kind-track: 2.75rem;
+  }
+
+  .rows.kindRows th.kindLabel {
+    width: 6.25rem;
+  }
+
+  .rows.kindRows .kindCount {
+    width: 3.75rem;
+  }
+
+  .rows.kindRows .kindBar {
+    width: 7.25rem;
+  }
+
+  /* No room here, so "few answers" goes under the figure. */
+  .rows.kindRows .kindAgainst {
+    width: 5.25rem;
+    white-space: normal;
+  }
+
+  .rows.kindRows .kindMiss {
+    width: 4.75rem;
+    padding-right: 0;
+  }
+
+  .rows.kindRows .kindTrick {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------- problem map */
+
+.pmLegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+  margin: 0 0 10px;
+  color: var(--soft);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pmKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pmRamp {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.pmSwatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.pmSwatch.pmOnce {
+  border: 1px dashed var(--ink-muted);
+  background: var(--bg);
+}
+
+/* One hue, light to dark: the slowest cells are what stands out. Ink reads on
+ * the first four; only full red is dark enough for white. */
+.pmS0 {
+  background: color-mix(in oklab, var(--red) 8%, var(--bg));
+}
+
+.pmS1 {
+  background: color-mix(in oklab, var(--red) 24%, var(--bg));
+}
+
+.pmS2 {
+  background: color-mix(in oklab, var(--red) 44%, var(--bg));
+}
+
+.pmS3 {
+  background: color-mix(in oklab, var(--red) 68%, var(--bg));
+}
+
+.pmS4 {
+  background: var(--red);
+}
+
+/* Room for focus rings at the far edges. The scroll padding keeps a cell the
+ * arrow keys move to out from under the sticky row labels, and its ring in
+ * view on the right. */
+.pmScroll {
+  padding: 0 4px 4px 0;
+  scroll-padding: 0 4px 0 5rem;
+}
+
+.rows.pmMap {
+  width: auto;
+}
+
+.rows.pmMap th,
+.rows.pmMap td {
+  padding: 1px;
+  border-bottom: 0;
+  vertical-align: middle;
+}
+
+/* Rows and columns with nothing in them keep the size of the rest. */
+.rows.pmMap tbody td {
+  height: calc(1.75rem + 2px);
+}
+
+.rows.pmMap thead th {
+  min-width: calc(1.75rem + 2px);
+  padding: 0 1px 4px;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rows.pmMap th[scope="row"],
+.rows.pmMap .pmCorner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  padding: 1px 8px 1px 0;
+  background: var(--bg);
+  color: var(--soft);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.rows.pmMap th[scope="row"] {
+  text-align: right;
+}
+
+.rows.pmMap .pmCorner {
+  padding-bottom: 4px;
+  vertical-align: bottom;
+}
+
+.pmCorner span {
+  display: block;
+}
+
+.pmAcross {
+  text-align: right;
+}
+
+.pmCell {
+  display: block;
+  width: 100%;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 3px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pmCell.pmS4 {
+  color: var(--bg);
+}
+
+/* One answer says little, so it is drawn as less sure. */
+.pmCell.pmOnce {
+  border-style: dashed;
+  border-color: var(--ink-muted);
+}
+
+.pmCell.pmS4.pmOnce {
+  border-color: var(--bg);
+}
+
+/* Only a mouse previews on hover, and a tap would leave the ring stuck on. */
+@media (hover: hover) {
+  .pmCell:hover {
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+}
+
+/* Picked: a ring, dark then light, so it shows on every shade. */
+.pmCell[aria-pressed="true"] {
+  box-shadow:
+    inset 0 0 0 2px var(--ink),
+    inset 0 0 0 3px var(--bg);
+}
+
+/* Above the next cells, so its focus ring is not painted over. */
+.pmCell:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+.pmPanel {
+  margin-top: 12px;
+}
+
+.pmSummary {
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.rows.pmList {
+  width: auto;
+}
+
+/* --------------------------------------------------------- problem list */
+
+.plIntro {
+  margin: 0 0 4px;
+}
+
+/* The same small size as the period picker and the graphs filters. */
+.plControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 24px;
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+}
+
+.plCheck {
+  padding: 4px 0;
+}
+
+/* Headers that wrap on a phone still sit on the rule. */
+.plTable thead th {
+  vertical-align: bottom;
+}
+
+.plTable th[scope="row"].plSlow {
+  color: var(--red);
+}
+
+.plMark {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.plMore {
+  padding: 4px 0;
+}
+
+@media (max-width: 640px) {
+  /* The trick titles are long. The tricks tab has them all. */
+  .plTable .plTrick {
+    display: none;
+  }
+
+  .plTable th,
+  .plTable td {
+    padding-right: 8px;
+  }
+
+  .plTable .right + * {
+    padding-left: 8px;
+  }
+
+  .plTable tr > :nth-last-child(2) {
+    padding-right: 0;
+  }
+
+  .plTable thead .right {
+    white-space: normal;
+  }
+
+  .plCheck,
+  .plMore {
+    padding: 8px 0;
+  }
+}
+
 /* --------------------------------------------------------------- narrow */
 
 @media (max-width: 640px) {
@@ -977,6 +1628,32 @@ figcaption h2 {
 
   /* Fingers, not a mouse. */
   .tabs a {
+    padding: 8px 0;
+  }
+
+  /* Five tabs and the mark on one line down to about 360px, and below that the
+   * tabs go under the mark rather than off the page. */
+  .top {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 0 14px;
+  }
+
+  /* On a phone the bar can wrap to any height, and then it would cover what
+   * focus moves to, so here it stays where it is. */
+  .closerBar {
+    position: static;
+  }
+
+  html:has(.closerBar) {
+    scroll-padding-top: 20px;
+  }
+
+  .spans .link {
     padding: 8px 0;
   }
 

@@ -10,8 +10,8 @@ framework. Each page has its own root layout:
   mesh) is pressed into a lit bed of pins. Yellow pin tips are what a model
   said; green is what something deterministic checked. The only page that uses
   `next/font` or `three`.
-- `/zetamath`: a timed arithmetic drill, accounts, graphs of every run, and tricks.
-  System UI stack.
+- `/zetamath`: a timed arithmetic drill, accounts, graphs of every run, stats on
+  where the time goes, and tricks. System UI stack.
 
 ```bash
 npm run dev
@@ -79,19 +79,21 @@ is the previous domain and should stay pointed here so old links survive.
 ## /zetamath
 
 Anyone can play. With an account (a username and a password, no email) your runs
-are kept and graphed, and nobody else can open them. The `brendan` account is the
-owner: its graphs are the ones everyone sees.
+are kept and graphed, and nobody else can open them. `blo` is the owner, which only
+means it can't be deleted through the site.
 
 | Path (under `src/app/(zetamath)/zetamath/`) | What's in it |
 | :--- | :--- |
 | `_lib/problems.ts` | Settings and the problem generator. `STANDARD` is the 120 s default. |
 | `_lib/tricks.ts` | Every trick as code: which problems it fits and how it works one. The page, the drills, the percentages and the "a faster way" links all read from here. |
 | `_lib/runs.ts` | The shape of a run, its validation, and the grouping the graphs use. |
+| `_lib/kinds.ts` | The general kinds of problem ("7 × …", carries, borrows, answer size) the stats split answers into. |
+| `_lib/stats.ts` | Periods (day, Monday week, month, all time) and every sum the stats tab shows: per operation, kind and problem, weak spots, maps, trend lines. |
 | `_lib/accounts.ts` | The rules for usernames and passwords, and the words for every refusal. |
 | `_lib/browser.ts` | Remembered settings, and the queue of runs the server has not confirmed. |
 | `_server/db.ts`, `devdb.ts`, `session.ts` | The database, the local one, and the login cookie. |
 | `api/` | Read and record runs, log in and out, change a password, delete an account. |
-| `_components/` | Play, graphs (hand-drawn SVG, no chart library), account, trick drills. |
+| `_components/` | Play, graphs and stats (hand-drawn SVG, no chart library), account, trick drills. |
 
 - **Database.** Postgres on Supabase, project `zetamath`. All of it is
   `supabase/migrations/`: tables the API cannot see, and the `zetamath_*` functions
@@ -102,7 +104,7 @@ owner: its graphs are the ones everyone sees.
   `supabase db push` (after `supabase link --project-ref qsgcljgkbtenripxkegb`).
 - **A new database.** Push the migrations, then make the owner before anyone else
   can take the name: `insert into zetamath.accounts (username, password_hash, owner)
-  values ('brendan', zetamath.hash_password('...'), true);`
+  values ('blo', zetamath.hash_password('...'), true);`
 - **Passwords.** Stored as bcrypt. Forgotten ones are reset in the Supabase SQL
   editor: `select zetamath.set_password('someone', 'a new password');`
 - **Free plan.** Supabase pauses a free project that gets few requests for a week,
@@ -110,15 +112,21 @@ owner: its graphs are the ones everyone sees.
   from the Supabase dashboard: runs wait in the browser they were played in
   meanwhile. There are no automatic backups on the free plan.
 - **Scores** are written once. They can be left out of the graphs and put back,
-  never edited.
+  never edited. So are a run's answers (`[operation, a, b, ms, misses]` each),
+  which runs played before 2026-11-26 do not have. Each account but the owner
+  can store 20,000 answers a day (`zetamath.answers_limit()`), since answers
+  make a run some two hundred times bigger.
 - **Local.** `npm run dev` runs the same migrations in a Postgres inside the
-  process and keeps it in `.data/` (gitignored). The owner there is `brendan` /
+  process and keeps it in `.data/` (gitignored). The owner there is `blo` /
   `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and
   `ZETAMATH_DB_KEY` would give them one.
 - Runs on different settings are never graphed together; `settingsKey()` is what
   decides "different".
 - `npm run test:zetamath` checks the database functions as a stranger would call
-  them, and works every trick on every standard problem it fits.
+  them, works every trick on every standard problem it fits, and checks that the
+  stats add up.
+- The stats tab keeps its view in the address (`?span=week&day=2026-11-26`), so a
+  reload or a link lands on the same period.
 
 ## Deploy
 

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { describeKey, OP_NAME, OPS, STANDARD_KEY } from "../_lib/problems";
 import { byDay, DAY_MS, dayKey, dayToMs, trailingMean, type Run } from "../_lib/runs";
 import { AttemptChart, WINDOW } from "./AttemptChart";
 import { clock, scoreDomain, shortDay } from "./chartKit";
 import { DayChart } from "./DayChart";
+import { EnterForm } from "./Account";
 import { useRuns } from "./RunsProvider";
 
 const RANGES = [
@@ -18,63 +19,61 @@ const RANGES = [
 const PAGE = 20;
 
 export function Graphs() {
-  const { status, account, runs: mine, ownerRuns } = useRuns();
-  const [whose, setWhose] = useState<"mine" | "owner">("mine");
-  const own = account !== null && whose === "mine";
-  const runs = own ? mine : ownerRuns;
+  const { status, account, runs } = useRuns();
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("all");
   const [picked, setPicked] = useState<string | null>(null);
   const [showExcluded, setShowExcluded] = useState(false);
   const [today] = useState(() => dayKey(Date.now()));
 
+  // The login form is gone once it works, so move to what took its place.
+  const heading = useRef<HTMLHeadingElement>(null);
+  const name = account?.username ?? null;
+  const before = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (status === "loading") return;
+    if (before.current !== undefined && before.current !== name) heading.current?.focus();
+    before.current = name;
+  }, [status, name]);
+
   // Scores on different settings do not belong on one axis, so the page shows
-  // one kind at a time, standard first. A kind with nothing but left-out runs
-  // is listed only for whoever played them, who can put them back.
+  // one kind at a time, standard first.
   const kinds = useMemo(() => {
     const count = new Map<string, number>([[STANDARD_KEY, 0]]);
-    for (const r of runs) {
-      if (own || !r.excluded) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
-    }
+    for (const r of runs) count.set(r.settings, (count.get(r.settings) ?? 0) + 1);
     return [...count.entries()].sort(([a, n], [b, m]) =>
       a === STANDARD_KEY ? -1 : b === STANDARD_KEY ? 1 : m - n,
     );
-  }, [runs, own]);
+  }, [runs]);
   const fallback = kinds[0][1] > 0 ? STANDARD_KEY : (kinds[1]?.[0] ?? STANDARD_KEY);
   const kind = picked !== null && kinds.some(([key]) => key === picked) ? picked : fallback;
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
 
-  const choice = account && !account.owner && (
-    <label>
-      <span className="srOnly">whose runs</span>
-      <select value={whose} onChange={(e) => setWhose(e.target.value as typeof whose)}>
-        <option value="mine">my runs</option>
-        <option value="owner">brendan&rsquo;s runs</option>
-      </select>
-    </label>
-  );
-  const invite = !account && status === "ready" && (
-    <p className="note loadNote">
-      these are brendan&rsquo;s runs. <Link href="/zetamath/account">log in or sign up</Link> to
-      graph your own.
-    </p>
-  );
+  if (!account && status === "ready") {
+    return (
+      <div className="holding">
+        <h1 ref={heading} tabIndex={-1}>
+          log in to see your graphs.
+        </h1>
+        <p className="lede">every account has its own, and nobody else can open them.</p>
+        <EnterForm />
+      </div>
+    );
+  }
 
   if (runs.length === 0) {
     return (
       <div className="holding">
-        {invite}
-        {choice && <div className="filters">{choice}</div>}
-        <h1>{status === "error" ? "couldn't load the runs." : "no runs yet."}</h1>
+        <h1 ref={heading} tabIndex={-1}>
+          {status === "error" ? "couldn't load the runs." : "no runs yet."}
+        </h1>
         <p className="lede">
           {status === "error" ? (
             "the database didn't answer. reload to try again."
-          ) : own ? (
+          ) : (
             <>
               finish one on the <Link href="/zetamath">play tab</Link> and it shows up here.
             </>
-          ) : (
-            "brendan hasn't recorded one yet."
           )}
         </p>
       </div>
@@ -88,18 +87,19 @@ export function Graphs() {
   const counted = inView.filter((r) => !r.excluded);
   const excluded = inView.filter((r) => r.excluded);
   const shown = showExcluded ? inView : counted;
-  const before = (showExcluded ? everything : history).length - shown.length;
+  const earlier = (showExcluded ? everything : history).length - shown.length;
 
   return (
     <>
+      <h1 ref={heading} tabIndex={-1} className="srOnly">
+        your graphs
+      </h1>
       {status === "error" && (
         <p role="status" className="note loadNote">
           couldn&rsquo;t load the recorded runs, so some may be missing. reload to try again.
         </p>
       )}
-      {invite}
       <div className="filters">
-        {choice}
         <label>
           <span className="srOnly">date range</span>
           <select value={range} onChange={(e) => setRange(e.target.value as typeof range)}>
@@ -141,13 +141,13 @@ export function Graphs() {
           history={history}
           counted={counted}
           shown={shown}
-          before={before}
+          before={earlier}
           excluded={showExcluded ? excluded : []}
           today={today}
         />
       )}
 
-      <RunTable key={`${kind} ${range} ${own}`} runs={inView} own={own} />
+      <RunTable key={`${kind} ${range}`} runs={inView} />
     </>
   );
 }
@@ -284,7 +284,7 @@ function Figures({
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note: string }) {
+export function Stat({ label, value, note }: { label: string; value: string; note: string }) {
   return (
     <div>
       <dt>{label}</dt>
@@ -296,7 +296,7 @@ function Stat({ label, value, note }: { label: string; value: string; note: stri
   );
 }
 
-function RunTable({ runs, own }: { runs: readonly Run[]; own: boolean }) {
+function RunTable({ runs }: { runs: readonly Run[] }) {
   const { setExcluded } = useRuns();
   const [limit, setLimit] = useState(PAGE);
   const newest = [...runs].reverse();
@@ -316,7 +316,7 @@ function RunTable({ runs, own }: { runs: readonly Run[]; own: boolean }) {
               s a problem
             </th>
             <th scope="col" className="right">
-              {own ? "leave out" : ""}
+              leave out
             </th>
           </tr>
         </thead>
@@ -328,16 +328,12 @@ function RunTable({ runs, own }: { runs: readonly Run[]; own: boolean }) {
               <td className="right">{r.score}</td>
               <td className="right">{r.score ? (r.seconds / r.score).toFixed(2) : ""}</td>
               <td className="right">
-                {own ? (
-                  <input
-                    type="checkbox"
-                    aria-label={`leave out the ${r.score} from ${shortDay(r.day)}, ${clock(r)}`}
-                    checked={r.excluded}
-                    onChange={(e) => setExcluded(r.id, e.target.checked)}
-                  />
-                ) : r.excluded ? (
-                  "left out"
-                ) : null}
+                <input
+                  type="checkbox"
+                  aria-label={`leave out the ${r.score} from ${shortDay(r.day)}, ${clock(r)}`}
+                  checked={r.excluded}
+                  onChange={(e) => setExcluded(r.id, e.target.checked)}
+                />
               </td>
             </tr>
           ))}

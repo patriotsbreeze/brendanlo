@@ -5,12 +5,10 @@ import type { Account } from "../../_lib/accounts";
 
 const MAX_RUNS = 200;
 
-/** Your own runs if you are logged in, and the owner's, which anyone may see. */
+/** Who is logged in, and their runs. */
 export async function GET() {
   return respond(async () =>
-    call<{ account: Account | null; runs: Run[]; ownerRuns: Run[] }>("read", {
-      p_token: await token(),
-    }),
+    call<{ account: Account | null; runs: Run[] }>("read", { p_token: await token() }),
   );
 }
 

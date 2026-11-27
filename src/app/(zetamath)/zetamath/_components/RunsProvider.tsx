@@ -26,8 +26,6 @@ type RunsContext = {
   account: Account | null;
   /** This account's. Empty when nobody is logged in. */
   runs: readonly Run[];
-  /** The ones everyone sees. */
-  ownerRuns: readonly Run[];
   sync: Sync;
   /** Runs this browser has that the server does not, by username. */
   waiting: Readonly<Record<string, number>>;
@@ -82,7 +80,6 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<RunsContext["status"]>("loading");
   const [account, setAccount] = useState<Account | null>(null);
   const [mine, setMine] = useState<Record<string, Run>>({});
-  const [ownerRuns, setOwnerRuns] = useState<readonly Run[]>([]);
   const [sync, setSync] = useState<Sync>("idle");
   const [waiting, setWaiting] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Result | null>(null);
@@ -156,7 +153,6 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
     } else {
       const next = parseAccount(reply.account);
       become(next);
-      setOwnerRuns(parseRuns(reply.ownerRuns));
       // Newest word last: the queue, read now rather than before the request,
       // holds whatever the server has not heard about yet.
       setMine(
@@ -210,7 +206,6 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
       status,
       account,
       runs: Object.values(mine).sort(oldestFirst),
-      ownerRuns: account?.owner ? Object.values(mine).sort(oldestFirst) : ownerRuns,
       sync,
       waiting,
       result,
@@ -262,7 +257,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         return null;
       },
     }),
-    [status, account, mine, ownerRuns, sync, waiting, result, save, load],
+    [status, account, mine, sync, waiting, result, save, load],
   );
 
   return <Context value={value}>{children}</Context>;

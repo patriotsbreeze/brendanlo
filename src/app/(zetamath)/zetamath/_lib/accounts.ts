@@ -2,12 +2,16 @@
 
 export type Account = {
   username: string;
-  /** The one whose graphs everybody sees. */
+  /** Whose site this is. Can't be deleted here. */
   owner: boolean;
 };
 
 /** The owner's username, for runs this site queued before it had accounts. */
-export const OWNER = "brendan";
+export const OWNER = "blo";
+
+/** The owner was called "brendan" at first, and nobody else can be. Only for what a
+ * browser remembers: the server's own word is never changed. */
+export const renamed = (username: string) => (username === "brendan" ? OWNER : username);
 
 /** The database checks the same: lowercase letters, digits, underscores. */
 export const USERNAME = /^[a-z0-9_]{3,20}$/;

@@ -7,6 +7,7 @@ import { useRuns } from "./RunsProvider";
 const TABS = [
   ["/zetamath", "play"],
   ["/zetamath/graphs", "graphs"],
+  ["/zetamath/stats", "stats"],
   ["/zetamath/tricks", "tricks"],
   ["/zetamath/account", "account"],
 ] as const;
