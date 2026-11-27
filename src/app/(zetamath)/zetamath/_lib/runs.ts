@@ -17,7 +17,9 @@ export type Run = {
   settings: string;
   /** Per operation: [problems solved, total ms spent on them]. */
   ops: Partial<Record<Op, [count: number, ms: number]>>;
-  /** Every answer, in order. Runs played before these were kept have none. */
+  /** Every answer, in order. Runs played before these were kept have none. The
+   * server sends them apart, for the days the stats tab shows, so a run carries
+   * them only if it was played in this browser: see useAnswers(). */
   answers?: Answer[];
   excluded: boolean;
 };
@@ -45,6 +47,16 @@ export function dayKey(ms: number): string {
 /** Day keys are calendar dates, so do their arithmetic in UTC: no DST hours. */
 export const dayToMs = (day: string) => Date.parse(`${day}T00:00:00Z`);
 export const DAY_MS = 86_400_000;
+
+/** A real YYYY-MM-DD: no 31st of February. */
+export function isDay(v: unknown): v is string {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  return dayToMs(v) % DAY_MS === 0 && new Date(dayToMs(v)).toISOString().startsWith(v);
+}
+
+/** The days a run can be on, as the database checks them. */
+export const FIRST_DAY = "2019-12-31";
+export const LAST_DAY = "2100-01-02";
 
 export function opTotals(solved: readonly Solved[]): Run["ops"] {
   const out: Run["ops"] = {};
@@ -80,7 +92,7 @@ const int = (v: unknown, lo: number, hi: number): v is number =>
 
 /** Each one a problem the game could have asked: nothing negative, no fractions,
  * and one per point scored. */
-function parseAnswers(v: unknown, score: number): Answer[] | null {
+export function parseAnswers(v: unknown, score: number): Answer[] | null {
   if (!Array.isArray(v) || v.length !== score) return null;
   const out: Answer[] = [];
   for (const x of v) {
@@ -103,9 +115,7 @@ export function parseRun(v: unknown): Run | null {
   const r = v as Record<string, unknown>;
   if (typeof r.id !== "string" || !UUID.test(r.id)) return null;
   if (!int(r.at, 1_577_836_800_000, 4_102_444_800_000)) return null;
-  if (typeof r.day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.day)) return null;
-  // No 31st of February.
-  if (dayToMs(r.day) % DAY_MS !== 0 || !new Date(dayToMs(r.day)).toISOString().startsWith(r.day)) return null;
+  if (!isDay(r.day)) return null;
   if (!int(r.score, 0, 5000) || !int(r.seconds, 1, 3600)) return null;
   if (typeof r.settings !== "string" || !SETTINGS_KEY.test(r.settings)) return null;
   if (r.offset !== undefined && !int(r.offset, -900, 900)) return null;

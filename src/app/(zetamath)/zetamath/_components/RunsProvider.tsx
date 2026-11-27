@@ -26,6 +26,9 @@ type RunsContext = {
   account: Account | null;
   /** This account's. Empty when nobody is logged in. */
   runs: readonly Run[];
+  /** Goes up each time the runs come from the server. Those come without their
+   * answers, so answers fetched before may be missing some of them. */
+  loads: number;
   sync: Sync;
   /** Runs this browser has that the server does not, by username. */
   waiting: Readonly<Record<string, number>>;
@@ -80,6 +83,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<RunsContext["status"]>("loading");
   const [account, setAccount] = useState<Account | null>(null);
   const [mine, setMine] = useState<Record<string, Run>>({});
+  const [loads, setLoads] = useState(0);
   const [sync, setSync] = useState<Sync>("idle");
   const [waiting, setWaiting] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Result | null>(null);
@@ -164,6 +168,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
             ])
           : {},
       );
+      setLoads((n) => n + 1);
       setStatus("ready");
       void flush();
     }
@@ -206,6 +211,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
       status,
       account,
       runs: Object.values(mine).sort(oldestFirst),
+      loads,
       sync,
       waiting,
       result,
@@ -257,7 +263,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         return null;
       },
     }),
-    [status, account, mine, sync, waiting, result, save, load],
+    [status, account, mine, loads, sync, waiting, result, save, load],
   );
 
   return <Context value={value}>{children}</Context>;

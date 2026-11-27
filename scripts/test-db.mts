@@ -29,6 +29,8 @@ const logIn = (u: unknown, p: unknown) => call("log_in", { p_username: u, p_pass
 const read = (t: unknown) => call("read", { p_token: t });
 const save = (t: unknown, u: unknown, runs: unknown) =>
   call("save", { p_token: t, p_username: u, p_runs: runs });
+const answersOf = async (t: unknown, from: unknown = "2019-12-31", to: unknown = "2100-01-02") =>
+  (await callAsAnon(db, "zetamath_answers", { p_token: t, p_from: from, p_to: to })) as Record<string, unknown>;
 const one = async (sql: string) => Object.values((await db.query<Record<string, unknown>>(sql)).rows[0])[0];
 
 const AT = Date.UTC(2026, 10, 25, 19, 45, 12, 345);
@@ -122,24 +124,26 @@ await test("every answer is kept, and kept once", async () => {
   const ops = { add: [1, 1500], sub: [1, 4100], mul: [1, 3200], div: [1, 2100] };
   const sent = run({ score: 4, ops, answers });
   await save(token, "answerer", [sent]);
+  // The runs come without them, and the answers apart, by run.
   const [back] = (await read(token)).runs;
-  assert.deepEqual(back, sent);
-  assert.deepEqual(parseRun(back), sent);
+  const bare: Record<string, unknown> = { ...sent };
+  delete bare.answers;
+  assert.deepEqual(back, bare);
+  assert.deepEqual(await answersOf(token), { [sent.id]: answers });
+  assert.deepEqual(parseRun({ ...back, answers: (await answersOf(token))[sent.id] }), sent);
 
   // Like the score: a second copy can leave it out, and change nothing else.
   const changed = answers.map(([op, a, b]) => [op, a, b, 1, 0]);
   await save(token, "answerer", [{ ...sent, answers: changed, excluded: true }]);
-  const [after] = (await read(token)).runs;
-  assert.deepEqual(after.answers, answers);
-  assert.equal(after.excluded, true);
+  assert.equal((await read(token)).runs[0].excluded, true);
+  assert.deepEqual((await answersOf(token))[sent.id], answers);
 
-  // A run with none, as every run had before these were kept.
+  // A run with none, as every run had before these were kept: there, as null.
   const before = run({ at: AT + 60_000 });
   await save(token, "answerer", [before]);
-  assert.equal((await read(token)).runs[1].answers, undefined);
   const empty = run({ at: AT + 120_000, score: 0, ops: {}, answers: [] });
   await save(token, "answerer", [empty]);
-  assert.deepEqual((await read(token)).runs[2].answers, []);
+  assert.deepEqual(await answersOf(token), { [sent.id]: answers, [before.id]: null, [empty.id]: [] });
 
   const one = (answer: unknown) => run({ score: 1, ops: { add: [1, 1500] }, answers: [answer] });
   const bad = [
@@ -167,6 +171,7 @@ await test("every answer is kept, and kept once", async () => {
     await assert.rejects(save(token, "answerer", [run(), r]), undefined, JSON.stringify(r.answers));
   }
   assert.equal((await read(token)).runs.length, 3);
+  assert.equal(Object.keys(await answersOf(token)).length, 3);
 
   // The shape is all the database can see. A sum that comes out negative, or a
   // division with a remainder, gets in only by going around the site, and the
@@ -175,6 +180,66 @@ await test("every answer is kept, and kept once", async () => {
     assert.equal(parseRun(one(answer)), null, JSON.stringify(answer));
   }
   assert.ok(parseRun(one([1, 9, 9, 100, 0])), "zero is a fine difference");
+});
+
+await test("answers come only to their own account, for the days asked", async () => {
+  const { token } = await signUp("days_apart", "password1");
+  const answered = (day: string, at: number, answer = [0, 2, 3, 900, 0]) =>
+    run({ day, at, score: 1, ops: { add: [1, answer[3]] }, answers: [answer] });
+  // By the day on the clock of whoever played: late on the 24th there is the
+  // 25th in UTC.
+  const late = { ...answered("2026-11-24", Date.UTC(2026, 10, 25, 3)), offset: 300 };
+  const [first, middle, last] = [
+    answered("2026-11-23", Date.UTC(2026, 10, 23, 12)),
+    answered("2026-11-25", Date.UTC(2026, 10, 25, 12)),
+    answered("2026-11-26", Date.UTC(2026, 10, 26, 12)),
+  ];
+  await save(token, "days_apart", [first, late, middle, last]);
+  const ids = async (from: string, to: string) => Object.keys(await answersOf(token, from, to)).sort();
+  const sorted = (...runs: { id: string }[]) => runs.map((r) => r.id).sort();
+
+  // Both ends are in, and nothing past them.
+  assert.deepEqual(await ids("2026-11-24", "2026-11-25"), sorted(late, middle));
+  assert.deepEqual(await ids("2026-11-25", "2026-11-25"), sorted(middle));
+  assert.deepEqual(await ids("2026-11-23", "2026-11-26"), sorted(first, late, middle, last));
+  assert.deepEqual(await ids("2026-11-27", "2026-12-31"), []);
+  assert.deepEqual(await ids("2019-12-31", "2026-11-22"), []);
+  assert.deepEqual((await answersOf(token, "2026-11-24", "2026-11-24"))[late.id], late.answers);
+
+  for (const [from, to] of [["2026-11-25", "2026-11-24"], [null, "2026-11-25"], ["2026-11-25", null], [null, null]]) {
+    assert.equal((await answersOf(token, from, to)).error, "bad_range", `${from} to ${to}`);
+  }
+
+  // A stranger gets nothing, with or without a token that looks right.
+  for (const stranger of [null, "", "0".repeat(64), `${token}0`, token.toUpperCase()]) {
+    assert.deepEqual(await answersOf(stranger), { error: "not_logged_in" }, String(stranger));
+  }
+
+  // Someone else's runs on the same days stay theirs, the same run id too.
+  const other = await signUp("days_other", "password1");
+  const theirs = { ...middle, answers: [[2, 7, 8, 4000, 3]] };
+  await save(other.token, "days_other", [theirs, answered("2026-11-25", Date.UTC(2026, 10, 25, 13))]);
+  assert.deepEqual((await answersOf(token, "2026-11-25", "2026-11-25"))[middle.id], middle.answers);
+  assert.deepEqual((await answersOf(other.token, "2026-11-25", "2026-11-25"))[middle.id], theirs.answers);
+  assert.equal(Object.keys(await answersOf(other.token)).length, 2);
+  assert.equal(Object.keys(await answersOf(token)).length, 4);
+
+  // A run typed in by hand and hidden behind the real one is gone here too.
+  const typed = String(
+    await one(`insert into zetamath.runs (account_id, id, played_at, day, score, seconds, settings, by_hand)
+      select id, gen_random_uuid(), '2026-11-25 07:00:00+00', '2026-11-25', 1, 120, '${STANDARD_KEY}', true
+      from zetamath.accounts where username = 'days_apart' returning id`),
+  );
+  assert.equal((await answersOf(token, "2026-11-25", "2026-11-25"))[typed], null);
+  const real = { ...answered("2026-11-25", Date.UTC(2026, 10, 25, 7, 0, 30)), seconds: 120 };
+  assert.deepEqual((await save(token, "days_apart", [real])).replaced, [typed]);
+  assert.ok(!(typed in (await answersOf(token, "2026-11-25", "2026-11-25"))));
+  // Tests below count every run typed in by hand.
+  await db.exec(`delete from zetamath.runs where id = '${typed}'`);
+
+  // Logged out, none.
+  await call("log_out", { p_token: other.token });
+  assert.deepEqual(await answersOf(other.token), { error: "not_logged_in" });
 });
 
 await test("a score is written once", async () => {
@@ -543,13 +608,23 @@ await test("a stranger can reach nothing else", async () => {
     await assert.rejects(asAnon("create table zetamath.x (a int)", role), /permission denied/);
   }
   await assert.rejects(asAnon("select public.zetamath_read()", "authenticated"), /permission denied/);
+  await assert.rejects(
+    asAnon("select public.zetamath_answers(null, '2026-11-25', '2026-11-25')", "authenticated"),
+    /permission denied/,
+  );
+  // Nor anyone else: no function here is left open to every role.
+  assert.equal(
+    await one(`select count(*)::int from pg_proc p where p.proname like 'zetamath\\_%' and (p.proacl is null
+      or exists (select 1 from aclexplode(p.proacl) a where a.grantee = 0 or a.grantee = 'authenticated'::regrole))`),
+    0,
+  );
   const open = await db.query<{ proname: string }>(
     `select proname from pg_proc where pronamespace = 'public'::regnamespace
      and has_function_privilege('anon', oid, 'execute') order by 1`,
   );
   assert.deepEqual(
     open.rows.map((r) => r.proname).filter((n) => n.startsWith("zetamath")),
-    ["change_password", "delete_account", "keep_awake", "log_in", "log_out", "read", "save", "sign_up"].map(
+    ["answers", "change_password", "delete_account", "keep_awake", "log_in", "log_out", "read", "save", "sign_up"].map(
       (n) => `zetamath_${n}`,
     ),
   );

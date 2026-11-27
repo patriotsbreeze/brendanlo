@@ -25,6 +25,7 @@ import { ProblemMap } from "./ProblemMap";
 import { useRuns } from "./RunsProvider";
 import { WeakSpots } from "./WeakSpots";
 import { paceNote, pct, periodLabel, secs, versusLabel } from "./statsKit";
+import { useAnswers } from "./useAnswers";
 
 const SPAN_WORDS: Record<Span, string> = { day: "day", week: "week", month: "month", all: "all time" };
 
@@ -48,7 +49,7 @@ function readView(params: URLSearchParams): View {
 }
 
 export function Stats() {
-  const { status, account, runs } = useRuns();
+  const { status, account, runs, loads } = useRuns();
   const params = useSearchParams();
   const [today] = useState(() => dayKey(Date.now()));
   const view = readView(params);
@@ -91,14 +92,24 @@ export function Stats() {
   // Unless told otherwise, the last day played: today, if there was a run today.
   const anchor = view.day ?? played.at(-1) ?? today;
   const period = useMemo(() => periodOf(view.span, anchor), [view.span, anchor]);
-  const inPeriod = useMemo(() => counted.filter((r) => within(r.day, period)), [counted, period]);
-  const stats = useMemo(() => tally(inPeriod), [inPeriod]);
+  const shown = useMemo(() => counted.filter((r) => within(r.day, period)), [counted, period]);
   // Compared with the nearest period before that has runs, not an empty one.
   const prior = useMemo(() => stepTo(period, -1, played), [period, played]);
-  const priorStats = useMemo(
-    () => (prior ? tally(counted.filter((r) => within(r.day, prior))) : null),
+  const shownBefore = useMemo(
+    () => (prior ? counted.filter((r) => within(r.day, prior)) : []),
     [counted, prior],
   );
+  // The answers come apart from the runs, for these two periods alone.
+  const now = useAnswers(name, loads, period, shown);
+  const then = useAnswers(name, loads, prior, shownBefore);
+  const inPeriod = now.runs;
+  const stats = useMemo(() => tally(inPeriod), [inPeriod]);
+  const priorStats = useMemo(() => (prior ? tally(then.runs) : null), [prior, then.runs]);
+  const answers = [now.state, then.state].includes("error")
+    ? "error"
+    : [now.state, then.state].includes("loading")
+      ? "loading"
+      : "ready";
   const spots = useMemo(() => weakSpots(stats), [stats]);
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
@@ -241,6 +252,24 @@ export function Stats() {
               go to the last day played
             </button>
           )}
+        </p>
+      ) : answers === "loading" ? (
+        <p role="status" className="lede holding">
+          loading answers…
+        </p>
+      ) : answers === "error" ? (
+        <p role="status" className="lede holding">
+          couldn&rsquo;t load the answers for these runs.{" "}
+          <button
+            type="button"
+            className="link"
+            onClick={() => {
+              if (now.state === "error") now.retry();
+              if (then.state === "error") then.retry();
+            }}
+          >
+            try again
+          </button>
         </p>
       ) : (
         <>

@@ -72,7 +72,9 @@ export const accountHint = {
 // ------------------------------------------------------------- unsynced runs
 
 /** Each run with the account it was played under, so that it can never land in
- * another one that logs in on this browser. */
+ * another one that logs in on this browser. A run keeps its answers here, as
+ * played: the server sends them back only to the stats tab, so until it has
+ * them this is the only copy. */
 type Queue = Record<string, { run: Run; username: string }>;
 
 const QUEUE = "zetamath.queue";

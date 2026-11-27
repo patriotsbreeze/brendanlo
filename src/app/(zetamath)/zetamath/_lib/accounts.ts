@@ -37,6 +37,7 @@ const REFUSALS: Record<string, readonly [status: number, words: string]> = {
   bad_username: [400, "usernames are 3 to 20 letters, numbers or underscores."],
   bad_password: [400, `passwords are at least ${PASSWORD_MIN} characters, and at most 72.`],
   bad_runs: [400, "those runs don't look right."],
+  bad_range: [400, "those days don't look right."],
   slow_down: [429, "too many tries. wait 15 minutes."],
   busy: [429, "too many new accounts right now. try again in an hour."],
   full: [409, "this account has all the runs it can hold."],
