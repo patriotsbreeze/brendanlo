@@ -447,6 +447,28 @@ await test("the owner can reset any password from the SQL editor", async () => {
   assert.ok((await logIn("blo", "a new one")).token);
 });
 
+await test("answers a day are capped, the owner's aside", async () => {
+  const { token } = await signUp("chatty", "password1");
+  const full = (score: number) =>
+    run({ score, seconds: 3600, ops: { add: [score, score] }, answers: Array(score).fill([0, 1, 1, 1, 0]) });
+  // Exactly at the cap is fine, in one save.
+  assert.deepEqual((await save(token, "chatty", [full(5000), full(5000), full(5000), full(5000)])).replaced, []);
+  assert.equal((await save(token, "chatty", [full(1)])).error, "slow_down");
+  assert.deepEqual((await save(token, "chatty", [run()])).replaced, [], "a run without answers still saves");
+  const [first] = (await read(token)).runs;
+  assert.deepEqual(
+    (await save(token, "chatty", [{ ...first, excluded: true }])).replaced,
+    [],
+    "and one already saved can still be left out",
+  );
+  // A day later there is room again.
+  await db.exec("update zetamath.runs set saved_at = saved_at - interval '2 days'");
+  assert.deepEqual((await save(token, "chatty", [full(1)])).replaced, []);
+  const owner = await logIn("blo", "a new one");
+  assert.equal((await save(owner.token, "blo", Array.from({ length: 5 }, () => full(5000)))).error, undefined);
+  await db.exec("delete from zetamath.accounts where username = 'chatty'");
+});
+
 await test("limits on runs and sign-ups", async () => {
   const { token } = await signUp("grinder", "password1");
   const fill = (n: number, saved: string) =>
@@ -514,7 +536,7 @@ await test("a stranger can reach nothing else", async () => {
     for (const fn of [
       "set_password('blo', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
       "start_session(gen_random_uuid())", "runs_of(gen_random_uuid())", "hash_password('x')",
-      "runs_limit()",
+      "runs_limit()", "answers_limit()",
     ]) {
       await assert.rejects(asAnon(`select zetamath.${fn}`, role), /permission denied/);
     }

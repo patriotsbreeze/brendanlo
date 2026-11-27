@@ -86,7 +86,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
             checked={excluded}
             onChange={(e) => setExcluded(run.id, e.target.checked)}
           />
-          leave this run out of the graphs
+          leave this run out of the graphs and stats
         </label>
       ) : (
         <KeepRun key={run.id} run={run} />
@@ -97,7 +97,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
           <Tape solved={solved} total={run.seconds * 1000} elapsed={run.seconds * 1000} slow={slow} />
           <p className="caption">
             every answer, when it landed. the five slowest are in red.
-            {recorded && (
+            {recorded && !excluded && (
               <>
                 {" "}
                 <Link href={`/zetamath/stats?span=day&day=${run.day}`}>

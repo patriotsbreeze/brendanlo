@@ -34,8 +34,18 @@ language sql stable set search_path = '' as $$
   from zetamath.runs r where r.account_id = who and r.replaced_by is null
 $$;
 
--- As before, plus the answers. A run already stored keeps them, as it keeps its
--- score: only whether it is left out can change.
+-- At most this many answers a day for each account, the owner apart. Answers
+-- make a run about two hundred times bigger, so counting runs alone no longer
+-- keeps strangers from filling the shared disk. Twenty thousand is some two
+-- hundred and fifty two-minute runs.
+create function zetamath.answers_limit() returns bigint
+language sql immutable set search_path = '' as $$ select 20000::bigint $$;
+
+revoke all on function zetamath.answers_limit() from public, anon, authenticated;
+
+-- As before, plus the answers, and a lock so that one account's saves happen one
+-- at a time and cannot all slip under the limits together. A run already stored
+-- keeps its answers, as it keeps its score: only whether it is left out can change.
 create or replace function public.zetamath_save(p_token text, p_username text, p_runs jsonb)
 returns jsonb
 language plpgsql volatile security definer set search_path = '' as $$
@@ -59,6 +69,8 @@ begin
     return '{"error": "bad_runs"}';
   end if;
 
+  perform pg_advisory_xact_lock(20261126, hashtext(me.id::text));
+
   select count(distinct i.id) into fresh
   from jsonb_to_recordset(p_runs) as i(id uuid)
   where not exists (
@@ -74,6 +86,19 @@ begin
     end if;
     if (select count(*) from zetamath.runs r
         where r.account_id = me.id and r.saved_at > now() - interval '1 day') + fresh > 1000 then
+      return '{"error": "slow_down"}';
+    end if;
+    if not me.owner and
+      (select coalesce(sum(jsonb_array_length(r.answers)), 0) from zetamath.runs r
+        where r.account_id = me.id and r.saved_at > now() - interval '1 day'
+          and r.answers is not null)
+      + (select coalesce(sum(case when jsonb_typeof(i.answers) = 'array'
+            then jsonb_array_length(i.answers) else 0 end), 0)
+        from jsonb_to_recordset(p_runs) as i(id uuid, answers jsonb)
+        where not exists (
+          select 1 from zetamath.runs r where r.account_id = me.id and r.id = i.id))
+      > zetamath.answers_limit()
+    then
       return '{"error": "slow_down"}';
     end if;
   end if;

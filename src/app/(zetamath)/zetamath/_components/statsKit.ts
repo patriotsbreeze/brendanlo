@@ -24,6 +24,13 @@ export function pace(now: number | null, before: number | null): string {
   return `${Math.abs(d).toFixed(2)} s ${d < 0 ? "faster" : "slower"}`;
 }
 
+/** "0.21 s faster than nov 24", "same pace as october". Empty with nothing to compare. */
+export function paceNote(now: number | null, before: number | null, than: string): string {
+  const said = pace(now, before);
+  if (!said) return "";
+  return said === "same pace" ? `same pace as ${than}` : `${said} than ${than}`;
+}
+
 /** "7 × 64 = 448" */
 export const solvedText = (p: Problem) => `${show(p)} = ${p.answer}`;
 
@@ -46,10 +53,14 @@ export function periodLabel(p: Period, today: string): string {
   return `${shortDay(p.from)} – ${end}, ${to.getUTCFullYear()}`;
 }
 
-/** What a figure is being compared with: "nov 24", "the week of nov 9", "october". */
-export function versusLabel(p: Period): string {
-  if (p.span === "day") return shortDay(p.from);
-  if (p.span === "week") return `the week of ${shortDay(p.from)}`;
-  if (p.span === "month") return MONTHS[new Date(dayToMs(p.from)).getUTCMonth()];
+/** What a figure is being compared with: "nov 24", "the week of nov 9",
+ * "october". With the year when it is not the year of `now`, the period being
+ * looked at, or "november" could be either. */
+export function versusLabel(p: Period, now: Period): string {
+  const year = (day: string) => new Date(dayToMs(day)).getUTCFullYear();
+  const tail = year(p.from) === year(now.from) ? "" : ` ${year(p.from)}`;
+  if (p.span === "day") return `${shortDay(p.from)}${tail && `,${tail}`}`;
+  if (p.span === "week") return `the week of ${shortDay(p.from)}${tail && `,${tail}`}`;
+  if (p.span === "month") return `${MONTHS[new Date(dayToMs(p.from)).getUTCMonth()]}${tail}`;
   return "before";
 }

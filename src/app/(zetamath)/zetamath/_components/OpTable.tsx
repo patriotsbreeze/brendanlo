@@ -22,6 +22,10 @@ export function OpTable({
   period: Period;
 }) {
   const ops = OPS.filter((op) => stats.ops[op]);
+  if (ops.length === 0) {
+    // Typed in by hand, or ended before the first answer.
+    return <p className="note">no times for these runs.</p>;
+  }
   const slowest = Math.max(...ops.map((op) => meanMs(stats.ops[op]!) ?? 0), 1);
   const points = trend(runs, period);
   const lines = points.map((p) => opTally(p.runs));

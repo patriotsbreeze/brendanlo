@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useId, type CSSProperties } from "react";
 import { GROUPS } from "../_lib/kinds";
 import type { Op } from "../_lib/problems";
-import { heldBack, meanMs, MIN_ANSWERS, missRate, SLOWER, type KindTally, type Stats } from "../_lib/stats";
+import { clearlySlower, meanMs, MIN_ANSWERS, missRate, type KindTally, type Stats } from "../_lib/stats";
 import { TRICKS } from "../_lib/tricks";
 import { opWord, pct, secs } from "./statsKit";
 
@@ -35,8 +35,8 @@ function rowOf(k: KindTally, base: number): Row {
     mean,
     diff: Math.round((mean / base - 1) * 100),
     few,
-    // weakSpots' rule, so a red bar is a kind one bad minute could not put there.
-    slow: !few && heldBack(k, base) >= SLOWER,
+    // weakSpots' rule, so a red bar is a kind one slow answer could not put there.
+    slow: clearlySlower(k, base),
   };
 }
 

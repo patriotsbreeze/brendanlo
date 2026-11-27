@@ -39,6 +39,9 @@ import {
   trend,
   weakSpots,
   within,
+  clearlySlower,
+  ENOUGH,
+  keptAnswers,
   type Tally,
 } from "../src/app/(zetamath)/zetamath/_lib/stats.ts";
 
@@ -279,11 +282,31 @@ test("a slow kind is found, and a single slow answer is not", () => {
     assert.ok(weakSpots(sevens)[i - 1].ratio >= weakSpots(sevens)[i].ratio);
   }
 
-  const runs = play(1, rng);
-  const answers = runs[0].answers as Answer[];
-  const lone = answers.findIndex(([op]) => OPS[op] === "mul");
-  answers[lone] = [answers[lone][0], 19, answers[lone][2], 60_000, 0];
-  assert.ok(!weakSpots(tally(runs)).some((s) => s.kind.kind.id === "mul.first.19"), "one answer is not a pattern");
+  // Everything at one pace but a single answer that took a minute: that is a
+  // bad moment, not a weakness, however few answers its kinds have.
+  const steady = play(10, rng).map((r) => ({
+    ...r,
+    answers: (r.answers ?? []).map(([op, a, b, , misses]): Answer => [op, a, b, 3000, misses]),
+  }));
+  for (const [i, j] of [[3, 0], [7, 12], [0, 29]]) {
+    const runs = structuredClone(steady);
+    const answers = runs[i].answers as Answer[];
+    answers[j] = [answers[j][0], answers[j][1], answers[j][2], 60_000, 0];
+    assert.deepEqual(weakSpots(tally(runs)), [], `one slow answer, run ${i} answer ${j}`);
+    const s = tally(runs);
+    for (const k of s.kinds) assert.ok(!clearlySlower(k, meanMs(s.answered[k.kind.op] as Tally) as number), k.kind.id);
+  }
+  // Two in the same kind are a pattern, once there are enough answers around them.
+  const twice = structuredClone(steady);
+  const slowSevens = twice.flatMap((r) => (r.answers ?? []).filter(([op, a]) => OPS[op] === "mul" && a === 7));
+  assert.ok(slowSevens.length >= 4, "the seeded runs have some sevens");
+  for (const answer of slowSevens) answer[3] = 9000;
+  assert.equal(weakSpots(tally(twice))[0]?.kind.kind.id, "mul.first.7");
+
+  // Too few answers in the period to tell anything, so nothing is claimed.
+  const short = tally(play(1, rng, (p) => (p.op === "add" ? 3 : 1)));
+  assert.ok(keptAnswers(short) < ENOUGH);
+  assert.deepEqual(weakSpots(short), []);
 });
 
 test("trend lines have a point per run, day, week or month", () => {

@@ -85,7 +85,9 @@ means it can't be deleted through the site.
   meanwhile. There are no automatic backups on the free plan.
 - **Scores** are written once. They can be left out of the graphs and put back,
   never edited. So are a run's answers (`[operation, a, b, ms, misses]` each),
-  which runs played before 2026-11-26 do not have.
+  which runs played before 2026-11-26 do not have. Each account but the owner
+  can store 20,000 answers a day (`zetamath.answers_limit()`), since answers
+  make a run some two hundred times bigger.
 - **Local.** `npm run dev` runs the same migrations in a Postgres inside the
   process and keeps it in `.data/` (gitignored). The owner there is `blo` /
   `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and

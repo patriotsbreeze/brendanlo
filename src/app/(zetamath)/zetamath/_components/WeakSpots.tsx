@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { OPS, type Op } from "../_lib/problems";
-import { missRate, weakSpots, type Spot, type Stats } from "../_lib/stats";
+import type { Op } from "../_lib/problems";
+import { ENOUGH, keptAnswers, missRate, weakSpots, type Spot, type Stats } from "../_lib/stats";
 import { TRICKS } from "../_lib/tricks";
 import { opWord, pct, secs } from "./statsKit";
-
-/** Fewer kept answers than this in a period and any ranking is mostly luck. */
-const ENOUGH = 40;
 
 /** ms a run. Below this a kind costs too little to be worth saying. */
 const WORTH = 50;
@@ -20,7 +17,7 @@ const tenths = (ms: number) => (ms / 1000).toFixed(1);
 /** The kinds of problem that hold you up most in this period, worst first,
  * each with what it costs you and where to start on it. */
 export function WeakSpots({ stats, onPick }: { stats: Stats; onPick: (op: Op) => void }) {
-  const kept = OPS.reduce((n, op) => n + (stats.answered[op]?.n ?? 0), 0);
+  const kept = keptAnswers(stats);
 
   if (stats.detailed === 0) {
     return (
@@ -53,10 +50,7 @@ export function WeakSpots({ stats, onPick }: { stats: Stats; onPick: (op: Op) =>
   const spots = weakSpots(stats);
   if (spots.length === 0) {
     return (
-      <p>
-        nothing stands out. every kind of problem is within a few percent of its operation&rsquo;s
-        pace.
-      </p>
+      <p>nothing stands out: no kind of problem is clearly slower than the rest of its operation.</p>
     );
   }
 

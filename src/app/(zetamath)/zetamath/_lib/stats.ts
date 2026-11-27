@@ -96,6 +96,8 @@ export type ProblemTally = Tally & {
 
 export type KindTally = Tally & {
   kind: Kind;
+  /** ms, its single slowest answer. */
+  worst: number;
   /** The trick that fits at least half its answers, if one does. */
   trick?: string;
 };
@@ -167,8 +169,9 @@ export function tally(runs: readonly Run[]): Stats {
     const trick = trickFor(p.problem)?.id;
     for (const kind of kindsOf(p.problem)) {
       let k = kinds.get(kind);
-      if (!k) kinds.set(kind, (k = { ...zero(), kind, tricks: new Map() }));
+      if (!k) kinds.set(kind, (k = { ...zero(), kind, worst: 0, tricks: new Map() }));
       add(k, p);
+      k.worst = Math.max(k.worst, p.worst);
       if (trick) k.tricks.set(trick, (k.tricks.get(trick) ?? 0) + p.n);
     }
   }
@@ -202,8 +205,7 @@ export type Spot = {
   mean: number;
   /** ms an answer for the whole operation, over the same kept answers. */
   base: number;
-  /** How much slower than the operation it is, held back towards 1 while there
-   * are few answers, so that one bad minute does not top the list. */
+  /** How much slower than the operation it is: see steadyRatio(). */
   ratio: number;
   /** ms it adds to an average run, over going at the operation's pace. */
   cost: number;
@@ -216,21 +218,37 @@ export const MIN_ANSWERS = 4;
 /** Held back, at least this much slower than its operation is "slower". */
 export const SLOWER = 1.08;
 
-/** How many times slower than `base` (ms an answer) a tally is, counted as if
- * PRIOR answers at `base` were already in: one bad minute cannot make a kind
- * look slow, and a lot of answers can. */
-export const heldBack = (t: Tally, base: number) => (t.ms + PRIOR * base) / (t.n + PRIOR) / base;
+/** Fewer kept answers than this in a period and any ranking is mostly luck. */
+export const ENOUGH = 40;
 
-/** Kinds slower than the rest of their operation, slowest first. A kind that is
- * most of its operation cannot be slower than it, so those are left out. */
+const heldBack = (n: number, ms: number, base: number) => (ms + PRIOR * base) / (n + PRIOR) / base;
+
+/** How many times slower than `base` (ms an answer) a kind is, counted as if
+ * PRIOR answers at `base` were already in, and without its slowest answer if
+ * that says less: one answer, however slow, cannot make a kind look slow. */
+export function steadyRatio(k: KindTally, base: number): number {
+  return Math.min(heldBack(k.n, k.ms, base), heldBack(k.n - 1, k.ms - k.worst, base));
+}
+
+/** Slower than the rest of its operation, with the answers to say so. */
+export const clearlySlower = (k: KindTally, base: number) =>
+  k.n >= MIN_ANSWERS && steadyRatio(k, base) >= SLOWER;
+
+/** Kept answers in the period, every operation together. */
+export const keptAnswers = (stats: Stats) =>
+  Object.values(stats.answered).reduce((n, t) => n + t.n, 0);
+
+/** Kinds clearly slower than the rest of their operation, slowest first. None
+ * while the period has too few answers to tell. */
 export function weakSpots(stats: Stats, limit = 6): Spot[] {
+  if (keptAnswers(stats) < ENOUGH) return [];
   const out: Spot[] = [];
   for (const k of stats.kinds) {
     const op = stats.answered[k.kind.op];
-    if (!op || k.n < MIN_ANSWERS || k.n > op.n * 0.75) continue;
+    if (!op) continue;
     const base = op.ms / op.n;
-    const ratio = heldBack(k, base);
-    if (ratio < SLOWER) continue;
+    if (!clearlySlower(k, base)) continue;
+    const ratio = steadyRatio(k, base);
     out.push({ kind: k, mean: k.ms / k.n, base, ratio, cost: (k.ms - k.n * base) / stats.detailed });
   }
   return out.sort((x, y) => y.ratio - x.ratio || kindOrder(x.kind.kind, y.kind.kind)).slice(0, limit);

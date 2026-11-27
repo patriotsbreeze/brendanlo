@@ -24,7 +24,7 @@ import { ProblemList } from "./ProblemList";
 import { ProblemMap } from "./ProblemMap";
 import { useRuns } from "./RunsProvider";
 import { WeakSpots } from "./WeakSpots";
-import { pace, pct, periodLabel, secs, versusLabel } from "./statsKit";
+import { paceNote, pct, periodLabel, secs, versusLabel } from "./statsKit";
 
 const SPAN_WORDS: Record<Span, string> = { day: "day", week: "week", month: "month", all: "all time" };
 
@@ -36,7 +36,9 @@ type View = { span: Span; day: string | null; settings: string; op: Op | null };
 function readView(params: URLSearchParams): View {
   const span = SPANS.find((s) => s === params.get("span")) ?? "all";
   const day = params.get("day");
-  const real = day !== null && /^\d{4}-\d{2}-\d{2}$/.test(day) && new Date(dayToMs(day)).toISOString().startsWith(day);
+  // "2026-13-01" fits the pattern but is no date, and formatting it throws.
+  const ms = day !== null && /^\d{4}-\d{2}-\d{2}$/.test(day) ? dayToMs(day) : NaN;
+  const real = Number.isFinite(ms) && new Date(ms).toISOString().startsWith(day as string);
   return {
     span,
     day: real ? day : null,
@@ -114,14 +116,21 @@ export function Stats() {
   }
 
   if (counted.length === 0) {
+    // Settings only offer what has counted runs, so this is no runs, or every
+    // one of them left out.
+    const allOut = runs.length > 0 && status !== "error";
     return (
       <div className="holding">
         <h1 ref={heading} tabIndex={-1}>
-          {status === "error" ? "couldn't load the runs." : "no runs yet."}
+          {status === "error" ? "couldn't load the runs." : allOut ? "every run is left out." : "no runs yet."}
         </h1>
         <p className="lede">
           {status === "error" ? (
             "the database didn't answer. reload to try again."
+          ) : allOut ? (
+            <>
+              put some back on the <Link href="/zetamath/graphs">graphs tab</Link> to see them here.
+            </>
           ) : (
             <>
               finish one on the <Link href="/zetamath">play tab</Link> and its answers show up here.
@@ -132,11 +141,18 @@ export function Stats() {
     );
   }
 
-  const earlier = prior;
-  const later = stepTo(period, 1, played);
+  // Stepping lands on the day played, not the first of the week or month, so
+  // a narrower span picked next still has runs in it.
+  const earlierDay = played.findLast((d) => d < period.from);
+  const laterDay = period.span === "all" ? undefined : played.find((d) => d > period.to);
+  const earlier = earlierDay === undefined ? null : periodOf(view.span, earlierDay);
+  const later = laterDay === undefined ? null : periodOf(view.span, laterDay);
   const total = stats.total;
   const pastTotal = priorStats?.total ?? null;
-  const older = stats.runs - stats.detailed;
+  const solved = inPeriod.reduce((n, r) => n + r.score, 0);
+  // Typed in from a score sheet: a score, and no times at all.
+  const untimed = inPeriod.filter((r) => r.score > 0 && Object.keys(r.ops).length === 0).length;
+  const older = inPeriod.filter((r) => !r.answers && Object.keys(r.ops).length > 0).length;
   // Looked at closer: the one picked, or where the worst weak spot is, or the
   // slowest operation.
   const closerOps = OPS.filter((o) => stats.answered[o]);
@@ -192,9 +208,10 @@ export function Stats() {
           <button
             type="button"
             className="link step"
-            disabled={!earlier}
+            // Not disabled: that would drop the focus of whoever just stepped here.
+            aria-disabled={!earlier}
             aria-label={earlier ? `back to ${periodLabel(earlier, today)}` : "nothing earlier"}
-            onClick={() => earlier && show({ day: earlier.from })}
+            onClick={() => earlierDay && show({ day: earlierDay })}
           >
             ‹
           </button>
@@ -204,9 +221,9 @@ export function Stats() {
           <button
             type="button"
             className="link step"
-            disabled={!later}
+            aria-disabled={!later}
             aria-label={later ? `on to ${periodLabel(later, today)}` : "nothing later"}
-            onClick={() => later && show({ day: later.from })}
+            onClick={() => laterDay && show({ day: laterDay })}
           >
             ›
           </button>
@@ -230,13 +247,19 @@ export function Stats() {
           <dl className="stats">
             <Stat
               label="solved"
-              value={String(total.n)}
+              value={String(solved)}
               note={`in ${stats.runs} ${stats.runs === 1 ? "run" : "runs"}${stats.days > 1 ? ` over ${stats.days} days` : ""}`}
             />
             <Stat
               label="s a problem"
               value={secs(meanMs(total))}
-              note={prior && pastTotal ? `${pace(meanMs(total), meanMs(pastTotal))} than ${versusLabel(prior)}` : ""}
+              note={
+                meanMs(total) === null
+                  ? "no times for these runs"
+                  : prior && pastTotal
+                    ? paceNote(meanMs(total), meanMs(pastTotal), versusLabel(prior, period))
+                    : ""
+              }
             />
             <Stat
               label="wrong first"
@@ -245,7 +268,7 @@ export function Stats() {
                 missRate(total) === null
                   ? "not kept for these runs"
                   : prior && pastTotal && missRate(pastTotal) !== null
-                    ? `${pct(missRate(pastTotal))} for ${versusLabel(prior)}`
+                    ? `${pct(missRate(pastTotal))} for ${versusLabel(prior, period)}`
                     : `of ${total.checked} answers`
               }
             />
@@ -261,9 +284,11 @@ export function Stats() {
             <OpTable stats={stats} before={priorStats} runs={inPeriod} period={period} />
             <p className="caption">
               wrong first is how often a wrong digit went in before the right answer.
-              {prior && priorStats ? ` before is ${versusLabel(prior)}.` : ""}
+              {prior && priorStats ? ` before is ${versusLabel(prior, period)}.` : ""}
               {older > 0 &&
                 ` ${older} of these runs ${older === 1 ? "is" : "are"} from before every answer was kept, so ${older === 1 ? "it counts" : "they count"} in the times above and nowhere below.`}
+              {untimed > 0 &&
+                ` ${untimed} ${untimed === 1 ? "was" : "were"} typed in by hand, with no times, so ${untimed === 1 ? "it counts" : "they count"} only in solved and best run.`}
             </p>
           </section>
 
@@ -281,9 +306,10 @@ export function Stats() {
             />
             {spots.length > 0 && (
               <p className="caption">
-                kinds of problem slower than the rest of their operation, slowest first. one with
-                few answers is held back towards average until it has more, so a single slow
-                answer can&rsquo;t put it here. what it costs is the time it adds to an average run.
+                kinds of problem clearly slower than the rest of their operation, slowest first. a
+                kind needs a few answers to be listed, and would still be slow without its slowest
+                one, so a single bad answer can&rsquo;t put it here. what it costs is the time it
+                adds to an average run.
               </p>
             )}
           </section>

@@ -991,7 +991,7 @@ figcaption h2 {
   text-decoration: none;
 }
 
-.step:disabled {
+.step[aria-disabled="true"] {
   color: var(--rule);
   cursor: default;
 }
@@ -1163,6 +1163,11 @@ figcaption h2 {
   .wsCloser {
     padding: 6px 0;
   }
+}
+
+/* Whatever focus or a link scrolls to stops below the sticky bar, not under it. */
+html:has(.closerBar) {
+  scroll-padding-top: 4.5rem;
 }
 
 /* The operation the sections below are about, kept in view while they scroll
@@ -1626,9 +1631,26 @@ figcaption h2 {
     padding: 8px 0;
   }
 
-  /* Five tabs and the mark on one line. */
+  /* Five tabs and the mark on one line down to about 360px, and below that the
+   * tabs go under the mark rather than off the page. */
+  .top {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
   .tabs {
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: 0 14px;
+  }
+
+  /* On a phone the bar can wrap to any height, and then it would cover what
+   * focus moves to, so here it stays where it is. */
+  .closerBar {
+    position: static;
+  }
+
+  html:has(.closerBar) {
+    scroll-padding-top: 20px;
   }
 
   .spans .link {

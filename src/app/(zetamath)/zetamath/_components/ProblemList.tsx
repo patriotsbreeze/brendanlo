@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { Op } from "../_lib/problems";
 import { meanMs, type ProblemTally, type Stats } from "../_lib/stats";
 import { trickFor } from "../_lib/tricks";
@@ -64,6 +65,7 @@ export function ProblemList({ stats, op }: { stats: Stats; op: Op }) {
   if (!current) setPage({ stats, list, limit: FIRST });
   const limit = current ? page.limit : FIRST;
 
+  const body = useRef<HTMLTableSectionElement>(null);
   const all = useMemo(() => stats.problems.filter((p) => p.problem.op === op), [stats, op]);
   const rows = useMemo(
     () =>
@@ -144,13 +146,13 @@ export function ProblemList({ stats, op }: { stats: Stats; op: Op }) {
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody ref={body}>
                 {rows.slice(0, limit).map((p) => {
                   const slow = base !== null && p.n >= 2 && mean(p) >= SLOW * base;
                   const trick = trickFor(p.problem);
                   return (
                     <tr key={p.key}>
-                      <th scope="row" className={slow ? "plSlow" : undefined}>
+                      <th scope="row" className={slow ? "plSlow" : undefined} tabIndex={-1}>
                         {solvedText(p.problem)}
                         {slow && (
                           <>
@@ -186,7 +188,12 @@ export function ProblemList({ stats, op }: { stats: Stats; op: Op }) {
             <button
               type="button"
               className="link plMore"
-              onClick={() => setPage({ stats, list, limit: limit + MORE })}
+              onClick={() => {
+                // The button goes once everything shows, so focus moves to the
+                // first new row instead of falling back to the page.
+                flushSync(() => setPage({ stats, list, limit: limit + MORE }));
+                body.current?.rows[limit]?.querySelector("th")?.focus();
+              }}
             >
               show more ({rows.length - limit})
             </button>
