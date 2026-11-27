@@ -23,6 +23,10 @@ export function Game({ settings, first, startedAt, onFinish, onQuit }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<Solved[]>([]);
   const over = useRef(false);
+  /** On the problem showing now: wrong turns so far, and whether the box is off
+   * track at the moment, so that one wrong digit and its backspace count once. */
+  const misses = useRef(0);
+  const off = useRef(false);
 
   useEffect(() => {
     const finish = () => {
@@ -56,12 +60,18 @@ export function Game({ settings, first, startedAt, onFinish, onQuit }: Props) {
   const onType = (raw: string) => {
     const text = raw.replace(/\D/g, "");
     const now = performance.now() - startedAt;
-    if (now >= total || text !== String(problem.answer)) {
+    const goal = String(problem.answer);
+    if (now >= total || text !== goal) {
+      const wrong = !goal.startsWith(text);
+      if (wrong && !off.current && now < total) misses.current++;
+      off.current = wrong;
       setEntry(text);
       return;
     }
     const at = log.current.at(-1)?.at ?? 0;
-    log.current = [...log.current, { problem, ms: now - at, at: now }];
+    log.current = [...log.current, { problem, ms: now - at, at: now, misses: misses.current }];
+    misses.current = 0;
+    off.current = false;
     setSolved(log.current);
     setProblem(makeProblem(settings, problem));
     setEntry("");

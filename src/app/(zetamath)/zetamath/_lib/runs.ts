@@ -17,10 +17,24 @@ export type Run = {
   settings: string;
   /** Per operation: [problems solved, total ms spent on them]. */
   ops: Partial<Record<Op, [count: number, ms: number]>>;
+  /** Every answer, in order. Runs played before these were kept have none. */
+  answers?: Answer[];
   excluded: boolean;
 };
 
-export type Solved = { problem: Problem; ms: number; /** ms into the run */ at: number };
+/** One answer as stored, small because a run has dozens: the operation's place
+ * in OPS, the two numbers as shown, the ms it took, and how many times a wrong
+ * digit went in on the way. */
+export type Answer = [op: number, a: number, b: number, ms: number, misses: number];
+
+export type Solved = {
+  problem: Problem;
+  ms: number;
+  /** ms into the run */
+  at: number;
+  /** Times the box went from on track to wrong: "5" for 48 is one, so is "45". */
+  misses: number;
+};
 
 export function dayKey(ms: number): string {
   const d = new Date(ms);
@@ -41,8 +55,45 @@ export function opTotals(solved: readonly Solved[]): Run["ops"] {
   return out;
 }
 
+export const MAX_MISSES = 99;
+
+/** Rounded the way opTotals() rounds, so each operation's answers add up to its
+ * total exactly. */
+export function answersOf(solved: readonly Solved[]): Answer[] {
+  return solved.map(({ problem: p, ms, misses }) => [
+    OPS.indexOf(p.op),
+    p.a,
+    p.b,
+    Math.round(ms),
+    Math.min(MAX_MISSES, misses),
+  ]);
+}
+
+export function problemOf([op, a, b]: Answer): Problem {
+  const name = OPS[op];
+  const answer = { add: a + b, sub: a - b, mul: a * b, div: a / b }[name];
+  return { op: name, a, b, answer };
+}
+
 const int = (v: unknown, lo: number, hi: number): v is number =>
   Number.isInteger(v) && (v as number) >= lo && (v as number) <= hi;
+
+/** Each one a problem the game could have asked: nothing negative, no fractions,
+ * and one per point scored. */
+function parseAnswers(v: unknown, score: number): Answer[] | null {
+  if (!Array.isArray(v) || v.length !== score) return null;
+  const out: Answer[] = [];
+  for (const x of v) {
+    if (!Array.isArray(x) || x.length !== 5) return null;
+    const [op, a, b, ms, misses] = x as unknown[];
+    if (!int(op, 0, 3) || !int(a, 0, 99_999_999) || !int(b, 0, 9999)) return null;
+    if (!int(ms, 0, 3_600_000) || !int(misses, 0, MAX_MISSES)) return null;
+    if (OPS[op] === "sub" && a < b) return null;
+    if (OPS[op] === "div" && (b === 0 || a % b !== 0)) return null;
+    out.push([op, a, b, ms, misses]);
+  }
+  return out;
+}
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 
@@ -67,6 +118,8 @@ export function parseRun(v: unknown): Run | null {
     if (!Array.isArray(pair) || !int(pair[0], 0, 5000) || !int(pair[1], 0, 3_600_000)) return null;
     ops[op] = [pair[0], pair[1]];
   }
+  const answers = r.answers === undefined ? undefined : parseAnswers(r.answers, r.score);
+  if (answers === null) return null;
   return {
     id: r.id,
     at: r.at,
@@ -76,6 +129,7 @@ export function parseRun(v: unknown): Run | null {
     seconds: r.seconds,
     settings: r.settings,
     ops,
+    ...(answers === undefined ? {} : { answers }),
     excluded: r.excluded,
   };
 }
