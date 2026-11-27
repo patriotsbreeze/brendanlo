@@ -49,7 +49,7 @@ function readView(params: URLSearchParams): View {
 }
 
 export function Stats() {
-  const { status, account, runs, loads } = useRuns();
+  const { status, account, runs, loads, reload } = useRuns();
   const params = useSearchParams();
   const [today] = useState(() => dayKey(Date.now()));
   const view = readView(params);
@@ -100,16 +100,23 @@ export function Stats() {
     [counted, prior],
   );
   // The answers come apart from the runs, for these two periods alone.
-  const now = useAnswers(name, loads, period, shown);
-  const then = useAnswers(name, loads, prior, shownBefore);
+  const now = useAnswers(name, loads, reload, period, shown);
+  const then = useAnswers(name, loads, reload, prior, shownBefore);
   const inPeriod = now.runs;
   const stats = useMemo(() => tally(inPeriod), [inPeriod]);
-  const priorStats = useMemo(() => (prior ? tally(then.runs) : null), [prior, then.runs]);
-  const answers = [now.state, then.state].includes("error")
-    ? "error"
-    : [now.state, then.state].includes("loading")
-      ? "loading"
-      : "ready";
+  // The period before only gives comparisons, so without its answers the one
+  // shown goes on without them.
+  const thenFailed = then.state === "error";
+  const priorStats = useMemo(
+    () => (prior && !thenFailed ? tally(then.runs) : null),
+    [prior, thenFailed, then.runs],
+  );
+  const answers =
+    now.state === "error"
+      ? "error"
+      : [now.state, then.state].includes("loading")
+        ? "loading"
+        : "ready";
   const spots = useMemo(() => weakSpots(stats), [stats]);
 
   if (status === "loading") return <p className="lede holding">loading runs…</p>;
@@ -260,19 +267,21 @@ export function Stats() {
       ) : answers === "error" ? (
         <p role="status" className="lede holding">
           couldn&rsquo;t load the answers for these runs.{" "}
-          <button
-            type="button"
-            className="link"
-            onClick={() => {
-              if (now.state === "error") now.retry();
-              if (then.state === "error") then.retry();
-            }}
-          >
+          <button type="button" className="link" onClick={now.retry}>
             try again
           </button>
         </p>
       ) : (
         <>
+          {thenFailed && prior && (
+            <p role="status" className="note loadNote">
+              couldn&rsquo;t load the answers for {versusLabel(prior, period)}, so nothing here is
+              compared with it.{" "}
+              <button type="button" className="link" onClick={then.retry}>
+                try again
+              </button>
+            </p>
+          )}
           <dl className="stats">
             <Stat
               label="solved"

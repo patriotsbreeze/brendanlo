@@ -29,6 +29,9 @@ type RunsContext = {
   /** Goes up each time the runs come from the server. Those come without their
    * answers, so answers fetched before may be missing some of them. */
   loads: number;
+  /** Asks the server for the runs again: after it said this browser's login is
+   * gone, say. */
+  reload: () => void;
   sync: Sync;
   /** Runs this browser has that the server does not, by username. */
   waiting: Readonly<Record<string, number>>;
@@ -212,6 +215,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
       account,
       runs: Object.values(mine).sort(oldestFirst),
       loads,
+      reload: () => void load(),
       sync,
       waiting,
       result,

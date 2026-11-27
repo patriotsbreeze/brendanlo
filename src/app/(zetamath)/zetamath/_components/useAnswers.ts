@@ -19,6 +19,11 @@ type Entry = { prefix: string; from: string; to: string } & (
 
 /** By account and load, then days. */
 const cache = new Map<string, Entry>();
+/** When each account's runs were last asked for again because the server said
+ * its login was gone. A reload starts a new load, so this goes by the clock:
+ * a server that kept saying it must not have the runs asked for over and over. */
+const reloadedAt = new Map<string, number>();
+const RELOAD_GAP_MS = 60_000;
 const listeners = new Set<() => void>();
 
 function subscribe(listener: () => void) {
@@ -39,20 +44,37 @@ function find(prefix: string, from: string, to: string): Entry | undefined {
   return cache.get(`${prefix} ${from} ${to}`);
 }
 
-async function ask(prefix: string, from: string, to: string) {
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+async function ask(who: string, prefix: string, from: string, to: string, reload: () => void) {
   // Another account's, or from before the runs last loaded: no use now.
   for (const [key, e] of cache) if (e.prefix !== prefix) cache.delete(key);
   const key = `${prefix} ${from} ${to}`;
   put(key, { prefix, from, to, state: "loading" });
+  let body: unknown = null;
+  let ok = false;
   try {
     const res = await fetch(`${API}?${new URLSearchParams({ from, to })}`, { cache: "no-store" });
-    const body: unknown = await res.json();
-    if (!res.ok || typeof body !== "object" || body === null || Array.isArray(body) || "error" in body) {
-      throw new Error("no answers");
-    }
-    put(key, { prefix, from, to, state: "ready", answers: body as Record<string, unknown> });
+    ok = res.ok;
+    body = await res.json();
   } catch {
-    put(key, { prefix, from, to, state: "error" });
+    // Offline, or not JSON: an error like any other, below.
+  }
+  if (ok && isRecord(body) && !("error" in body)) {
+    put(key, { prefix, from, to, state: "ready", answers: body });
+    return;
+  }
+  put(key, { prefix, from, to, state: "error" });
+  // Logged out since the runs loaded, by a password changed somewhere else or
+  // a login that ran out. Asking again would only hear it again, so load the
+  // runs afresh, which shows the login form, as saving a run would.
+  if (isRecord(body) && body.error === "not_logged_in") {
+    const last = reloadedAt.get(who);
+    if (last === undefined || Date.now() - last > RELOAD_GAP_MS) {
+      reloadedAt.set(who, Date.now());
+      reload();
+    }
   }
 }
 
@@ -65,11 +87,12 @@ export type Answered = {
   retry: () => void;
 };
 
-/** `runs`, the ones `who` played in `period`, with their answers. `loads` is
- * useRuns()'s. */
+/** `runs`, the ones `who` played in `period`, with their answers. `loads` and
+ * `reload` are useRuns()'s. */
 export function useAnswers(
   who: string | null,
   loads: number,
+  reload: () => void,
   period: Period | null,
   runs: readonly Run[],
 ): Answered {
@@ -86,8 +109,8 @@ export function useAnswers(
 
   useEffect(() => {
     // The cache, not `entry`: an effect run twice over must not ask twice.
-    if (needed && !find(prefix, from, to)) void ask(prefix, from, to);
-  }, [needed, entry, prefix, from, to]);
+    if (needed && who !== null && !find(prefix, from, to)) void ask(who, prefix, from, to, reload);
+  }, [needed, who, entry, prefix, from, to, reload]);
 
   const answered = useMemo(() => {
     if (entry?.state !== "ready") return runs;
@@ -99,9 +122,10 @@ export function useAnswers(
         continue;
       }
       // Not what the game could have asked, so written some other way than
-      // through the site: the run hides itself, as parseRun() would have it.
+      // through the site. The run still counts, as it does on the other tabs,
+      // but its answers do not: it is treated as one from before they were kept.
       const answers = parseAnswers(raw, r.score);
-      if (answers) out.push({ ...r, answers });
+      out.push(answers ? { ...r, answers } : r);
     }
     return out;
   }, [runs, entry]);
@@ -109,6 +133,8 @@ export function useAnswers(
   return {
     state: needed ? (entry?.state ?? "loading") : "ready",
     runs: answered,
-    retry: () => void ask(prefix, from, to),
+    retry: () => {
+      if (who !== null) void ask(who, prefix, from, to, reload);
+    },
   };
 }
