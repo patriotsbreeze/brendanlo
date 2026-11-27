@@ -20,6 +20,7 @@ import { EnterForm } from "./Account";
 import { Stat } from "./Graphs";
 import { KindTable } from "./KindTable";
 import { OpTable } from "./OpTable";
+import { ProblemMap } from "./ProblemMap";
 import { useRuns } from "./RunsProvider";
 import { WeakSpots } from "./WeakSpots";
 import { pace, pct, periodLabel, secs, versusLabel } from "./statsKit";
@@ -313,6 +314,15 @@ export function Stats() {
                 <p className="caption">
                   the line through the bars is the average for {OP_NAME[op]}. +18% is 18% slower than
                   that average. red is clearly slower, with enough answers to say so.
+                </p>
+              </section>
+
+              <section className="statPart">
+                <h2>where the time goes in {OP_NAME[op]}</h2>
+                <ProblemMap stats={stats} op={op} />
+                <p className="caption">
+                  every problem in its place by the two numbers the game picked, and the seconds it
+                  took on average. the darker, the slower.
                 </p>
               </section>
             </div>

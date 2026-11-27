@@ -1338,6 +1338,192 @@ figcaption h2 {
   }
 }
 
+/* ---------------------------------------------------------- problem map */
+
+.pmLegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+  margin: 0 0 10px;
+  color: var(--soft);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pmKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pmRamp {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.pmSwatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.pmSwatch.pmOnce {
+  border: 1px dashed var(--ink-muted);
+  background: var(--bg);
+}
+
+/* One hue, light to dark: the slowest cells are what stands out. Ink reads on
+ * the first four; only full red is dark enough for white. */
+.pmS0 {
+  background: color-mix(in oklab, var(--red) 8%, var(--bg));
+}
+
+.pmS1 {
+  background: color-mix(in oklab, var(--red) 24%, var(--bg));
+}
+
+.pmS2 {
+  background: color-mix(in oklab, var(--red) 44%, var(--bg));
+}
+
+.pmS3 {
+  background: color-mix(in oklab, var(--red) 68%, var(--bg));
+}
+
+.pmS4 {
+  background: var(--red);
+}
+
+/* Room for focus rings at the far edges. The scroll padding keeps a cell the
+ * arrow keys move to out from under the sticky row labels, and its ring in
+ * view on the right. */
+.pmScroll {
+  padding: 0 4px 4px 0;
+  scroll-padding: 0 4px 0 5rem;
+}
+
+.rows.pmMap {
+  width: auto;
+}
+
+.rows.pmMap th,
+.rows.pmMap td {
+  padding: 1px;
+  border-bottom: 0;
+  vertical-align: middle;
+}
+
+/* Rows and columns with nothing in them keep the size of the rest. */
+.rows.pmMap tbody td {
+  height: calc(1.75rem + 2px);
+}
+
+.rows.pmMap thead th {
+  min-width: calc(1.75rem + 2px);
+  padding: 0 1px 4px;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rows.pmMap th[scope="row"],
+.rows.pmMap .pmCorner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  padding: 1px 8px 1px 0;
+  background: var(--bg);
+  color: var(--soft);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.rows.pmMap th[scope="row"] {
+  text-align: right;
+}
+
+.rows.pmMap .pmCorner {
+  padding-bottom: 4px;
+  vertical-align: bottom;
+}
+
+.pmCorner span {
+  display: block;
+}
+
+.pmAcross {
+  text-align: right;
+}
+
+.pmCell {
+  display: block;
+  width: 100%;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 3px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pmCell.pmS4 {
+  color: var(--bg);
+}
+
+/* One answer says little, so it is drawn as less sure. */
+.pmCell.pmOnce {
+  border-style: dashed;
+  border-color: var(--ink-muted);
+}
+
+.pmCell.pmS4.pmOnce {
+  border-color: var(--bg);
+}
+
+/* Only a mouse previews on hover, and a tap would leave the ring stuck on. */
+@media (hover: hover) {
+  .pmCell:hover {
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+}
+
+/* Picked: a ring, dark then light, so it shows on every shade. */
+.pmCell[aria-pressed="true"] {
+  box-shadow:
+    inset 0 0 0 2px var(--ink),
+    inset 0 0 0 3px var(--bg);
+}
+
+/* Above the next cells, so its focus ring is not painted over. */
+.pmCell:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+.pmPanel {
+  margin-top: 12px;
+}
+
+.pmSummary {
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.rows.pmList {
+  width: auto;
+}
+
 /* --------------------------------------------------------------- narrow */
 
 @media (max-width: 640px) {
