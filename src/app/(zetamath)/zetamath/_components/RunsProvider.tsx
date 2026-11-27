@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { parseAccount, refusalWords, type Account } from "../_lib/accounts";
 import { accountHint, unsynced } from "../_lib/browser";
+import type { GoogleProof } from "../_lib/google";
 import { oldestFirst, parseRun, type Run, type Solved } from "../_lib/runs";
 
 /* Who is logged in, and one copy of the runs for every tab. The layout that
@@ -42,9 +43,25 @@ type RunsContext = {
   setExcluded: (id: string, excluded: boolean) => void;
   /** These return what went wrong, in words, or null. */
   enter: (how: "log in" | "sign up", username: string, password: string, run?: Run) => Promise<string | null>;
+  /** Log in with Google, or sign up given a username. */
+  enterGoogle: (google: GoogleProof, username?: string, run?: Run) => Promise<GoogleEntry>;
   logOut: () => Promise<string | null>;
   changePassword: (current: string, next: string) => Promise<string | null>;
-  deleteAccount: (password: string) => Promise<string | null>;
+  linkGoogle: (google: GoogleProof, password: string) => Promise<GoogleSaid>;
+  unlinkGoogle: (password: string) => Promise<string | null>;
+  /** Given the password, or the Google account linked, for an account with none. */
+  deleteAccount: (proof: string | GoogleProof) => Promise<string | null>;
+};
+
+export type GoogleSaid = {
+  problem: string | null;
+  /** That Google sign-in can't be used again: press the button again. */
+  again?: boolean;
+};
+
+export type GoogleEntry = GoogleSaid & {
+  /** No account has that Google account yet: ask for a name, starting from this. */
+  pick?: string;
 };
 
 const Context = createContext<RunsContext | null>(null);
@@ -58,6 +75,10 @@ export function useRuns(): RunsContext {
 const RUNS_API = "/zetamath/api/runs";
 const SESSION_API = "/zetamath/api/session";
 const ACCOUNT_API = "/zetamath/api/account";
+const GOOGLE_API = "/zetamath/api/google";
+
+/** For a form that asked for this account's password. */
+const passwordWords = (code: string) => (code === "wrong" ? "that's not your password." : refusalWords(code));
 
 type Reply = { error?: string; [key: string]: unknown };
 
@@ -198,6 +219,30 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
     };
   }, [account, status, load, flush]);
 
+  /** Logged in now, as `next`: the run that was waiting goes to it. */
+  const entered = useCallback(
+    async (next: Account, run?: Run) => {
+      accountHint.set(next);
+      if (run) {
+        unsynced.put(run, next.username);
+        setResult((now) => (now?.run.id === run.id ? { ...now, keptBy: next.username } : now));
+      }
+      await load();
+    },
+    [load],
+  );
+
+  /** The same account, changed: with Google linked or not. */
+  const changed = useCallback(
+    async (reply: unknown) => {
+      const next = parseAccount(reply);
+      if (next && next.username === who.current) become(next);
+      else await load();
+      return null;
+    },
+    [become, load],
+  );
+
   const save = useCallback(
     (run: Run, username: string) => {
       setMine((now) => ({ ...now, [run.id]: run }));
@@ -236,13 +281,16 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         const reply = await ask(SESSION_API, "POST", { username, password, create: how === "sign up" });
         const next = parseAccount(reply.account);
         if (reply.error || !next) return refusalWords(reply.error);
-        accountHint.set(next);
-        if (run) {
-          unsynced.put(run, next.username);
-          setResult((now) => (now?.run.id === run.id ? { ...now, keptBy: next.username } : now));
-        }
-        await load();
+        await entered(next, run);
         return null;
+      },
+      async enterGoogle(google, username, run) {
+        const reply = await ask(GOOGLE_API, "POST", { google, username });
+        if (reply.error) return { problem: refusalWords(reply.error), again: reply.error === "bad_google" };
+        const next = parseAccount(reply.account);
+        if (!next) return { problem: null, pick: typeof reply.suggestion === "string" ? reply.suggestion : "" };
+        await entered(next, run);
+        return { problem: null };
       },
       async logOut() {
         const reply = await ask(SESSION_API, "DELETE");
@@ -257,8 +305,21 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         if (reply.error === "wrong") return "that's not your current password.";
         return reply.error ? refusalWords(reply.error) : null;
       },
-      async deleteAccount(password) {
-        const reply = await ask(ACCOUNT_API, "DELETE", { account: account?.username, password });
+      async linkGoogle(google, password) {
+        const reply = await ask(GOOGLE_API, "PUT", { account: account?.username, password, google });
+        // Only a wrong password is worth another go with the same sign-in.
+        if (reply.error) return { problem: passwordWords(reply.error), again: reply.error !== "wrong" };
+        return { problem: await changed(reply.account) };
+      },
+      async unlinkGoogle(password) {
+        const reply = await ask(GOOGLE_API, "DELETE", { account: account?.username, password });
+        return reply.error ? passwordWords(reply.error) : changed(reply.account);
+      },
+      async deleteAccount(proof) {
+        const reply = await ask(ACCOUNT_API, "DELETE", {
+          account: account?.username,
+          ...(typeof proof === "string" ? { password: proof } : { google: proof }),
+        });
         if (reply.error === "wrong") return "that's not your password.";
         if (reply.error) return refusalWords(reply.error);
         if (account) unsynced.forget(account.username);
@@ -267,7 +328,7 @@ export function RunsProvider({ children }: { children: React.ReactNode }) {
         return null;
       },
     }),
-    [status, account, mine, loads, sync, waiting, result, save, load],
+    [status, account, mine, loads, sync, waiting, result, save, load, entered, changed],
   );
 
   return <Context value={value}>{children}</Context>;

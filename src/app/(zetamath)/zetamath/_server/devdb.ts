@@ -17,9 +17,13 @@ const SUPABASE = `
   do $$ begin
     create role anon; create role authenticated;
   exception when duplicate_object then null; end $$;
-  grant usage on schema public to anon, authenticated;
-  alter default privileges in schema public grant all on tables to anon, authenticated;
-  alter default privileges in schema public grant all on functions to anon, authenticated;
+  -- Apart, so that a database made before this line gets it too.
+  do $$ begin
+    create role service_role;
+  exception when duplicate_object then null; end $$;
+  grant usage on schema public to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 `;
 
 /** In memory unless given a directory. */
@@ -38,12 +42,19 @@ export async function open(dir?: string): Promise<PGlite> {
   return db;
 }
 
+/** Who calls: a stranger with the publishable key, or this server with the secret one. */
+export type Role = "anon" | "service_role";
+
 /** Call a function the way the API does: by name, as the anonymous role. */
 export async function callAsAnon(db: PGlite, fn: string, args: Record<string, unknown>) {
+  return callAs(db, fn, args, "anon");
+}
+
+export async function callAs(db: PGlite, fn: string, args: Record<string, unknown>, role: Role) {
   const names = Object.keys(args);
   const list = names.map((name, i) => `${name} => $${i + 1}`).join(", ");
   return db.transaction(async (tx: Transaction) => {
-    await tx.exec("set local role anon");
+    await tx.exec(`set local role ${role}`);
     const { rows } = await tx.query<{ out: unknown }>(
       `select public.${fn}(${list}) as out`,
       names.map((name) => args[name]),
@@ -64,10 +75,10 @@ async function start(): Promise<PGlite> {
   return db;
 }
 
-export async function callDev(fn: string, args: Record<string, unknown>) {
+export async function callDev(fn: string, args: Record<string, unknown>, role: Role) {
   shared.zetamathDevDb ??= start().catch((e: unknown) => {
     shared.zetamathDevDb = undefined;
     throw e;
   });
-  return callAsAnon(await shared.zetamathDevDb, fn, args);
+  return callAs(await shared.zetamathDevDb, fn, args, role);
 }

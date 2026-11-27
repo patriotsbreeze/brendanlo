@@ -51,8 +51,9 @@ is the previous domain and should stay pointed here so old links survive.
 ## /zetamath
 
 Anyone can play. With an account (a username and a password, no email) your runs
-are kept and graphed, and nobody else can open them. `blo` is the owner, which only
-means it can't be deleted through the site.
+are kept and graphed, and nobody else can open them. An account can log in with
+Google instead, or as well. `blo` is the owner, which only means it can't be
+deleted through the site.
 
 | Path (under `src/app/(zetamath)/zetamath/`) | What's in it |
 | :--- | :--- |
@@ -64,21 +65,41 @@ means it can't be deleted through the site.
 | `_lib/accounts.ts` | The rules for usernames and passwords, and the words for every refusal. |
 | `_lib/browser.ts` | Remembered settings, and the queue of runs the server has not confirmed. |
 | `_server/db.ts`, `devdb.ts`, `session.ts` | The database, the local one, and the login cookie. |
-| `api/` | Read and record runs, log in and out, change a password, delete an account. |
+| `_server/google.ts`, `_lib/google.ts` | Checking a Google ID token, and what the button and the server agree on. |
+| `api/` | Read and record runs, log in and out (with Google too), change a password, delete an account. |
 | `_components/` | Play, graphs and stats (hand-drawn SVG, no chart library), account, trick drills. |
 
 - **Database.** Postgres on Supabase, project `zetamath`. All of it is
   `supabase/migrations/`: tables the API cannot see, and the `zetamath_*` functions
   that are the only way in. The key in `_server/db.ts` is the publishable one and
-  is meant to be public, so those functions trust nobody. There are no
-  environment variables to set.
+  is meant to be public, so those functions trust nobody.
+- **Google sign-in.** The button hands the browser an ID token, and the server
+  checks Google's signature on it (`_server/google.ts`). The functions that then
+  take a Google account on the server's word (`zetamath_google_enter`, `_link`,
+  `_delete`) are granted to `service_role` alone, and called with Supabase's
+  secret key, so nobody with the publishable key can claim to be a Google user.
+  Only a hash of Google's id for the person is kept. It needs two environment
+  variables on Vercel: `NEXT_PUBLIC_ZETAMATH_GOOGLE_CLIENT_ID` (public, read at
+  build time) and `ZETAMATH_DB_SECRET` (a Supabase `sb_secret_...` key; secret,
+  production only). Locally only the client id is needed, in `.env.local`.
+  Without them there is no Google button. A new Google user picks a username; an
+  existing account links Google from the account tab with its password.
+- **The Google client** is "zetamath web" in Google Cloud project
+  `zetamath-516004`. Its JavaScript origins are every address the button is on:
+  `https://brendanlo.dev`, each short name's `https://<name>.brendanlo.dev`,
+  `http://localhost`, `:3000` and `:3001`. A new address needs adding there, or
+  the button fails on it. Google refuses `*.localhost`, so locally the button
+  works only on plain `localhost`. The consent screen is in Testing until it is
+  published, and then only test users can sign in.
 - **Changing the schema.** Add a migration, run the tests, then
   `supabase db push` (after `supabase link --project-ref qsgcljgkbtenripxkegb`).
 - **A new database.** Push the migrations, then make the owner before anyone else
   can take the name: `insert into zetamath.accounts (username, password_hash, owner)
   values ('blo', zetamath.hash_password('...'), true);`
 - **Passwords.** Stored as bcrypt. Forgotten ones are reset in the Supabase SQL
-  editor: `select zetamath.set_password('someone', 'a new password');`
+  editor: `select zetamath.set_password('someone', 'a new password');`. That also
+  gives an account made with Google a password, for someone who lost the Google
+  account.
 - **Free plan.** Supabase pauses a free project that gets few requests for a week,
   so a daily cron in `vercel.json` makes some. If it is paused anyway, restore it
   from the Supabase dashboard: runs wait in the browser they were played in
@@ -95,15 +116,15 @@ means it can't be deleted through the site.
 - Runs on different settings are never graphed together; `settingsKey()` is what
   decides "different".
 - `npm run test:zetamath` checks the database functions as a stranger would call
-  them, works every trick on every standard problem it fits, and checks that the
-  stats add up.
+  them, that a Google token is believed only when it should be, works every trick
+  on every standard problem it fits, and checks that the stats add up.
 - The stats tab keeps its view in the address (`?span=week&day=2026-11-26`), so a
   reload or a link lands on the same period.
 
 ## Deploy
 
-Vercel, from `main` (`vercel.json` pins the framework preset and the cron). No
-environment variables.
+Vercel, from `main` (`vercel.json` pins the framework preset and the cron). The
+only environment variables are Google sign-in's two (see /zetamath above).
 
 ```bash
 npm run build           # next build

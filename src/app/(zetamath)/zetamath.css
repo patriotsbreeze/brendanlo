@@ -300,6 +300,17 @@ input[type="checkbox"] {
   margin-top: 40px;
 }
 
+/* Google draws the button in a frame, a little after the page: this keeps its
+ * place so nothing jumps. */
+.googleButton {
+  width: fit-content;
+  min-height: 32px;
+}
+
+.fields .googleRow {
+  margin-top: 6px;
+}
+
 .accountLine {
   text-align: right;
 }

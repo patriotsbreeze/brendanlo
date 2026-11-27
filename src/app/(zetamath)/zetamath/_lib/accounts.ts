@@ -4,6 +4,10 @@ export type Account = {
   username: string;
   /** Whose site this is. Can't be deleted here. */
   owner: boolean;
+  /** Logs in with a password. Only an account made with Google has none. */
+  password: boolean;
+  /** A Google account can log in to it too. */
+  google: boolean;
 };
 
 /** The owner's username, for runs this site queued before it had accounts. */
@@ -23,7 +27,14 @@ export function parseAccount(v: unknown): Account | null {
   if (typeof v !== "object" || v === null) return null;
   const a = v as Record<string, unknown>;
   if (typeof a.username !== "string" || !USERNAME.test(a.username)) return null;
-  return { username: a.username, owner: a.owner === true };
+  // Said by every reply since Google sign-in. One from before, or a log-in with a
+  // password, means a password and no Google.
+  return {
+    username: a.username,
+    owner: a.owner === true,
+    password: a.password !== false,
+    google: a.google === true,
+  };
 }
 
 /** What the database says when it will not do something, and the HTTP status
@@ -41,6 +52,13 @@ const REFUSALS: Record<string, readonly [status: number, words: string]> = {
   slow_down: [429, "too many tries. wait 15 minutes."],
   busy: [429, "too many new accounts right now. try again in an hour."],
   full: [409, "this account has all the runs it can hold."],
+  bad_google: [401, "google sign-in didn't work. try again."],
+  google_taken: [409, "that google account has its own zetamath account already."],
+  linked: [409, "this account is linked to a google account already."],
+  other_google: [403, "that's not the google account linked to this one."],
+  no_password: [409, "this account has no password, so google is its only way in."],
+  has_password: [409, "this account has a password, so it's deleted with that."],
+  google_off: [503, "google sign-in is off on this copy of the site."],
   no_database: [503, "accounts are off on this copy of the site."],
   unreachable: [503, "couldn't reach the database. try again."],
 };

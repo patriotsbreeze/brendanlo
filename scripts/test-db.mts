@@ -1,11 +1,12 @@
 /* Checks supabase/migrations against a real Postgres, in this process:
  *   node scripts/test-db.mts
  * Everything goes through the public functions as the anonymous role, which is
- * all a stranger with the publishable key can do. */
+ * all a stranger with the publishable key can do. The Google ones are called as
+ * service_role, as only the server can, with the secret key. */
 
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { callAsAnon, open } from "../src/app/(zetamath)/zetamath/_server/devdb.ts";
+import { callAs, callAsAnon, open } from "../src/app/(zetamath)/zetamath/_server/devdb.ts";
 import { parseRun } from "../src/app/(zetamath)/zetamath/_lib/runs.ts";
 import { settingsKey, STANDARD, STANDARD_KEY } from "../src/app/(zetamath)/zetamath/_lib/problems.ts";
 
@@ -17,7 +18,7 @@ type Answer = {
   error?: string;
   ok?: boolean;
   token: string;
-  account: { username: string; owner: boolean } | null;
+  account: { username: string; owner: boolean; password?: boolean; google?: boolean } | null;
   runs: { id: string; score: number; excluded: boolean; at: number }[];
   replaced: string[];
 };
@@ -32,6 +33,17 @@ const save = (t: unknown, u: unknown, runs: unknown) =>
 const answersOf = async (t: unknown, from: unknown = "2019-12-31", to: unknown = "2100-01-02") =>
   (await callAsAnon(db, "zetamath_answers", { p_token: t, p_from: from, p_to: to })) as Record<string, unknown>;
 const one = async (sql: string) => Object.values((await db.query<Record<string, unknown>>(sql)).rows[0])[0];
+const asServer = async (fn: string, args: Record<string, unknown>) =>
+  (await callAs(db, `zetamath_${fn}`, args, "service_role")) as Answer;
+const googleEnter = (sub: unknown, username?: unknown) =>
+  asServer("google_enter", username === undefined ? { p_google: sub } : { p_google: sub, p_username: username });
+const googleLink = (t: unknown, u: unknown, p: unknown, sub: unknown) =>
+  asServer("google_link", { p_token: t, p_username: u, p_password: p, p_google: sub });
+const googleUnlink = (t: unknown, u: unknown, p: unknown) =>
+  call("google_unlink", { p_token: t, p_username: u, p_password: p });
+const googleDelete = (t: unknown, u: unknown, sub: unknown) =>
+  asServer("google_delete", { p_token: t, p_username: u, p_google: sub });
+const passwordAccount = (username: string) => ({ username, owner: false, password: true, google: false });
 
 const AT = Date.UTC(2026, 10, 25, 19, 45, 12, 345);
 const run = (over: Record<string, unknown> = {}) => ({
@@ -62,7 +74,7 @@ await test("sign up, log in, log out", async () => {
   const made = await signUp("friend", "password1");
   assert.match(made.token, /^[0-9a-f]{64}$/);
   assert.deepEqual(made.account, { username: "friend", owner: false });
-  assert.deepEqual((await read(made.token)).account, { username: "friend", owner: false });
+  assert.deepEqual((await read(made.token)).account, passwordAccount("friend"));
   assert.equal((await signUp("friend", "password2")).error, "taken");
   assert.equal((await logIn("friend", "nope")).error, "wrong");
   assert.equal((await logIn("nobody", "password1")).error, "wrong");
@@ -70,7 +82,7 @@ await test("sign up, log in, log out", async () => {
   assert.notEqual(again.token, made.token);
   await call("log_out", { p_token: again.token });
   assert.equal((await read(again.token)).account, null);
-  assert.deepEqual((await read(made.token)).account, { username: "friend", owner: false });
+  assert.deepEqual((await read(made.token)).account, passwordAccount("friend"));
 });
 
 await test("the rules for names and passwords", async () => {
@@ -575,6 +587,166 @@ await test("limits on runs and sign-ups", async () => {
   assert.ok((await signUp("one_more", "password1")).token);
 });
 
+// Google's ids for people, as a checked ID token's "sub" gives them.
+const GOOGLER = "104729000000000000001";
+const FRIEND_GOOGLE = "104729000000000000002";
+const googler = { username: "googler", owner: false, password: false, google: true };
+
+await test("google signs up once, then logs in", async () => {
+  await db.exec("delete from zetamath.sign_ups");
+  assert.deepEqual(await googleEnter(GOOGLER), { account: null }, "no account yet: ask for a name");
+  assert.equal(await one("select count(*)::int from zetamath.sign_ups"), 0, "and asking makes nothing");
+  const made = await googleEnter(GOOGLER, "googler");
+  assert.match(made.token, /^[0-9a-f]{64}$/);
+  assert.deepEqual(made.account, googler);
+  assert.deepEqual((await read(made.token)).account, googler);
+  assert.equal(await one("select count(*)::int from zetamath.sign_ups"), 1);
+
+  // From then on it logs in, whatever name comes with it.
+  const again = await googleEnter(GOOGLER, "someone_else");
+  assert.notEqual(again.token, made.token);
+  assert.deepEqual(again.account, googler);
+  assert.deepEqual((await googleEnter(GOOGLER)).account, googler);
+  assert.equal(await one("select count(*)::int from zetamath.accounts where username = 'someone_else'"), 0);
+  assert.equal(await one("select count(*)::int from zetamath.sign_ups"), 1);
+
+  // No password gets in, and trying counts for nothing.
+  for (const p of ["", "password1", null]) assert.equal((await logIn("googler", p)).error, "wrong");
+  assert.equal(
+    await one(`select count(*)::int from zetamath.attempts t join zetamath.accounts a
+      on a.id = t.account_id where a.username = 'googler'`),
+    0,
+  );
+  const change = await call("change_password", {
+    p_token: made.token, p_username: "googler", p_current: "", p_next: "password1",
+  });
+  assert.equal(change.error, "wrong");
+
+  // Only a hash of Google's id is kept.
+  const dump = JSON.stringify(
+    (await db.query("select username, encode(google_hash, 'escape') e from zetamath.accounts")).rows,
+  );
+  assert.ok(dump.includes("googler") && !dump.includes(GOOGLER));
+});
+
+await test("google sign-ups keep the rules for names, and the limits", async () => {
+  const other = "104729000000000000003";
+  for (const bad of ["ab", "a".repeat(21), "Friend", "a b c", "frïend", ""]) {
+    assert.equal((await googleEnter(other, bad)).error, "bad_username", bad);
+  }
+  for (const name of ["friend", "googler", "brendan"]) {
+    assert.equal((await googleEnter(other, name)).error, "taken", name);
+  }
+  for (const bad of ["", "a b", "x".repeat(256), "ïd", "1\n", null]) {
+    assert.equal((await googleEnter(bad, "fine_name")).error, "bad_google", String(bad));
+  }
+  assert.equal(await one("select count(*)::int from zetamath.accounts where username = 'fine_name'"), 0);
+
+  // The same twenty an hour as every other sign-up, counted together.
+  await db.exec(`delete from zetamath.sign_ups;
+    insert into zetamath.sign_ups (at) select now() from generate_series(1, 20)`);
+  assert.equal((await googleEnter(other, "late_comer")).error, "busy");
+  assert.equal((await signUp("late_comer", "password1")).error, "busy");
+  await db.exec("update zetamath.sign_ups set at = at - interval '2 hours'");
+  assert.ok((await googleEnter(other, "late_comer")).token);
+  assert.equal(await one("select count(*)::int from zetamath.sign_ups where at > now() - interval '1 hour'"), 1);
+});
+
+await test("linking google needs the password, and one google account each", async () => {
+  const { token } = await logIn("friend", "password2");
+  assert.equal((await googleLink(null, "friend", "password2", FRIEND_GOOGLE)).error, "not_logged_in");
+  assert.equal((await googleLink(token, "other_one", "password2", FRIEND_GOOGLE)).error, "other_account");
+  assert.equal((await googleLink(token, "friend", "password2", "")).error, "bad_google");
+  assert.equal((await googleLink(token, "friend", "nope", FRIEND_GOOGLE)).error, "wrong");
+  assert.equal((await googleLink(token, "friend", "password2", GOOGLER)).error, "google_taken");
+  assert.deepEqual(await googleEnter(FRIEND_GOOGLE), { account: null }, "nothing linked yet");
+
+  const linked = await googleLink(token, "friend", "password2", FRIEND_GOOGLE);
+  const both = { username: "friend", owner: false, password: true, google: true };
+  assert.deepEqual(linked.account, both);
+  assert.deepEqual((await read(token)).account, both);
+  assert.equal((await googleLink(token, "friend", "password2", "104729000000000000004")).error, "linked");
+
+  // Both ways in work now, to the same account.
+  assert.deepEqual((await googleEnter(FRIEND_GOOGLE, "not_friend")).account, both);
+  assert.ok((await logIn("friend", "password2")).token);
+
+  // Wrong passwords here count like any others.
+  const { token: mine } = await signUp("linker", "password1");
+  for (let i = 0; i < 10; i++) {
+    assert.equal((await googleLink(mine, "linker", `guess ${i}`, "104729000000000000005")).error, "wrong");
+  }
+  assert.equal((await googleLink(mine, "linker", "password1", "104729000000000000005")).error, "slow_down");
+  assert.equal((await logIn("linker", "password1")).error, "slow_down");
+});
+
+await test("unlinking google needs the password, and logs out everywhere else", async () => {
+  const here = await logIn("friend", "password2");
+  const viaGoogle = await googleEnter(FRIEND_GOOGLE);
+  const bystander = await logIn("other_one", "password1");
+  assert.equal((await googleUnlink(null, "friend", "password2")).error, "not_logged_in");
+  assert.equal((await googleUnlink(here.token, "other_one", "password2")).error, "other_account");
+  assert.equal((await googleUnlink(here.token, "friend", "nope")).error, "wrong");
+  assert.deepEqual((await googleUnlink(here.token, "friend", "password2")).account, passwordAccount("friend"));
+  assert.ok((await read(here.token)).account);
+  assert.equal((await read(viaGoogle.token)).account, null, "the browser that came in through google is out");
+  assert.ok((await read(bystander.token)).account, "and nobody else's");
+  assert.deepEqual(await googleEnter(FRIEND_GOOGLE), { account: null }, "google can't get back in");
+
+  // With no password, google is the only way in, so it stays.
+  const g = await googleEnter(GOOGLER);
+  assert.equal((await googleUnlink(g.token, "googler", "")).error, "no_password");
+  assert.deepEqual((await read(g.token)).account, googler);
+});
+
+await test("an account made with google is deleted with google", async () => {
+  const sub = "104729000000000000006";
+  const g = await googleEnter(sub, "short_lived");
+  await save(g.token, "short_lived", [run()]);
+  const del = googleDelete;
+  assert.equal(
+    (await call("delete_account", { p_token: g.token, p_username: "short_lived", p_password: "" })).error,
+    "wrong",
+  );
+  assert.equal((await del(null, "short_lived", sub)).error, "not_logged_in");
+  assert.equal((await del(g.token, "googler", sub)).error, "other_account");
+  assert.equal((await del(g.token, "short_lived", GOOGLER)).error, "other_google");
+  assert.equal((await del(g.token, "short_lived", null)).error, "other_google");
+  // One with a password is deleted with that, even with Google linked: logging in
+  // with Google is not enough.
+  const f = await logIn("friend", "password2");
+  assert.equal((await del(f.token, "friend", FRIEND_GOOGLE)).error, "has_password");
+  assert.ok((await googleLink(f.token, "friend", "password2", FRIEND_GOOGLE)).account?.google);
+  assert.equal((await del((await googleEnter(FRIEND_GOOGLE)).token, "friend", FRIEND_GOOGLE)).error, "has_password");
+  assert.ok((await read(f.token)).account);
+  assert.ok((await googleUnlink(f.token, "friend", "password2")).account);
+
+  assert.equal((await del(g.token, "short_lived", sub)).ok, true);
+  assert.equal((await read(g.token)).account, null);
+  assert.equal(await one("select count(*)::int from zetamath.accounts where username = 'short_lived'"), 0);
+  assert.deepEqual(await googleEnter(sub), { account: null }, "the google account is free again");
+
+  // Nor the owner, this way or any other.
+  const owner = await logIn("blo", "a new one");
+  assert.ok((await googleLink(owner.token, "blo", "a new one", "104729000000000000007")).account?.google);
+  assert.equal((await del(owner.token, "blo", "104729000000000000007")).error, "owner");
+});
+
+await test("the SQL editor can give a google account a password", async () => {
+  assert.equal(await one("select zetamath.set_password('googler', 'given one')"), true);
+  const { token } = await logIn("googler", "given one");
+  assert.deepEqual((await read(token)).account, { ...googler, password: true });
+  // A password bcrypt would cut short, or none, is refused, and changes nothing.
+  await assert.rejects(one(`select zetamath.set_password('googler', '${"x".repeat(73)}')`));
+  await assert.rejects(one("select zetamath.set_password('googler', null)"));
+  assert.ok((await logIn("googler", "given one")).token);
+  // Every account keeps a way in.
+  await assert.rejects(
+    db.exec("update zetamath.accounts set password_hash = null where username = 'friend'"),
+    /accounts_a_way_in/,
+  );
+});
+
 await test("a full disk stops everyone but the owner", async () => {
   await db.exec(`create or replace function zetamath.runs_limit() returns bigint
     language sql immutable set search_path = '' as 'select 0::bigint'`);
@@ -601,9 +773,17 @@ await test("a stranger can reach nothing else", async () => {
     for (const fn of [
       "set_password('blo', 'x')", "account_for('x')", "check_password(gen_random_uuid(), 'x')",
       "start_session(gen_random_uuid())", "runs_of(gen_random_uuid())", "hash_password('x')",
-      "runs_limit()", "answers_limit()",
+      "runs_limit()", "answers_limit()", "account_json(null)", "claim_username('x')",
+      "google_allowed('x')",
     ]) {
       await assert.rejects(asAnon(`select zetamath.${fn}`, role), /permission denied/);
+    }
+    // Each of these believes the Google id it is given, so only the server may.
+    for (const fn of [
+      `google_enter('${GOOGLER}')`, `google_enter('104729000000000000099', 'intruder')`,
+      `google_link(null, 'friend', 'x', '${GOOGLER}')`, `google_delete(null, 'googler', '${GOOGLER}')`,
+    ]) {
+      await assert.rejects(asAnon(`select public.zetamath_${fn}`, role), /permission denied/);
     }
     await assert.rejects(asAnon("create table zetamath.x (a int)", role), /permission denied/);
   }
@@ -624,9 +804,19 @@ await test("a stranger can reach nothing else", async () => {
   );
   assert.deepEqual(
     open.rows.map((r) => r.proname).filter((n) => n.startsWith("zetamath")),
-    ["answers", "change_password", "delete_account", "keep_awake", "log_in", "log_out", "read", "save", "sign_up"].map(
-      (n) => `zetamath_${n}`,
-    ),
+    [
+      "answers", "change_password", "delete_account", "google_unlink", "keep_awake", "log_in", "log_out",
+      "read", "save", "sign_up",
+    ].map((n) => `zetamath_${n}`),
+  );
+  const serverOnly = await db.query<{ proname: string }>(
+    `select proname from pg_proc where pronamespace = 'public'::regnamespace
+     and has_function_privilege('service_role', oid, 'execute')
+     and not has_function_privilege('anon', oid, 'execute') order by 1`,
+  );
+  assert.deepEqual(
+    serverOnly.rows.map((r) => r.proname).filter((n) => n.startsWith("zetamath")),
+    ["google_delete", "google_enter", "google_link"].map((n) => `zetamath_${n}`),
   );
   // Every function pins its search_path, so nothing can be shadowed.
   assert.equal(

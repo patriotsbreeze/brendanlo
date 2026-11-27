@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:zetamath": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-db.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-tricks.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-stats.mts"
+    "test:zetamath": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-db.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-google.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-tricks.mts && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-stats.mts"
   },
   "dependencies": {
     "next": "16.2.1",
