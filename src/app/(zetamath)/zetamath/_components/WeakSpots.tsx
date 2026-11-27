@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import type { Op } from "../_lib/problems";
 import { ENOUGH, keptAnswers, missRate, weakSpots, type Spot, type Stats } from "../_lib/stats";
 import { TRICKS } from "../_lib/tricks";
 import { opWord, pct, secs } from "./statsKit";
+import { ZLink } from "./ZLink";
 
 /** ms a run. Below this a kind costs too little to be worth saying. */
 const WORTH = 50;
@@ -120,10 +120,10 @@ function WeakSpot({ spot, top, onPick }: { spot: Spot; top: number; onPick: (op:
       <p className="wsFix">
         {title ? (
           <>
-            try: <Link href={`/zetamath/tricks#${kind.trick}`}>{title}</Link>
+            try: <ZLink href={`/zetamath/tricks#${kind.trick}`}>{title}</ZLink>
           </>
         ) : (
-          <Link href={`/zetamath/tricks#${op}`}>tricks for {name}</Link>
+          <ZLink href={`/zetamath/tricks#${op}`}>tricks for {name}</ZLink>
         )}
       </p>
     </li>

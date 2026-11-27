@@ -4,7 +4,9 @@ import { USERNAME } from "./accounts.ts";
 
 /** The OAuth client the button signs in to: a "Web application" client in
  * Google Cloud whose authorized JavaScript origins are https://brendanlo.dev,
- * http://localhost and http://localhost:3000. Public, since every page with the
+ * each short name in hosts.ts (https://z.brendanlo.dev and the rest), and
+ * http://localhost, :3000 and :3001. Google takes no *.localhost origin, so the
+ * button does not work on z.localhost. Public, since every page with the
  * button has it, but it is read when the site is built, so it lives in the
  * environment (.env.local for `next dev`, Vercel for the site). Without it there
  * is no button. */

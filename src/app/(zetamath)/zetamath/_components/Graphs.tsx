@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { describeKey, OP_NAME, OPS, STANDARD_KEY } from "../_lib/problems";
 import { byDay, DAY_MS, dayKey, dayToMs, trailingMean, type Run } from "../_lib/runs";
@@ -9,6 +8,7 @@ import { clock, scoreDomain, shortDay } from "./chartKit";
 import { DayChart } from "./DayChart";
 import { EnterForm } from "./Account";
 import { useRuns } from "./RunsProvider";
+import { ZLink } from "./ZLink";
 
 const RANGES = [
   ["30", "last 30 days"],
@@ -72,7 +72,7 @@ export function Graphs() {
             "the database didn't answer. reload to try again."
           ) : (
             <>
-              finish one on the <Link href="/zetamath">play tab</Link> and it shows up here.
+              finish one on the <ZLink href="/zetamath">play tab</ZLink> and it shows up here.
             </>
           )}
         </p>

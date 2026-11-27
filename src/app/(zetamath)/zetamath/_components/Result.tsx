@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { describeKey, OP_NAME, OPS, show, STANDARD_KEY } from "../_lib/problems";
 import { trickFor } from "../_lib/tricks";
 import { KeepRun } from "./Account";
 import { useRuns, type Result as RunResult } from "./RunsProvider";
 import { Tape } from "./Tape";
+import { ZLink } from "./ZLink";
 
 type Props = { result: RunResult; onAgain: () => void; onSettings: () => void };
 
@@ -100,9 +100,9 @@ export function Result({ result, onAgain, onSettings }: Props) {
             {recorded && !excluded && (
               <>
                 {" "}
-                <Link href={`/zetamath/stats?span=day&day=${run.day}`}>
+                <ZLink href={`/zetamath/stats?span=day&day=${run.day}`}>
                   the day&rsquo;s stats
-                </Link>{" "}
+                </ZLink>{" "}
                 break it down by kind of problem.
               </>
             )}
@@ -132,7 +132,7 @@ export function Result({ result, onAgain, onSettings }: Props) {
                         <td className="right">{secs(s.ms)}</td>
                         <td>
                           {trick ? (
-                            <Link href={`/zetamath/tricks#${trick.id}`}>{trick.title}</Link>
+                            <ZLink href={`/zetamath/tricks#${trick.id}`}>{trick.title}</ZLink>
                           ) : (
                             <span className="note">no trick for this one</span>
                           )}

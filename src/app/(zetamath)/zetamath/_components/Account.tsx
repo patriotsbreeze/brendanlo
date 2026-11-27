@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { cleanUsername, USERNAME, type Account } from "../_lib/accounts";
 import type { GoogleProof } from "../_lib/google";
 import type { Run } from "../_lib/runs";
 import { emailIn, GoogleButton, googleOn } from "./Google";
 import { useRuns } from "./RunsProvider";
+import { ZLink } from "./ZLink";
 
 type Mode = "log in" | "sign up";
 
@@ -550,7 +550,7 @@ export function AccountLine() {
     <div className="accountLine">
       {account ? (
         <span>
-          logged in as <Link href="/zetamath/account">{account.username}</Link>, runs are recorded.{" "}
+          logged in as <ZLink href="/zetamath/account">{account.username}</ZLink>, runs are recorded.{" "}
           <button type="button" className="link" onClick={async () => setProblem(await logOut())}>
             log out
           </button>
@@ -562,7 +562,7 @@ export function AccountLine() {
           )}
         </span>
       ) : (
-        <Link href="/zetamath/account">log in or sign up</Link>
+        <ZLink href="/zetamath/account">log in or sign up</ZLink>
       )}
       {own > 0 && SYNC_NOTE[sync] && (
         <span className="note" role="status">

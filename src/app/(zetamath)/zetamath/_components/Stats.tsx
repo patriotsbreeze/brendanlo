@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { describeKey, OP_NAME, OPS, STANDARD_KEY, type Op } from "../_lib/problems";
@@ -26,6 +25,7 @@ import { useRuns } from "./RunsProvider";
 import { WeakSpots } from "./WeakSpots";
 import { paceNote, pct, periodLabel, secs, versusLabel } from "./statsKit";
 import { useAnswers } from "./useAnswers";
+import { ZLink } from "./ZLink";
 
 const SPAN_WORDS: Record<Span, string> = { day: "day", week: "week", month: "month", all: "all time" };
 
@@ -147,11 +147,11 @@ export function Stats() {
             "the database didn't answer. reload to try again."
           ) : allOut ? (
             <>
-              put some back on the <Link href="/zetamath/graphs">graphs tab</Link> to see them here.
+              put some back on the <ZLink href="/zetamath/graphs">graphs tab</ZLink> to see them here.
             </>
           ) : (
             <>
-              finish one on the <Link href="/zetamath">play tab</Link> and its answers show up here.
+              finish one on the <ZLink href="/zetamath">play tab</ZLink> and its answers show up here.
             </>
           )}
         </p>

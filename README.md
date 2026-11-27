@@ -64,6 +64,7 @@ deleted through the site.
 | `_lib/stats.ts` | Periods (day, Monday week, month, all time) and every sum the stats tab shows: per operation, kind and problem, weak spots, maps, trend lines. |
 | `_lib/accounts.ts` | The rules for usernames and passwords, and the words for every refusal. |
 | `_lib/browser.ts` | Remembered settings, and the queue of runs the server has not confirmed. |
+| `_lib/hosts.ts` | The short names (`z`, `zm`, `zeta`, `zetam`, `zmath`, `zetamath`.brendanlo.dev). `next.config.ts` rewrites them to these pages, and `ZLink` writes links the short way there. |
 | `_server/db.ts`, `devdb.ts`, `session.ts` | The database, the local one, and the login cookie. |
 | `_server/google.ts`, `_lib/google.ts` | Checking a Google ID token, and what the button and the server agree on. |
 | `api/` | Read and record runs, log in and out (with Google too), change a password, delete an account. |
@@ -109,6 +110,12 @@ deleted through the site.
   which runs played before 2026-11-26 do not have. Each account but the owner
   can store 20,000 answers a day (`zetamath.answers_limit()`), since answers
   make a run some two hundred times bigger.
+- **Short names.** z.brendanlo.dev and the others show zetamath at their own
+  address, no redirect: z.brendanlo.dev/stats is the stats tab. Each is one of the
+  Vercel project's domains, under a wildcard DNS record on Vercel's nameservers,
+  so a new one goes in `_lib/hosts.ts` and the project's domains. A login, and
+  the runs a browser has not saved yet, belong to the address they were made on.
+  `z.localhost:3000` tries them out locally.
 - **Local.** `npm run dev` runs the same migrations in a Postgres inside the
   process and keeps it in `.data/` (gitignored). The owner there is `blo` /
   `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and

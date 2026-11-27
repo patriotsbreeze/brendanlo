@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Op } from "../_lib/problems";
 import { meanMs, type ProblemTally, type Stats } from "../_lib/stats";
 import { trickFor } from "../_lib/tricks";
 import { opWord, secs, solvedText } from "./statsKit";
+import { ZLink } from "./ZLink";
 
 type Sort = "slow" | "wrong" | "seen";
 
@@ -173,7 +173,7 @@ export function ProblemList({ stats, op }: { stats: Stats; op: Op }) {
                       <td className="right">{p.missed ? `${p.missed} of ${p.checked}` : "–"}</td>
                       <td className="plTrick">
                         {trick ? (
-                          <Link href={`/zetamath/tricks#${trick.id}`}>{trick.title}</Link>
+                          <ZLink href={`/zetamath/tricks#${trick.id}`}>{trick.title}</ZLink>
                         ) : (
                           <span className="note">–</span>
                         )}

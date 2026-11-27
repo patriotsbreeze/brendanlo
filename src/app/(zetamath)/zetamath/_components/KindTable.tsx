@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useId, type CSSProperties } from "react";
 import { GROUPS } from "../_lib/kinds";
 import type { Op } from "../_lib/problems";
 import { clearlySlower, meanMs, MIN_ANSWERS, missRate, type KindTally, type Stats } from "../_lib/stats";
 import { TRICKS } from "../_lib/tricks";
 import { opWord, pct, secs } from "./statsKit";
+import { ZLink } from "./ZLink";
 
 /** Closer than this, in whole percent, and the two paces read as the same. */
 const SAME = 2;
@@ -154,7 +154,7 @@ function Group({ id, name, rows, top }: { id: string; name: string; rows: Row[];
                   <td className="right kindMiss">{pct(missRate(r.k))}</td>
                   <td className="kindTrick">
                     {trick && title && (
-                      <Link href={`/zetamath/tricks#${trick}`}>{title}</Link>
+                      <ZLink href={`/zetamath/tricks#${trick}`}>{title}</ZLink>
                     )}
                   </td>
                 </tr>
