@@ -5,7 +5,8 @@ framework, no `next/font`, system UI stack. Each page has its own root layout:
 
 - `/`: one static page of text (name, links, bio, highlights, takes). No client
   components.
-- `/zetamath`: a timed arithmetic drill, accounts, graphs of every run, and tricks.
+- `/zetamath`: a timed arithmetic drill, accounts, graphs of every run, stats on
+  where the time goes, and tricks.
 
 ```bash
 npm run dev
@@ -58,11 +59,13 @@ means it can't be deleted through the site.
 | `_lib/problems.ts` | Settings and the problem generator. `STANDARD` is the 120 s default. |
 | `_lib/tricks.ts` | Every trick as code: which problems it fits and how it works one. The page, the drills, the percentages and the "a faster way" links all read from here. |
 | `_lib/runs.ts` | The shape of a run, its validation, and the grouping the graphs use. |
+| `_lib/kinds.ts` | The general kinds of problem ("7 × …", carries, borrows, answer size) the stats split answers into. |
+| `_lib/stats.ts` | Periods (day, Monday week, month, all time) and every sum the stats tab shows: per operation, kind and problem, weak spots, maps, trend lines. |
 | `_lib/accounts.ts` | The rules for usernames and passwords, and the words for every refusal. |
 | `_lib/browser.ts` | Remembered settings, and the queue of runs the server has not confirmed. |
 | `_server/db.ts`, `devdb.ts`, `session.ts` | The database, the local one, and the login cookie. |
 | `api/` | Read and record runs, log in and out, change a password, delete an account. |
-| `_components/` | Play, graphs (hand-drawn SVG, no chart library), account, trick drills. |
+| `_components/` | Play, graphs and stats (hand-drawn SVG, no chart library), account, trick drills. |
 
 - **Database.** Postgres on Supabase, project `zetamath`. All of it is
   `supabase/migrations/`: tables the API cannot see, and the `zetamath_*` functions
@@ -90,7 +93,10 @@ means it can't be deleted through the site.
 - Runs on different settings are never graphed together; `settingsKey()` is what
   decides "different".
 - `npm run test:zetamath` checks the database functions as a stranger would call
-  them, and works every trick on every standard problem it fits.
+  them, works every trick on every standard problem it fits, and checks that the
+  stats add up.
+- The stats tab keeps its view in the address (`?span=week&day=2026-11-26`), so a
+  reload or a link lands on the same period.
 
 ## Deploy
 

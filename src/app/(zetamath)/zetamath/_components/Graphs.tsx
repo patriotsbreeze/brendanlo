@@ -284,7 +284,7 @@ function Figures({
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note: string }) {
+export function Stat({ label, value, note }: { label: string; value: string; note: string }) {
   return (
     <div>
       <dt>{label}</dt>
