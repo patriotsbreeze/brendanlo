@@ -21,6 +21,7 @@ import { Stat } from "./Graphs";
 import { KindTable } from "./KindTable";
 import { OpTable } from "./OpTable";
 import { useRuns } from "./RunsProvider";
+import { WeakSpots } from "./WeakSpots";
 import { pace, pct, periodLabel, secs, versusLabel } from "./statsKit";
 
 const SPAN_WORDS: Record<Span, string> = { day: "day", week: "week", month: "month", all: "all time" };
@@ -264,6 +265,27 @@ export function Stats() {
             </p>
           </section>
 
+          <section className="statPart">
+            <h2>weak spots</h2>
+            <WeakSpots
+              stats={stats}
+              onPick={(o) => {
+                show({ op: o });
+                // Down to it, and focus too, so a keyboard carries on from there.
+                const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+                document.getElementById("closer")?.scrollIntoView({ behavior: still ? "auto" : "smooth" });
+                document.getElementById("closer-kinds")?.focus({ preventScroll: true });
+              }}
+            />
+            {spots.length > 0 && (
+              <p className="caption">
+                kinds of problem slower than the rest of their operation, slowest first. one with
+                few answers is held back towards average until it has more, so a single slow
+                answer can&rsquo;t put it here. what it costs is the time it adds to an average run.
+              </p>
+            )}
+          </section>
+
           {op && (
             <div id="closer" className="closer">
               <div className="closerBar">
@@ -284,7 +306,9 @@ export function Stats() {
               </div>
 
               <section className="statPart">
-                <h2>{OP_NAME[op]}, by kind of problem</h2>
+                <h2 id="closer-kinds" tabIndex={-1}>
+                  {OP_NAME[op]}, by kind of problem
+                </h2>
                 <KindTable stats={stats} op={op} />
                 <p className="caption">
                   the line through the bars is the average for {OP_NAME[op]}. +18% is 18% slower than
