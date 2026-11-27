@@ -1,0 +1,251 @@
+{
+ "source": "github.com/patriotsbreeze/hoohacksv2 commit log (author dates, converted to EDT)",
+ "commits": [
+  {
+   "iso": "2026-03-21T18:41:58Z",
+   "local": "2:41 pm",
+   "day": "sat",
+   "message": "Initial commit"
+  },
+  {
+   "iso": "2026-03-21T20:56:30Z",
+   "local": "4:56 pm",
+   "day": "sat",
+   "message": "init"
+  },
+  {
+   "iso": "2026-03-21T21:22:24Z",
+   "local": "5:22 pm",
+   "day": "sat",
+   "message": "fixed gemini api not working"
+  },
+  {
+   "iso": "2026-03-21T21:58:59Z",
+   "local": "5:58 pm",
+   "day": "sat",
+   "message": "vercel deployment"
+  },
+  {
+   "iso": "2026-03-22T01:43:23Z",
+   "local": "9:43 pm",
+   "day": "sat",
+   "message": "commented out mock items"
+  },
+  {
+   "iso": "2026-03-22T02:58:32Z",
+   "local": "10:58 pm",
+   "day": "sat",
+   "message": "removed auth0"
+  },
+  {
+   "iso": "2026-03-22T03:06:38Z",
+   "local": "11:06 pm",
+   "day": "sat",
+   "message": "working photo upload"
+  },
+  {
+   "iso": "2026-03-22T03:23:40Z",
+   "local": "11:23 pm",
+   "day": "sat",
+   "message": "supabase update"
+  },
+  {
+   "iso": "2026-03-22T03:36:53Z",
+   "local": "11:36 pm",
+   "day": "sat",
+   "message": "supabase fix v1"
+  },
+  {
+   "iso": "2026-03-22T03:51:08Z",
+   "local": "11:51 pm",
+   "day": "sat",
+   "message": "supabase fix v2"
+  },
+  {
+   "iso": "2026-03-22T04:03:03Z",
+   "local": "12:03 am",
+   "day": "sun",
+   "message": "image loading fix"
+  },
+  {
+   "iso": "2026-03-22T04:05:45Z",
+   "local": "12:05 am",
+   "day": "sun",
+   "message": "Update route.ts"
+  },
+  {
+   "iso": "2026-03-22T04:31:47Z",
+   "local": "12:31 am",
+   "day": "sun",
+   "message": "map fixes"
+  },
+  {
+   "iso": "2026-03-22T04:38:24Z",
+   "local": "12:38 am",
+   "day": "sun",
+   "message": "photo upload button"
+  },
+  {
+   "iso": "2026-03-22T04:51:08Z",
+   "local": "12:51 am",
+   "day": "sun",
+   "message": "dots for scrap location"
+  },
+  {
+   "iso": "2026-03-22T04:53:42Z",
+   "local": "12:53 am",
+   "day": "sun",
+   "message": "current location"
+  },
+  {
+   "iso": "2026-03-22T05:59:32Z",
+   "local": "1:59 am",
+   "day": "sun",
+   "message": "green little points on map"
+  },
+  {
+   "iso": "2026-03-22T06:07:51Z",
+   "local": "2:07 am",
+   "day": "sun",
+   "message": "visible addresses on item card"
+  },
+  {
+   "iso": "2026-03-22T06:13:29Z",
+   "local": "2:13 am",
+   "day": "sun",
+   "message": "bigger claim pins"
+  },
+  {
+   "iso": "2026-03-22T07:18:22Z",
+   "local": "3:18 am",
+   "day": "sun",
+   "message": "rose + reuse implementation"
+  },
+  {
+   "iso": "2026-03-22T07:26:23Z",
+   "local": "3:26 am",
+   "day": "sun",
+   "message": "post to community map + reuse/rose"
+  },
+  {
+   "iso": "2026-03-22T08:09:56Z",
+   "local": "4:09 am",
+   "day": "sun",
+   "message": "failed to current location; also 4amprojectbreakdown.md"
+  },
+  {
+   "iso": "2026-03-22T08:18:37Z",
+   "local": "4:18 am",
+   "day": "sun",
+   "message": "fixed user  account button"
+  },
+  {
+   "iso": "2026-03-22T08:55:07Z",
+   "local": "4:55 am",
+   "day": "sun",
+   "message": "Create ChallengesFaced.md"
+  },
+  {
+   "iso": "2026-03-22T08:57:53Z",
+   "local": "4:57 am",
+   "day": "sun",
+   "message": "green pins (possible treasures)"
+  },
+  {
+   "iso": "2026-03-22T09:08:24Z",
+   "local": "5:08 am",
+   "day": "sun",
+   "message": "fixed pin drop (hopefully)"
+  },
+  {
+   "iso": "2026-03-22T09:14:35Z",
+   "local": "5:14 am",
+   "day": "sun",
+   "message": "get rid of the expand button (unnecesasayr)"
+  },
+  {
+   "iso": "2026-03-22T09:16:46Z",
+   "local": "5:16 am",
+   "day": "sun",
+   "message": "delist claimed"
+  },
+  {
+   "iso": "2026-03-22T09:18:42Z",
+   "local": "5:18 am",
+   "day": "sun",
+   "message": "credit market"
+  },
+  {
+   "iso": "2026-03-22T09:20:56Z",
+   "local": "5:20 am",
+   "day": "sun",
+   "message": "claimed = blue pin, delist from sidebar"
+  },
+  {
+   "iso": "2026-03-22T09:33:45Z",
+   "local": "5:33 am",
+   "day": "sun",
+   "message": "fixed claim listing"
+  },
+  {
+   "iso": "2026-03-22T09:39:38Z",
+   "local": "5:39 am",
+   "day": "sun",
+   "message": "clamed fix?"
+  },
+  {
+   "iso": "2026-03-22T09:43:14Z",
+   "local": "5:43 am",
+   "day": "sun",
+   "message": "removed notifications button"
+  },
+  {
+   "iso": "2026-03-22T09:59:09Z",
+   "local": "5:59 am",
+   "day": "sun",
+   "message": "fix db claim + post user profile"
+  },
+  {
+   "iso": "2026-03-22T10:30:18Z",
+   "local": "6:30 am",
+   "day": "sun",
+   "message": "front page combined!"
+  },
+  {
+   "iso": "2026-03-22T10:33:09Z",
+   "local": "6:33 am",
+   "day": "sun",
+   "message": "fixed the routed miscredit"
+  },
+  {
+   "iso": "2026-03-22T10:36:26Z",
+   "local": "6:36 am",
+   "day": "sun",
+   "message": "search bar"
+  },
+  {
+   "iso": "2026-03-22T13:37:57Z",
+   "local": "9:37 am",
+   "day": "sun",
+   "message": "default address"
+  },
+  {
+   "iso": "2026-03-22T13:54:26Z",
+   "local": "9:54 am",
+   "day": "sun",
+   "message": "user profile"
+  },
+  {
+   "iso": "2026-03-22T15:12:22Z",
+   "local": "11:12 am",
+   "day": "sun",
+   "message": "new color scheme"
+  },
+  {
+   "iso": "2026-03-22T15:20:39Z",
+   "local": "11:20 am",
+   "day": "sun",
+   "message": "update"
+  }
+ ]
+}

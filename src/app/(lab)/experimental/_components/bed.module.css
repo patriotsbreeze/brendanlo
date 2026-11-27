@@ -1,0 +1,73 @@
+.bed {
+  position: relative;
+  width: 100%;
+}
+
+/* The probe surface. Fixed aspect so neither the poster nor the canvas can
+ * shift layout. touch-action: pan-y keeps vertical swipes scrolling the page. */
+.slot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  touch-action: pan-y pinch-zoom;
+  cursor: crosshair;
+  outline-offset: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.slot:focus-visible {
+  outline: 2px solid var(--ink);
+}
+
+.poster,
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.poster {
+  /* Top-down plan view; inset a little so it sits like the tray will. */
+  padding: 6% 8%;
+  transition: opacity 360ms ease-out;
+}
+
+.canvas {
+  opacity: 0;
+  transition: opacity 360ms ease-out;
+}
+
+.canvasEl {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.slot[data-live] .canvas {
+  opacity: 1;
+}
+
+.slot[data-live] .poster {
+  opacity: 0;
+}
+
+.readout {
+  margin: 0.5rem 0 0;
+  /* Beds go full-bleed on phones; the readout stays on the text column. */
+  padding-inline: var(--readout-inset, 0);
+  min-height: 2.6em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--lead);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster,
+  .canvas {
+    transition: none;
+  }
+}
