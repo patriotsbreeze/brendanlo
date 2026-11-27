@@ -111,6 +111,72 @@ await test("a run comes back exactly as it went in", async () => {
   assert.deepEqual(parseRun((await read(token)).runs[1]), bare);
 });
 
+await test("every answer is kept, and kept once", async () => {
+  const { token } = await signUp("answerer", "password1");
+  const answers = [
+    [0, 67, 58, 1500, 0],
+    [1, 143, 87, 4100, 2],
+    [2, 7, 58, 3200, 1],
+    [3, 84, 12, 2100, 0],
+  ];
+  const ops = { add: [1, 1500], sub: [1, 4100], mul: [1, 3200], div: [1, 2100] };
+  const sent = run({ score: 4, ops, answers });
+  await save(token, "answerer", [sent]);
+  const [back] = (await read(token)).runs;
+  assert.deepEqual(back, sent);
+  assert.deepEqual(parseRun(back), sent);
+
+  // Like the score: a second copy can leave it out, and change nothing else.
+  const changed = answers.map(([op, a, b]) => [op, a, b, 1, 0]);
+  await save(token, "answerer", [{ ...sent, answers: changed, excluded: true }]);
+  const [after] = (await read(token)).runs;
+  assert.deepEqual(after.answers, answers);
+  assert.equal(after.excluded, true);
+
+  // A run with none, as every run had before these were kept.
+  const before = run({ at: AT + 60_000 });
+  await save(token, "answerer", [before]);
+  assert.equal((await read(token)).runs[1].answers, undefined);
+  const empty = run({ at: AT + 120_000, score: 0, ops: {}, answers: [] });
+  await save(token, "answerer", [empty]);
+  assert.deepEqual((await read(token)).runs[2].answers, []);
+
+  const one = (answer: unknown) => run({ score: 1, ops: { add: [1, 1500] }, answers: [answer] });
+  const bad = [
+    run({ score: 2, answers: [[0, 1, 2, 3, 0]] }),
+    run({ score: 1, answers: [[0, 1, 2, 3, 0], [0, 1, 2, 3, 0]] }),
+    run({ score: 1, answers: "x" }),
+    run({ score: 1, answers: { 0: [0, 1, 2, 3, 0] } }),
+    one([4, 1, 2, 3, 0]),
+    one([-1, 1, 2, 3, 0]),
+    one([0, -1, 2, 3, 0]),
+    one([0, 1.5, 2, 3, 0]),
+    one([0, 1, 2, 3]),
+    one([0, 1, 2, 3, 0, 0]),
+    one([0, 123_456_789, 2, 3, 0]),
+    one([0, 1, 12_345, 3, 0]),
+    one([0, 1, 2, 12_345_678, 0]),
+    one([0, 1, 2, 3, 100]),
+    one(["0", 1, 2, 3, 0]),
+    one([0, 1, 2, 3, null]),
+    one({ op: 0 }),
+    one(null),
+  ];
+  for (const r of bad) {
+    assert.equal(parseRun(r), null, JSON.stringify(r.answers));
+    await assert.rejects(save(token, "answerer", [run(), r]), undefined, JSON.stringify(r.answers));
+  }
+  assert.equal((await read(token)).runs.length, 3);
+
+  // The shape is all the database can see. A sum that comes out negative, or a
+  // division with a remainder, gets in only by going around the site, and the
+  // browser will not show it.
+  for (const answer of [[1, 5, 9, 100, 0], [3, 10, 3, 100, 0], [3, 10, 0, 100, 0]]) {
+    assert.equal(parseRun(one(answer)), null, JSON.stringify(answer));
+  }
+  assert.ok(parseRun(one([1, 9, 9, 100, 0])), "zero is a fine difference");
+});
+
 await test("a score is written once", async () => {
   const { token } = await logIn("friend", "password1");
   const [first] = (await read(token)).runs;

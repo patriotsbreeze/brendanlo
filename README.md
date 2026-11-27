@@ -81,7 +81,8 @@ means it can't be deleted through the site.
   from the Supabase dashboard: runs wait in the browser they were played in
   meanwhile. There are no automatic backups on the free plan.
 - **Scores** are written once. They can be left out of the graphs and put back,
-  never edited.
+  never edited. So are a run's answers (`[operation, a, b, ms, misses]` each),
+  which runs played before 2026-11-26 do not have.
 - **Local.** `npm run dev` runs the same migrations in a Postgres inside the
   process and keeps it in `.data/` (gitignored). The owner there is `blo` /
   `localhost`. Preview deployments have no database; `ZETAMATH_DB_URL` and
