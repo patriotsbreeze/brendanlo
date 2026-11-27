@@ -97,6 +97,15 @@ export function Result({ result, onAgain, onSettings }: Props) {
           <Tape solved={solved} total={run.seconds * 1000} elapsed={run.seconds * 1000} slow={slow} />
           <p className="caption">
             every answer, when it landed. the five slowest are in red.
+            {recorded && (
+              <>
+                {" "}
+                <Link href={`/zetamath/stats?span=day&day=${run.day}`}>
+                  the day&rsquo;s stats
+                </Link>{" "}
+                break it down by kind of problem.
+              </>
+            )}
           </p>
 
           <div className="split">

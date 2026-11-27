@@ -1524,6 +1524,73 @@ figcaption h2 {
   width: auto;
 }
 
+/* --------------------------------------------------------- problem list */
+
+.plIntro {
+  margin: 0 0 4px;
+}
+
+/* The same small size as the period picker and the graphs filters. */
+.plControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 24px;
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+}
+
+.plCheck {
+  padding: 4px 0;
+}
+
+/* Headers that wrap on a phone still sit on the rule. */
+.plTable thead th {
+  vertical-align: bottom;
+}
+
+.plTable th[scope="row"].plSlow {
+  color: var(--red);
+}
+
+.plMark {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.plMore {
+  padding: 4px 0;
+}
+
+@media (max-width: 640px) {
+  /* The trick titles are long. The tricks tab has them all. */
+  .plTable .plTrick {
+    display: none;
+  }
+
+  .plTable th,
+  .plTable td {
+    padding-right: 8px;
+  }
+
+  .plTable .right + * {
+    padding-left: 8px;
+  }
+
+  .plTable tr > :nth-last-child(2) {
+    padding-right: 0;
+  }
+
+  .plTable thead .right {
+    white-space: normal;
+  }
+
+  .plCheck,
+  .plMore {
+    padding: 8px 0;
+  }
+}
+
 /* --------------------------------------------------------------- narrow */
 
 @media (max-width: 640px) {

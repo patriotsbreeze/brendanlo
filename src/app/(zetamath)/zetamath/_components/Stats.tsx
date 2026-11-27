@@ -20,6 +20,7 @@ import { EnterForm } from "./Account";
 import { Stat } from "./Graphs";
 import { KindTable } from "./KindTable";
 import { OpTable } from "./OpTable";
+import { ProblemList } from "./ProblemList";
 import { ProblemMap } from "./ProblemMap";
 import { useRuns } from "./RunsProvider";
 import { WeakSpots } from "./WeakSpots";
@@ -323,6 +324,16 @@ export function Stats() {
                 <p className="caption">
                   every problem in its place by the two numbers the game picked, and the seconds it
                   took on average. the darker, the slower.
+                </p>
+              </section>
+
+              <section className="statPart">
+                <h2>{OP_NAME[op]} problems, one by one</h2>
+                <ProblemList stats={stats} op={op} />
+                <p className="caption">
+                  red marks a problem that came up more than once and took at least 1.5 times your
+                  average for {OP_NAME[op]}.
+                  wrong first counts its answers that had a wrong digit go in before the right one.
                 </p>
               </section>
             </div>
